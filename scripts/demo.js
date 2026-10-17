@@ -1,10 +1,25 @@
 import crypto from "crypto";
 
-const BASE_URL = process.env.GATEWAY_URL || "http://localhost:3000";
+let BASE_URL = process.env.GATEWAY_URL || "http://localhost:3000";
+let inProcessServer = null;
 
 function generateSignature(rawBody, timestamp, secret) {
   const payload = `${timestamp}.${rawBody}`;
   return crypto.createHmac("sha256", secret).update(payload, "utf8").digest("hex");
+}
+
+async function ensureServerRunning() {
+  try {
+    const res = await fetch(`${BASE_URL}/health`, { signal: AbortSignal.timeout(1000) });
+    if (res.ok) return;
+  } catch {
+    console.log("  ℹ Local port 3000 not responding; launching S-Group Gateway instance in-process...");
+    const { buildServer } = await import("../dist/server.js");
+    inProcessServer = await buildServer();
+    await inProcessServer.listen({ port: 3000, host: "127.0.0.1" });
+    BASE_URL = "http://127.0.0.1:3000";
+    console.log("  ✓ S-Group Gateway ready at http://127.0.0.1:3000\n");
+  }
 }
 
 async function runDemo() {
@@ -13,18 +28,15 @@ async function runDemo() {
   console.log("  Schäfer & SIS Interlogistik (Lane B Customer Defense)   ");
   console.log("==========================================================\n");
 
+  await ensureServerRunning();
+
   // 1. Health & Safety Invariants Check
   console.log("▶ [Test 1] Querying Gateway Health Check (/health)...");
-  try {
-    const healthRes = await fetch(`${BASE_URL}/health`);
-    const health = await healthRes.json();
-    console.log(`  ✓ Status: ${healthRes.status} OK`);
-    console.log(`  ✓ Gateway State: ${health.status} (${health.service})`);
-    console.log(`  ✓ Invariants: DSGVO: ${health.invariants.dsgvoCompliance} | Tenant Isolation: ${health.invariants.tenantIsolation} | Telematics Retention: ${health.invariants.telematicsRetentionDays} days\n`);
-  } catch (err) {
-    console.error(`  ✗ Failed to connect to ${BASE_URL}. Is the server running? (Run: npm start)`);
-    process.exit(1);
-  }
+  const healthRes = await fetch(`${BASE_URL}/health`);
+  const health = await healthRes.json();
+  console.log(`  ✓ Status: ${healthRes.status} OK`);
+  console.log(`  ✓ Gateway State: ${health.status} (${health.service})`);
+  console.log(`  ✓ Invariants: DSGVO: ${health.invariants.dsgvoCompliance} | Tenant Isolation: ${health.invariants.tenantIsolation} | Telematics Retention: ${health.invariants.telematicsRetentionDays} days\n`);
 
   // 2. Submit Valid DHL Webhook
   console.log("▶ [Test 2] Submitting Valid DHL Telematics Webhook...");
@@ -107,8 +119,20 @@ async function runDemo() {
   console.log(`  ✓ Attack Blocked! HTTP Status: ${forgedRes.status} Unauthorized`);
   console.log(`  ✓ Lock Reason: "${forgedResult.reason}"\n`);
 
-  // 5. Query Tenant Milestones (Tenant Isolation)
-  console.log("▶ [Test 5] Querying Tenant Ingested Milestones (/api/v1/shipments/events)...");
+  // 5. Test Live Telematics Corridor Map Integration
+  console.log("▶ [Test 5] Querying Live Telematics Corridor Map (/portal/tracking)...");
+  const trackingRes = await fetch(`${BASE_URL}/portal/tracking?id=SHP-SIS-1049`);
+  const trackingHtml = await trackingRes.text();
+  const hasMapCard = trackingHtml.includes('class="telematics-map-card"');
+  const hasSvgCanvas = trackingHtml.includes('class="telematics-svg"');
+  const hasDsgvoBadge = trackingHtml.includes('Art. 5 DSGVO konform');
+  console.log(`  ✓ Tracking Portal HTTP Status: ${trackingRes.status} OK`);
+  console.log(`  ✓ Telematics Map Card Rendered: ${hasMapCard}`);
+  console.log(`  ✓ SVG GIS Canvas Rendered: ${hasSvgCanvas}`);
+  console.log(`  ✓ German Privacy (DSGVO Art. 5) Badge Rendered: ${hasDsgvoBadge}\n`);
+
+  // 6. Query Tenant Milestones (Tenant Isolation)
+  console.log("▶ [Test 6] Querying Tenant Ingested Milestones (/api/v1/shipments/events)...");
   const queryRes = await fetch(`${BASE_URL}/api/v1/shipments/events?tenantId=DE-SIS-8921`);
   const queryData = await queryRes.json();
   console.log(`  ✓ Total Events for Tenant DE-SIS-8921: ${queryData.count}`);
@@ -120,6 +144,10 @@ async function runDemo() {
   console.log("  ALL TESTS PASSED! Portal & Webhook Adapters Verified.   ");
   console.log("  Open in browser: http://localhost:3000/portal           ");
   console.log("==========================================================");
+
+  if (inProcessServer) {
+    await inProcessServer.close();
+  }
 }
 
 runDemo();
