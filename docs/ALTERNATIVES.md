@@ -58,3 +58,14 @@
   - *Cost / Risk:* Does not support arbitrary street-level zooming.
   - *Why chosen:* Zero external requests, zero cookie tracking, 100% DSGVO compliant, instant render speed, WCAG AA contrast, and elegant corridor telemetry display.
 
+## Decision D-006: German DSGVO Telematics Pruning Engine & Art. 15 Export
+- **Option 1: Manual DBA batch delete scripts**
+  - *Cost / Risk:* Prone to human error, missed schedules, and zero customer visibility. If a script fails silently, unpruned PII accumulates and causes non-compliance liabilities during audits.
+  - *Why rejected:* Lack of automated repeatability and verifiable audit logging.
+- **Option 2: Client-side visual expiration**
+  - *Cost / Risk:* Severe DSGVO violation. Filtering out coordinates in JavaScript while retaining raw coordinates in the database violates Art. 5 (Storage Limitation). An attacker or insider can still access old driver trails.
+  - *Why rejected:* Fails fundamental data protection standards.
+- **Option 3: Automated Telematics Pruning Engine with immutable audit ledger and Art. 15 export (Chosen)**
+  - *Cost / Risk:* Requires maintaining automated retention window logic and data aggregation pipelines.
+  - *Why chosen:* Provides guaranteed deletion of raw GPS telemetry past 90 days, maintains permanent macro-milestones, logs every purge event with ISO 27001 audit receipts, and allows instant customer export.
+

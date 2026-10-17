@@ -3,6 +3,8 @@ import { renderLayout } from "../views/layout.js";
 import { ShipmentRepository } from "../repositories/shipments.js";
 import { renderShipmentsView } from "../views/shipments.js";
 import { renderTrackingView } from "../views/tracking.js";
+import { renderComplianceView } from "../views/compliance.js";
+import { TelematicsPrunerService } from "../services/telematicsPruner.js";
 
 interface PortalQuery {
   lang?: "de" | "en";
@@ -266,38 +268,9 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
   fastify.get("/portal/compliance", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
     const lang = req.query.lang === "en" ? "en" : "de";
     const isDe = lang === "de";
+    const ledger = TelematicsPrunerService.getPruningLedger(DEFAULT_TENANT);
 
-    const content = `
-      <section class="portal-hero-card">
-        <h1 class="hero-title">${isDe ? "Datenschutz & DSGVO-Compliance" : "Data Privacy & GDPR Compliance"}</h1>
-        <p class="hero-subtitle">
-          ${isDe ? "Nachweis der Einhaltung europäischer und deutscher Datenschutzstandards (Art. 5, 25 & 32 DSGVO)." : "Audit verification for European and German data privacy standards (Art. 5, 25 & 32 GDPR)."}
-        </p>
-        <div class="verification-list" style="margin-top: 24px;">
-          <div class="verification-item">
-            <span class="check-icon">🛡️</span>
-            <div>
-              <strong>${isDe ? "Mandantentrennung (Zero IDOR):" : "Tenant Isolation (Zero IDOR):"}</strong>
-              <p>${isDe ? "Jede Datenbankabfrage wird strikt auf den Mandanten DE-SIS-8921 eingegrenzt." : "All queries are strictly partitioned to tenant DE-SIS-8921."}</p>
-            </div>
-          </div>
-          <div class="verification-item">
-            <span class="check-icon">⏱️</span>
-            <div>
-              <strong>${isDe ? "90-Tage Telemetrielöschung:" : "90-Day Telematics Retention:"}</strong>
-              <p>${isDe ? "GPS-Koordinaten von Fahrern werden nach 90 Tagen automatisch anonymisiert." : "Driver GPS coordinates are automatically anonymized after 90 days."}</p>
-            </div>
-          </div>
-          <div class="verification-item">
-            <span class="check-icon">🔐</span>
-            <div>
-              <strong>${isDe ? "Kryptographische Webhook-Integrität:" : "HMAC Webhook Integrity:"}</strong>
-              <p>${isDe ? "Carrier-Telemetriedaten werden nur mit gültiger HMAC-SHA256 Signatur akzeptiert." : "Carrier telematics requires valid HMAC-SHA256 signatures."}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-    `;
+    const content = renderComplianceView(ledger, DEFAULT_TENANT, lang);
 
     const html = renderLayout({
       title: isDe ? "Datenschutz & Compliance" : "Privacy & Compliance",

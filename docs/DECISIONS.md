@@ -73,6 +73,18 @@ Plain Reason Why:
   - Zero external dependencies: operates reliably without external API keys, rate limits, or network tile failures.
   - High performance & accessibility: pure vector SVG (<15KB), zero bundle bloat, responsive 8px grid layout, and WCAG AA contrast with S-Group Deep Navy (`#0B192C`) and Signal Blue (`#0284C7`).
   - Respects driver privacy constraint (Habit 20): displays corridor macro-waypoints rather than invasive street-level driver tracking.
-What We Gave Up: Street-level pan-and-zoom (which is explicitly prohibited under driver privacy rules anyway).
-Revisit If: Enterprise customers mandate certified global AIS satellite feeds with raw bathymetric nautical depth charts.
+## D-006: German DSGVO Telematics Pruning Engine & Art. 15 Data Portability Export
+Date: 2026-10-18  Model: Gemini 3.8 Flash (High)
+Problem Context: German privacy law (DSGVO Art. 5(1)(e) & Art. 15) mandates that driver telematics data cannot be stored indefinitely, requiring automated pruning of raw GPS coordinates after 90 days while providing enterprise tenants with verifiable data portability exports.
+Options Looked At:
+  1) Manual database batch delete scripts executed ad-hoc by database administrators
+  2) Client-side visual expiration (hiding old coordinates in UI while retaining raw PII in database)
+  3) Built-in Automated Telematics Pruning Engine with immutable audit ledger and Art. 15 cryptographic JSON export (Chosen)
+What We Chose: Option 3
+Plain Reason Why:
+  - Guarantees strict compliance with German DSGVO Art. 5: automatically purges high-frequency driver telematics older than 90 days while safely preserving permanent business milestones ("Delivered", "Customs Cleared").
+  - Produces an immutable, timestamped audit log of every pruning sweep that enterprise compliance officers can inspect live in the portal.
+  - Implements Art. 15 Right of Access via authenticated, SHA-256 hashed JSON data export for the customer.
+What We Gave Up: Detailed micro-GPS telemetry cannot be retrieved for forensic route analysis beyond 90 days.
+Revisit If: German Federal Office for Goods Transport (BALM / formerly BAG) mandates longer retention for specialized hazardous materials (ADR).
 

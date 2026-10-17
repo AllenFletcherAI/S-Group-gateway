@@ -30,14 +30,17 @@ Done:
 - Recorded Decision D-005 in `docs/DECISIONS.md` and rejected options in `docs/ALTERNATIVES.md`.
 - Implemented and verified Slice 5: Sovereign Vector Live Telematics Map Component with corridor waypoints, radar beacon animations, and 4-metric telemetry HUD (`src/views/components/telematicsMap.ts`, `src/public/css/telematicsMap.css`, `src/views/tracking.ts`, `test/slice5_telematics_map.test.ts`).
 - Enforced strict German privacy law (DSGVO Art. 5): displays macro-aggregated corridors with zero third-party map trackers, zero cookies, and zero driver personal data.
-- Expanded automated test suite to **28/28 tests passing** (`npm test`) across 5 suites with 0 vulnerabilities in `npm audit`.
+- Recorded Decision D-006 in `docs/DECISIONS.md` and rejected options in `docs/ALTERNATIVES.md`.
+- Implemented and verified Slice 6: German Privacy (DSGVO Art. 15 / 17) Telematics Pruner & Export Engine (`src/services/telematicsPruner.ts`, `src/routes/compliance.ts`, `src/views/compliance.ts`, `test/slice6_compliance_pruner.test.ts`).
+- Created automated 90-day storage limitation pruning sweep with cryptographic SHA-256 ledger, Art. 15 customer data portability export package, and interactive compliance dashboard.
+- Expanded automated test suite to **33/33 tests passing** across 6 suites with 0 vulnerabilities in `npm audit`.
 - Recorded and pushed all checkpoint commits to `origin/main` (`https://github.com/AllenFletcherAI/S-Group-gateway.git`).
 
 In progress:
-- Slices 1 through 5 fully implemented, tested, containerized, and defensible.
+- Slices 1 through 6 fully implemented, tested, containerized, and defensible under Lane B standards.
 
 Broken or risky:
-- None identified. All 28 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
+- None identified. All 33 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
 
 Next:
 - Prepare next enhancements: distributed Redis rate limiter & replay nonce cache, or PostgreSQL external database migration pipeline.
