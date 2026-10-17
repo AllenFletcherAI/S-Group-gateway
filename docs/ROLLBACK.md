@@ -4,8 +4,8 @@
 > Always know the last known good commit before starting risky work.
 
 ## Checkpoint Baseline
-- **Last Known Good Commit SHA:** `a4bb0dc` (Slice 13 Persistent Multi-Language Session Routing)
-- **Previous Checkpoint SHA:** `001d9d1` (Slice 12 Dark/Light Mode Theme Engine)
+- **Last Known Good Commit SHA:** `51c381f` (Slice 14 Operational Assembly Line Pipeline & Redline Harmonization)
+- **Previous Checkpoint SHA:** `a4bb0dc` (Slice 13 Persistent Multi-Language Session Routing)
 - **Last Good Release Tag:** `v2.5.0` (Production Master Milestone)
 
 ## Rollback Execution Runbook
