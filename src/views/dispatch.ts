@@ -1,4 +1,6 @@
 import { FeederTour, TourStatus } from "../repositories/dispatch.js";
+import { ShipmentRepository } from "../repositories/shipments.js";
+import { renderTelematicsMap } from "./components/telematicsMap.js";
 
 /**
  * Render the Dispatch & Feeder Fleet Planning Operations Cockpit
@@ -14,6 +16,10 @@ export function renderDispatchView(
   searchQuery: string = ""
 ): string {
   const isDe = lang === "de";
+
+  const sampleShipment = ShipmentRepository.getShipmentDetails(tenantId, "SHP-SIS-1049")?.shipment ||
+    ShipmentRepository.getShipmentsByTenant(tenantId)[0];
+  const telematicsMapHtml = sampleShipment ? renderTelematicsMap(sampleShipment, isDe) : "";
 
   // Calculate Aggregated Fleet Metrics for the KPI Ribbon
   const totalTours = tours.length;
@@ -261,6 +267,11 @@ export function renderDispatchView(
         </div>
       </div>
     </section>
+ 
+    <!-- Sovereign Vector Telematics Map: Corridor Hamburg - Berlin -->
+    <div style="margin-bottom: 24px;">
+      ${telematicsMapHtml}
+    </div>
 
     <!-- Two-Column Layout: Left = Filter & Tours Grid, Right = Fast Booking Console -->
     <div class="dispatch-layout-container">

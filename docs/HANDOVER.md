@@ -81,13 +81,25 @@ Done:
 - Added active language guard in `navigation.js`: clicking an already active language button does not trigger redundant page reloads.
 - Added internal link enhancer in `navigation.js` to ensure dynamically rendered `/portal` links retain language context.
 - Expanded automated test suite to **68/68 tests passing** across 13 test suites with 0 npm vulnerabilities.
-- Verified live running daemon on `http://localhost:3000` preserving English across tabs without resetting or page bounce.
+- Recorded Decision D-014 in `docs/DECISIONS.md` and rejected options in `docs/ALTERNATIVES.md`.
+- Implemented and verified Slice 14: Operational Assembly Line Pipeline Reorganization & RedLine Feature Harmonization (`src/views/documentAudit.ts`, `src/views/reconciliation.ts`, `src/views/quarantine.ts`, `src/views/dispatch.ts`, `src/views/ledger.ts`, `src/views/layout.ts`, `src/routes/portal.ts`, `src/public/js/navigation.js`, `src/public/css/layout.css`, `test/slice14_operational_assembly_line.test.ts`).
+- Transferred authentic sample document image assets (`sample bill of ladling.png`, `sample commercial invoice.png`, `sample packing list.png`, `sample origin certificate.png`) from RedLine Gateway into `src/public/sample_docs/`.
+- Reorganized navigation from 6 fragmented passive pages into 5 sequential operational assembly line command centers:
+  1. Tab 1: `Dokumenten-Audit` (`/portal/audit`) — Split 2-pane workspace with interactive pan/zoom canvas, drag/drop intake, sample doc switcher, and 5-stage deterministic validation checklist.
+  2. Tab 2: `3-Wege-Abgleich` (`/portal/reconcile`) — 3 intake document bays (B/L, Invoice, Packing List) with completeness status dots (RE, PK, BL), 1-click test scenario switcher ("Konformes Dossier" vs. "Demurrage-Falle"), and 4-column reconciliation matrix.
+  3. Tab 3: `Quarantäne & Standgeld` (`/portal/quarantine`) — Dedicated cockpit displaying active container holds before port gate-in, ticking demurrage costs (€150–€500/day), 1-click formal ADSp 2017 Ziff. 19 & § 412 HGB legal notices, and supervisor overrides.
+  4. Tab 4: `Disposition & Telemetrie` (`/portal/dispatch`) — Unifies the sovereign Hamburg-Berlin vector corridor map with the multimodal feeder fleet dispatch board (road, rail, barge load meters, ADR segregation, DSGVO worker privacy).
+  5. Tab 5: `Audit-Ledger & IT-Konsole` (`/portal/ledger`) — Revisionssicheres GoBD audit ledger, 1-click printable DIN A4 German Federal Customs Compliance Certificate (§ 147 AO / ATLAS 9.1), and IT console with live PostgreSQL pool metrics and SAP IDoc / EDIFACT payload mappings.
+- Embedded Executive KPI Ribbon into the main header: 4 clickable status chips (`Verarbeitet: 24`, `Clean: 18`, `Quarantäne: 3`, `Standgeld vermieden: 3.850 €`) offering 1-click global shortcuts from every screen.
+- Maintained backwards-compatible aliases for `/portal/shipments`, `/portal/tracking`, `/portal/documents`, and `/portal/compliance`.
+- Expanded automated test suite to **75/75 tests passing** across 14 test suites with 0 npm vulnerabilities and 0 TypeScript compilation errors.
+- Verified live running daemon on `http://localhost:3000` with all 5 operational endpoints returning HTTP 200 OK.
 
 In progress:
-- All core logistics gateway features, Redline Customs Pre-Clearance Audit engine, Dark/Light Mode Theme Engine, and Persistent Language Session Routing complete; all 68 tests passing.
+- All 14 slices complete, tested, and operational.
 
 Broken or risky:
-- None. All 68 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
+- None. All 75 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
 
 Next:
 - Production deployment rollout, customer UAT handover, or optional additional enterprise ERP connectors.

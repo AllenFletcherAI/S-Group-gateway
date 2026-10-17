@@ -9,6 +9,10 @@ import { DispatchRepository } from "../repositories/dispatch.js";
 import { renderDispatchView } from "../views/dispatch.js";
 import { renderDocumentsView } from "../views/documents.js";
 import { CustomsAuditorService } from "../services/customsAuditor.js";
+import { renderDocumentAuditView } from "../views/documentAudit.js";
+import { renderReconciliationView } from "../views/reconciliation.js";
+import { renderQuarantineView } from "../views/quarantine.js";
+import { renderLedgerView } from "../views/ledger.js";
 
 interface PortalQuery {
   lang?: "de" | "en";
@@ -17,6 +21,7 @@ interface PortalQuery {
   status?: string;
   id?: string;
   sample?: "clean" | "discrepancy";
+  filter?: string;
 }
 
 /**
@@ -44,7 +49,7 @@ export function resolvePortalLang(
 /**
  * Customer Portal Routing Module
  * WHY: Delivers the branded Schäfer & SIS Interlogistik customer interface,
- * integrating real-time shipment directory, interactive milestone timelines, and document downloads.
+ * structured as an active 5-tab operational assembly line with backwards-compatible subpage routing.
  */
 export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPluginOptions) {
   const DEFAULT_TENANT = "DE-SIS-8921";
@@ -57,7 +62,7 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
     return reply.redirect(targetQuery ? `/portal${targetQuery}` : "/portal");
   });
 
-  // Portal Main Dashboard (Overview)
+  // Portal Main Dashboard (Overview & Quick Station Access)
   fastify.get("/portal", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
     const lang = resolvePortalLang(req, reply);
     const isDe = lang === "de";
@@ -68,89 +73,77 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
         <div class="hero-header">
           <div>
             <h1 class="hero-title">
-              ${isDe ? "Willkommen im S-Group Fracht- & Tracking-Portal" : "Welcome to the S-Group Freight & Tracking Portal"}
+              ${isDe ? "Willkommen im S-Group Gateway" : "Welcome to the S-Group Gateway"}
             </h1>
             <p class="hero-subtitle">
-              ${isDe ? "Zentrale Schnittstelle für Sendungsverfolgung, Disposition und Telemetriedaten von Schäfer & SIS Interlogistik." : "Unified gateway for freight tracking, dispatch operations, and telematics by Schäfer & SIS Interlogistik."}
+              ${isDe 
+                ? "Operatives Fracht- & Zoll-Leitstandssystem der Schäfer & SIS Interlogistik für Seehafen-Zubringung, Dokumentenprüfung und revisionssichere Verzollung." 
+                : "Operational freight and customs cockpit by Schäfer & SIS Interlogistik for seaport feeding, document audit, and compliance."}
             </p>
           </div>
           <div class="hero-badge">
-            <span class="badge-pill-success">● ${isDe ? "Alle Systeme aktiv" : "All Systems Operational"}</span>
+            <span class="badge-pill-success">● ${isDe ? "Operative Leitstände aktiv" : "All Operational Centers Active"}</span>
           </div>
         </div>
 
-        <!-- Metric KPI Cards (8px grid spacing) -->
-        <div class="metrics-grid">
-          <div class="metric-card">
+        <!-- 5-Station Operational Pipeline Quick Jump Grid -->
+        <div class="metrics-grid" style="grid-template-columns: repeat(5, 1fr);">
+          <a href="/portal/audit?lang=${lang}" class="metric-card" style="text-decoration:none; cursor:pointer;">
             <div class="metric-header">
-              <span class="metric-label">${isDe ? "Aktive Sendungen" : "Active Shipments"}</span>
-              <span class="metric-icon">🚚</span>
+              <span class="metric-label">${isDe ? "1. Dok-Audit" : "1. Doc Audit"}</span>
+              <span class="metric-icon">🔍</span>
             </div>
-            <div class="metric-value">${shipments.length}</div>
-            <p class="metric-footer">${isDe ? "100% im Zeitplan" : "100% on schedule"}</p>
-          </div>
+            <div class="metric-value" style="font-size:18px;">${isDe ? "Inspektor" : "Inspector"}</div>
+            <p class="metric-footer">${isDe ? "Pan/Zoom & 5-Stufen OCR" : "Pan/Zoom & 5-Stage OCR"}</p>
+          </a>
 
-          <div class="metric-card">
+          <a href="/portal/reconcile?lang=${lang}" class="metric-card" style="text-decoration:none; cursor:pointer;">
             <div class="metric-header">
-              <span class="metric-label">${isDe ? "Zolldokumente" : "Customs Documents"}</span>
-              <span class="metric-icon">📄</span>
+              <span class="metric-label">${isDe ? "2. 3-Wege-Match" : "2. 3-Way Match"}</span>
+              <span class="metric-icon">⚖️</span>
             </div>
-            <div class="metric-value">4</div>
-            <p class="metric-footer">${isDe ? "ATLAS & CMR verifiziert" : "ATLAS & CMR verified"}</p>
-          </div>
+            <div class="metric-value" style="font-size:18px;">${isDe ? "Abgleich" : "Reconcile"}</div>
+            <p class="metric-footer">${isDe ? "B/L ↔ RE ↔ Packliste" : "B/L ↔ Inv ↔ Packing"}</p>
+          </a>
 
-          <div class="metric-card">
+          <a href="/portal/quarantine?lang=${lang}" class="metric-card" style="text-decoration:none; cursor:pointer; border-color:rgba(245,158,11,0.4);">
             <div class="metric-header">
-              <span class="metric-label">${isDe ? "Carrier-Feeds" : "Carrier Feeds"}</span>
-              <span class="metric-icon">🛰️</span>
+              <span class="metric-label">${isDe ? "3. Quarantäne" : "3. Quarantine"}</span>
+              <span class="metric-icon">⚠️</span>
             </div>
-            <div class="metric-value">3 / 3</div>
-            <p class="metric-footer">${isDe ? "DHL, Schenker, Maersk aktiv" : "DHL, Schenker, Maersk active"}</p>
-          </div>
+            <div class="metric-value" style="font-size:18px; color:#F59E0B;">3 ${isDe ? "Fälle" : "Holds"}</div>
+            <p class="metric-footer">${isDe ? "Standgeld-Abwehr" : "Demurrage Shield"}</p>
+          </a>
 
-          <div class="metric-card">
+          <a href="/portal/dispatch?lang=${lang}" class="metric-card" style="text-decoration:none; cursor:pointer;">
             <div class="metric-header">
-              <span class="metric-label">${isDe ? "DSGVO-Status" : "DSGVO Compliance"}</span>
-              <span class="metric-icon">🛡️</span>
+              <span class="metric-label">${isDe ? "4. Disposition" : "4. Dispatch"}</span>
+              <span class="metric-icon">🚛</span>
             </div>
-            <div class="metric-value">100%</div>
-            <p class="metric-footer">${isDe ? "Telemetrie-Aufbewahrung: 90 Tage" : "Retention: 90 days active"}</p>
-          </div>
+            <div class="metric-value" style="font-size:18px;">${isDe ? "Hinterland" : "Fleet"}</div>
+            <p class="metric-footer">${isDe ? "Vector-Map & Feeder" : "Vector Map & Feeder"}</p>
+          </a>
+
+          <a href="/portal/ledger?lang=${lang}" class="metric-card" style="text-decoration:none; cursor:pointer; border-color:rgba(16,185,129,0.4);">
+            <div class="metric-header">
+              <span class="metric-label">${isDe ? "5. Audit-Ledger" : "5. Audit Ledger"}</span>
+              <span class="metric-icon">🏛️</span>
+            </div>
+            <div class="metric-value" style="font-size:18px; color:#10B981;">§ 147 AO</div>
+            <p class="metric-footer">${isDe ? "GoBD & A4 Zertifikat" : "GoBD & A4 Certificate"}</p>
+          </a>
         </div>
       </section>
 
-      <!-- Quick Action Jump Cards -->
-      <section class="portal-details-card">
-        <h2 class="section-title">${isDe ? "Direktzugriff auf Portal-Module" : "Quick Access Portal Modules"}</h2>
-        <div class="verification-list">
-          <div class="verification-item">
-            <span class="check-icon">📦</span>
-            <div>
-              <strong><a href="/portal/shipments?lang=${lang}">${isDe ? "Sendungsübersicht & Frachtliste" : "Shipment Directory"}</a></strong>
-              <p>${isDe ? "Aktive Frachtsendungen filtern, nach Frachtführer sortieren und Status prüfen." : "Filter active shipments, sort by carrier, and inspect status."}</p>
-            </div>
-          </div>
-          <div class="verification-item">
-            <span class="check-icon">🛰️</span>
-            <div>
-              <strong><a href="/portal/tracking?id=SHP-SIS-1049&lang=${lang}">${isDe ? "Live-Telemetrie & Status-Timeline" : "Live Telematics & Timeline"}</a></strong>
-              <p>${isDe ? "Schritt-für-Schritt Timeline mit verifizierten Webhook-Ereignissen anzeigen." : "Step-by-step milestone timeline with verified carrier webhook events."}</p>
-            </div>
-          </div>
-          <div class="verification-item">
-            <span class="check-icon">📄</span>
-            <div>
-              <strong><a href="/portal/documents?lang=${lang}">${isDe ? "Zolldokumente & Frachtbriefe" : "Customs Documents & CMR"}</a></strong>
-              <p>${isDe ? "ATLAS-Zollfreigaben, CMR-Frachtbriefe und Bill of Lading einsehen und herunterladen." : "View and download ATLAS clearances, CMR waybills, and Bills of Lading."}</p>
-            </div>
-          </div>
-        </div>
+      <!-- Document Audit Workspace Embedded directly on overview for instant action -->
+      <section style="margin-top:20px;">
+        ${renderDocumentAuditView({ lang, containerId: "MSKU7829104" })}
       </section>
     `;
 
     const html = renderLayout({
-      title: isDe ? "Portal-Übersicht" : "Portal Overview",
-      activeNavId: "shipments",
+      title: isDe ? "Dokumenten-Audit & Leitstand" : "Document Audit & Workspace",
+      activeNavId: "audit",
       lang,
       content,
     });
@@ -158,7 +151,116 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
     return reply.type("text/html; charset=utf-8").send(html);
   });
 
-  // 1. Shipments Directory Page
+  // TAB 1: Document Audit & Pan/Zoom Canvas Workspace
+  fastify.get("/portal/audit", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
+    const lang = resolvePortalLang(req, reply);
+    const isDe = lang === "de";
+
+    const content = renderDocumentAuditView({ lang });
+
+    const html = renderLayout({
+      title: isDe ? "Dokumenten-Audit & Inspektor" : "Document Audit & Inspector",
+      activeNavId: "audit",
+      lang,
+      content,
+    });
+
+    return reply.type("text/html; charset=utf-8").send(html);
+  });
+
+  // TAB 2: 3-Way Dossier Reconciliation Workspace
+  fastify.get("/portal/reconcile", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
+    const lang = resolvePortalLang(req, reply);
+    const isDe = lang === "de";
+    const selectedScenario = req.query.sample === "discrepancy" ? "discrepancy" : "clean";
+
+    const content = renderReconciliationView({
+      lang,
+      selectedScenario,
+    });
+
+    const html = renderLayout({
+      title: isDe ? "3-Wege-Zollabgleich" : "3-Way Customs Match",
+      activeNavId: "reconcile",
+      lang,
+      content,
+    });
+
+    return reply.type("text/html; charset=utf-8").send(html);
+  });
+
+  // TAB 3: Quarantine & Demurrage Center
+  fastify.get("/portal/quarantine", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
+    const lang = resolvePortalLang(req, reply);
+    const isDe = lang === "de";
+    const filter = req.query.filter || req.query.status || "all";
+    const search = req.query.q || "";
+
+    const content = renderQuarantineView({
+      lang,
+      filter,
+      search,
+    });
+
+    const html = renderLayout({
+      title: isDe ? "Quarantäne & Standgeld-Leitstand" : "Quarantine & Demurrage Cockpit",
+      activeNavId: "quarantine",
+      lang,
+      content,
+    });
+
+    return reply.type("text/html; charset=utf-8").send(html);
+  });
+
+  // TAB 4: Hinterland Dispatch & Sovereign Telematics Map
+  fastify.get("/portal/dispatch", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
+    const lang = resolvePortalLang(req, reply);
+    const isDe = lang === "de";
+    const activeFilter = req.query.status || "ALL";
+    const searchQuery = req.query.q || "";
+
+    const tours = DispatchRepository.getToursByTenant(DEFAULT_TENANT, {
+      status: activeFilter,
+      search: searchQuery,
+    });
+
+    const content = renderDispatchView(tours, DEFAULT_TENANT, lang, activeFilter, searchQuery);
+
+    const html = renderLayout({
+      title: isDe ? "Disposition & Telemetrie" : "Dispatch & Telematics",
+      activeNavId: "dispatch",
+      lang,
+      content,
+    });
+
+    return reply.type("text/html; charset=utf-8").send(html);
+  });
+
+  // TAB 5: GoBD Audit-Ledger & IT-Konsole
+  fastify.get("/portal/ledger", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
+    const lang = resolvePortalLang(req, reply);
+    const isDe = lang === "de";
+    const filter = req.query.filter || req.query.status || "all";
+    const search = req.query.q || "";
+
+    const content = renderLedgerView({
+      lang,
+      filter,
+      search,
+    });
+
+    const html = renderLayout({
+      title: isDe ? "Audit-Ledger & IT-Konsole" : "Audit Ledger & IT Console",
+      activeNavId: "ledger",
+      lang,
+      content,
+    });
+
+    return reply.type("text/html; charset=utf-8").send(html);
+  });
+
+  // BACKWARDS COMPATIBILITY ROUTES (Ensures zero breakage of existing links and tests)
+  // Shipments Directory
   fastify.get("/portal/shipments", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
     const lang = resolvePortalLang(req, reply);
     const shipments = ShipmentRepository.getShipmentsByTenant(DEFAULT_TENANT, {
@@ -170,8 +272,8 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
     const content = renderShipmentsView(shipments, lang, req.query.carrier, req.query.q);
 
     const html = renderLayout({
-      title: lang === "de" ? "Sendungsverfolgung" : "Shipment Directory",
-      activeNavId: "shipments",
+      title: lang === "de" ? "Sendungsübersicht" : "Shipment Directory",
+      activeNavId: "ledger",
       lang,
       content,
     });
@@ -179,7 +281,7 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
     return reply.type("text/html; charset=utf-8").send(html);
   });
 
-  // 2. Live Tracking & Timeline Page
+  // Live Tracking & Timeline
   fastify.get("/portal/tracking", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
     const lang = resolvePortalLang(req, reply);
     const isDe = lang === "de";
@@ -193,7 +295,7 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
         <section class="portal-hero-card">
           <h1 class="hero-title">${isDe ? "Sendung nicht gefunden" : "Shipment Not Found"}</h1>
           <p>${isDe ? "Die angeforderte Sendung existiert nicht oder gehört nicht zu Ihrem Mandanten." : "The requested shipment does not exist or is unauthorized for your tenant."}</p>
-          <p><a href="/portal/shipments?lang=${lang}" class="btn-back">← ${isDe ? "Zurück zur Übersicht" : "Back to Shipments"}</a></p>
+          <p><a href="/portal/dispatch?lang=${lang}" class="btn-back">← ${isDe ? "Zurück zur Disposition" : "Back to Dispatch"}</a></p>
         </section>
       `;
     } else {
@@ -202,7 +304,7 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
 
     const html = renderLayout({
       title: isDe ? `Tracking: ${shipmentId}` : `Tracking: ${shipmentId}`,
-      activeNavId: "tracking",
+      activeNavId: "dispatch",
       lang,
       content,
     });
@@ -210,7 +312,7 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
     return reply.type("text/html; charset=utf-8").send(html);
   });
 
-  // 3. Customs Documents & Compliance Page with Redline 3-Way Audit
+  // Customs Documents & Redline 3-Way Audit
   fastify.get("/portal/documents", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
     const lang = resolvePortalLang(req, reply);
     const isDe = lang === "de";
@@ -239,7 +341,7 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
 
     const html = renderLayout({
       title: isDe ? "Zolldokumente & Redline-Audit" : "Customs Documents & Redline Audit",
-      activeNavId: "documents",
+      activeNavId: "reconcile",
       lang,
       content,
     });
@@ -247,31 +349,7 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
     return reply.type("text/html; charset=utf-8").send(html);
   });
 
-  // 4. Disposition & Tour Planning Page
-  fastify.get("/portal/dispatch", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
-    const lang = resolvePortalLang(req, reply);
-    const isDe = lang === "de";
-    const activeFilter = req.query.status || "ALL";
-    const searchQuery = req.query.q || "";
-
-    const tours = DispatchRepository.getToursByTenant(DEFAULT_TENANT, {
-      status: activeFilter,
-      search: searchQuery,
-    });
-
-    const content = renderDispatchView(tours, DEFAULT_TENANT, lang, activeFilter, searchQuery);
-
-    const html = renderLayout({
-      title: isDe ? "Disposition & Tourenplanung" : "Dispatch & Fleet Routing",
-      activeNavId: "dispatch",
-      lang,
-      content,
-    });
-
-    return reply.type("text/html; charset=utf-8").send(html);
-  });
-
-  // 5. DSGVO Compliance & Audit Page
+  // DSGVO Compliance & Audit
   fastify.get("/portal/compliance", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
     const lang = resolvePortalLang(req, reply);
     const isDe = lang === "de";
@@ -281,7 +359,7 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
 
     const html = renderLayout({
       title: isDe ? "Datenschutz & Compliance" : "Privacy & Compliance",
-      activeNavId: "compliance",
+      activeNavId: "quarantine",
       lang,
       content,
     });

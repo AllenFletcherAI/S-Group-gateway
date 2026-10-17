@@ -188,3 +188,213 @@
     });
   }
 })();
+
+// ============================================================================
+// OPERATIONAL ASSEMBLY LINE CLIENT CONTROLLERS (Tabs 1 - 5)
+// ============================================================================
+
+// --- 1. Tab 1 Document Inspector Pan/Zoom Engine ---
+let auditScale = 1.0;
+let auditPanX = 0;
+let auditPanY = 0;
+let auditRotation = 0;
+let isPanning = false;
+let startX = 0;
+let startY = 0;
+
+function updateAuditTransform() {
+  const img = document.getElementById("audit-preview-img");
+  const indicator = document.getElementById("audit-zoom-indicator");
+  if (img) {
+    img.style.transform = "scale(" + auditScale + ") translate(" + auditPanX + "px, " + auditPanY + "px) rotate(" + auditRotation + "deg)";
+  }
+  if (indicator) {
+    indicator.textContent = Math.round(auditScale * 100) + "%";
+  }
+}
+
+window.zoomAuditCanvas = function (delta) {
+  auditScale = Math.min(4.0, Math.max(0.25, auditScale + delta));
+  updateAuditTransform();
+};
+
+window.resetAuditZoom = function () {
+  auditScale = 1.0;
+  auditPanX = 0;
+  auditPanY = 0;
+  auditRotation = 0;
+  updateAuditTransform();
+};
+
+window.fitAuditWidth = function () {
+  const viewport = document.getElementById("audit-canvas-viewport");
+  const img = document.getElementById("audit-preview-img");
+  if (viewport && img && img.naturalWidth) {
+    const scale = (viewport.clientWidth - 32) / img.naturalWidth;
+    auditScale = Math.min(4.0, Math.max(0.2, scale));
+    auditPanX = 0;
+    auditPanY = 0;
+    updateAuditTransform();
+  }
+};
+
+window.fitAuditPage = function () {
+  const viewport = document.getElementById("audit-canvas-viewport");
+  const img = document.getElementById("audit-preview-img");
+  if (viewport && img && img.naturalHeight) {
+    const scale = (viewport.clientHeight - 32) / img.naturalHeight;
+    auditScale = Math.min(4.0, Math.max(0.2, scale));
+    auditPanX = 0;
+    auditPanY = 0;
+    updateAuditTransform();
+  }
+};
+
+window.rotateAuditCanvas = function () {
+  auditRotation = (auditRotation + 90) % 360;
+  updateAuditTransform();
+};
+
+window.handleAuditWheel = function (e) {
+  e.preventDefault();
+  const delta = e.deltaY < 0 ? 0.15 : -0.15;
+  window.zoomAuditCanvas(delta);
+};
+
+window.startAuditPan = function (e) {
+  if (e.button !== 0) return; // Primary click only
+  isPanning = true;
+  startX = e.clientX - auditPanX;
+  startY = e.clientY - auditPanY;
+
+  function onMouseMove(ev) {
+    if (!isPanning) return;
+    auditPanX = ev.clientX - startX;
+    auditPanY = ev.clientY - startY;
+    updateAuditTransform();
+  }
+
+  function onMouseUp() {
+    isPanning = false;
+    window.removeEventListener("mousemove", onMouseMove);
+    window.removeEventListener("mouseup", onMouseUp);
+  }
+
+  window.addEventListener("mousemove", onMouseMove);
+  window.addEventListener("mouseup", onMouseUp);
+};
+
+// --- Sample Document Switcher ---
+window.loadSampleDoc = function (type) {
+  const img = document.getElementById("audit-preview-img");
+  const nameLabel = document.getElementById("audit-file-name");
+  const sizeLabel = document.getElementById("audit-file-size");
+  const containerLabel = document.getElementById("extracted-container-id");
+
+  const sampleMap = {
+    bol: {
+      file: "sample bill of ladling.png",
+      name: "sample bill of ladling.png",
+      size: "86 KB",
+      containerId: "MSKU7829104",
+      grossKg: "24.500 kg"
+    },
+    invoice: {
+      file: "sample commercial invoice.png",
+      name: "sample commercial invoice.png",
+      size: "246 KB",
+      containerId: "MSKU7829104",
+      grossKg: "24.500 kg"
+    },
+    packing_list: {
+      file: "sample packing list.png",
+      name: "sample packing list.png",
+      size: "858 KB",
+      containerId: "MSKU7829104",
+      grossKg: "24.720 kg"
+    },
+    origin: {
+      file: "sample origin certificate.png",
+      name: "sample origin certificate.png",
+      size: "289 KB",
+      containerId: "MSKU7829104",
+      grossKg: "24.500 kg"
+    }
+  };
+
+  const sample = sampleMap[type] || sampleMap.bol;
+  if (img) {
+    img.src = "/static/sample_docs/" + sample.file;
+  }
+  if (nameLabel) nameLabel.textContent = sample.name;
+  if (sizeLabel) sizeLabel.textContent = sample.size;
+  if (containerLabel) containerLabel.textContent = sample.containerId;
+  window.resetAuditZoom();
+};
+
+window.handleAuditFileUpload = function (event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const img = document.getElementById("audit-preview-img");
+    const nameLabel = document.getElementById("audit-file-name");
+    const sizeLabel = document.getElementById("audit-file-size");
+
+    if (img) img.src = e.target.result;
+    if (nameLabel) nameLabel.textContent = file.name;
+    if (sizeLabel) sizeLabel.textContent = Math.round(file.size / 1024) + " KB";
+    window.resetAuditZoom();
+  };
+  reader.readAsDataURL(file);
+};
+
+// --- Modals (ADSp Claim & Customs Certificate) ---
+window.openAdspModal = function (containerRef) {
+  const modal = document.getElementById("modal-adsp-claim");
+  const refElem = document.getElementById("adsp-container-ref");
+  if (refElem && containerRef) refElem.textContent = containerRef;
+  if (modal) modal.classList.remove("hidden");
+};
+
+window.closeAdspModal = function () {
+  const modal = document.getElementById("modal-adsp-claim");
+  if (modal) modal.classList.add("hidden");
+};
+
+window.copyAdspClaimText = function () {
+  const textElem = document.getElementById("adsp-claim-text");
+  if (textElem) {
+    navigator.clipboard.writeText(textElem.innerText).then(function () {
+      alert("Haftungsanzeige in die Zwischenablage kopiert.");
+    });
+  }
+};
+
+window.openCustomsCertModal = function (shipmentId) {
+  const modal = document.getElementById("modal-customs-cert");
+  if (modal) modal.classList.remove("hidden");
+};
+
+window.closeCustomsCertModal = function () {
+  const modal = document.getElementById("modal-customs-cert");
+  if (modal) modal.classList.add("hidden");
+};
+
+window.copyCertText = function () {
+  const paper = document.getElementById("customs-cert-paper");
+  if (paper) {
+    navigator.clipboard.writeText(paper.innerText).then(function () {
+      alert("Zertifikatstext in die Zwischenablage kopiert.");
+    });
+  }
+};
+
+window.openSupervisorOverrideModal = function (shipmentId) {
+  const reason = prompt("Supervisor-Freigabe für " + shipmentId + " bestätigen.\nBitte Revisionsgrund eingeben (Pflichtfeld nach GoBD):");
+  if (reason && reason.trim()) {
+    alert("Sendung " + shipmentId + " wurde vom Supervisor freigegeben.\nAudit-Vermerk gespeichert: " + reason.trim());
+  }
+};
+

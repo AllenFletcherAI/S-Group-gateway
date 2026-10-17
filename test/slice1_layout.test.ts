@@ -71,11 +71,12 @@ test("Slice 1: Portal renders S-Group branding, tenant indicator, and nav header
   // Accessibility Check: Skip link
   assert.match(html, /skip-to-content/);
 
-  // Navigation Links Check (DE)
-  assert.match(html, /Sendungen/);
-  assert.match(html, /Live-Tracking/);
-  assert.match(html, /Disposition/);
-  assert.match(html, /Dokumente &amp; Zoll|Dokumente & Zoll/);
+  // Navigation Links Check (DE) - 5 Operational Assembly Line Tabs
+  assert.match(html, /Dokumenten-Audit/);
+  assert.match(html, /3-Wege-Abgleich/);
+  assert.match(html, /Quarantäne &amp; Standgeld|Quarantäne & Standgeld/);
+  assert.match(html, /Disposition &amp; Telemetrie|Disposition & Telemetrie/);
+  assert.match(html, /Audit-Ledger &amp; IT|Audit-Ledger & IT/);
 
   // Main Navigation Check (clean bar without redundant drawer)
   assert.match(html, /desktop-nav/);
@@ -96,10 +97,12 @@ test("Slice 1: Portal renders English labels when requested with ?lang=en", asyn
   assert.equal(response.statusCode, 200);
   const html = response.payload;
 
-  assert.match(html, /Shipments/);
-  assert.match(html, /Live Tracking/);
-  assert.match(html, /Dispatches/);
-  assert.match(html, /Welcome to the S-Group Freight &amp; Tracking Portal|Welcome to the S-Group Freight & Tracking Portal/);
+  assert.match(html, /Document Audit/);
+  assert.match(html, /3-Way Match/);
+  assert.match(html, /Quarantine &amp; Demurrage|Quarantine & Demurrage/);
+  assert.match(html, /Dispatch &amp; Telematics|Dispatch & Telematics/);
+  assert.match(html, /Audit-Ledger &amp; IT|Audit-Ledger & IT/);
+  assert.match(html, /Welcome to the S-Group Gateway/);
 
   await app.close();
 });

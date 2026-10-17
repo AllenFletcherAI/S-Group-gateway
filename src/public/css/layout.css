@@ -2206,6 +2206,545 @@ body.theme-dark {
   color: #FCA5A5;
 }
 
+/* ==========================================================================
+   OPERATIONAL ASSEMBLY LINE STYLES (Slices 1-13 Redline Harmonization)
+   ========================================================================== */
 
+/* 1. Executive KPI Strip in Header */
+.header-kpi-strip {
+  background: rgba(0, 0, 0, 0.25);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px 16px;
+  font-size: 12px;
+}
 
+.kpi-strip-container {
+  max-width: 1360px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
 
+.kpi-chips-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.kpi-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #CBD5E1;
+  text-decoration: none;
+  transition: all 120ms ease;
+  white-space: nowrap;
+}
+
+.kpi-chip-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: #38BDF8;
+  color: #FFFFFF;
+}
+
+.kpi-chip-btn .kpi-val {
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.kpi-chip-btn.clean .kpi-val {
+  color: #10B981;
+}
+
+.kpi-chip-btn.quar .kpi-val {
+  color: #F59E0B;
+}
+
+.kpi-chip-btn.demurrage .kpi-val {
+  color: #10B981;
+}
+
+.kpi-live-bridge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #10B981;
+}
+
+.kpi-live-bridge .live-dot {
+  color: #10B981;
+  font-size: 10px;
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.9); }
+}
+
+[data-theme="dark"] .header-kpi-strip,
+.theme-dark .header-kpi-strip {
+  background: rgba(0, 0, 0, 0.4);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* 2. Split-Screen Document Inspector Workspace (Tab 1) */
+.split-audit-workspace {
+  display: flex;
+  min-height: calc(100vh - 160px);
+  background: var(--color-bg-neutral);
+  border: 1px solid var(--color-border-slate);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.audit-pane-left {
+  width: 48%;
+  background: #060A12;
+  border-right: 1px solid #1E293B;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.audit-pane-right {
+  width: 52%;
+  background: var(--color-surface-white);
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+[data-theme="dark"] .audit-pane-right,
+.theme-dark .audit-pane-right {
+  background: #0B1320;
+}
+
+.canvas-toolbar {
+  height: 42px;
+  background: #0B1220;
+  border-bottom: 1px solid #1E293B;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  font-size: 12px;
+  color: #94A3B8;
+  user-select: none;
+}
+
+.canvas-controls-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.zoom-btn {
+  background: #131D31;
+  border: 1px solid #1E293B;
+  color: #CBD5E1;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 120ms;
+}
+
+.zoom-btn:hover {
+  background: #1E2B48;
+  color: #FFFFFF;
+  border-color: #38BDF8;
+}
+
+.audit-canvas-viewport {
+  flex: 1;
+  position: relative;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  cursor: grab;
+  background-color: #060913;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.audit-canvas-viewport:active {
+  cursor: grabbing;
+}
+
+.audit-preview-img {
+  max-width: 100%;
+  border-radius: 6px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  border: 1px solid #1E293B;
+  transition: transform 100ms ease;
+  transform-origin: center center;
+}
+
+.canvas-placeholder-card {
+  max-width: 440px;
+  text-align: center;
+  padding: 24px;
+  background: rgba(14, 22, 38, 0.95);
+  border: 2px dashed #2A3B55;
+  border-radius: 16px;
+  color: #CBD5E1;
+}
+
+.sample-docs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.sample-doc-card {
+  background: #142038;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 120ms;
+  color: #F1F5F9;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sample-doc-card:hover {
+  background: #1E3054;
+  border-color: #38BDF8;
+  transform: translateY(-2px);
+}
+
+/* 5-Stage Verification Progress Checklist */
+.audit-stage-card {
+  background: var(--color-bg-neutral);
+  border: 1px solid var(--color-border-slate);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+[data-theme="dark"] .audit-stage-card,
+.theme-dark .audit-stage-card {
+  background: #0E1626;
+  border-color: #1E293B;
+}
+
+.stage-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.stage-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.stage-badge-pill.pass {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+  border: 1px solid #059669;
+}
+
+.stage-badge-pill.hold {
+  background: rgba(239, 68, 68, 0.15);
+  color: #EF4444;
+  border: 1px solid #DC2626;
+}
+
+/* 3. 3-Way Dossier Intake & Matrix (Tab 2) */
+.dossier-slots-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.dossier-slot-bay {
+  background: #0B1322;
+  border: 1px solid #1E293B;
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 120ms;
+  position: relative;
+}
+
+.dossier-slot-bay:hover {
+  border-color: #38BDF8;
+}
+
+.dossier-slot-bay.loaded {
+  border-color: #059669;
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.slot-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  background: #64748B;
+}
+
+.slot-dot.active {
+  background: #10B981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+
+.scenario-switcher-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--color-bg-neutral);
+  border: 1px solid var(--color-border-slate);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+}
+
+[data-theme="dark"] .scenario-switcher-bar,
+.theme-dark .scenario-switcher-bar {
+  background: #0E1626;
+  border-color: #1E293B;
+}
+
+.btn-scenario {
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 120ms;
+}
+
+.btn-scenario.clean {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #059669;
+  color: #10B981;
+}
+
+.btn-scenario.clean:hover {
+  background: #10B981;
+  color: #FFFFFF;
+}
+
+.btn-scenario.trap {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #DC2626;
+  color: #EF4444;
+}
+
+.btn-scenario.trap:hover {
+  background: #EF4444;
+  color: #FFFFFF;
+}
+
+.reconcile-matrix-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--color-border-slate);
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 13px;
+}
+
+.reconcile-matrix-table th {
+  background: var(--color-navy-dark);
+  color: #FFFFFF;
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.reconcile-matrix-table td {
+  padding: 10px 14px;
+  border-top: 1px solid var(--color-border-slate);
+}
+
+[data-theme="dark"] .reconcile-matrix-table td,
+.theme-dark .reconcile-matrix-table td {
+  border-color: #1E2F4D;
+}
+
+/* 4. Quarantine & Demurrage Cockpit (Tab 3) */
+.quarantine-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.quar-kpi-card {
+  background: var(--color-surface-white);
+  border: 1px solid var(--color-border-slate);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] .quar-kpi-card,
+.theme-dark .quar-kpi-card {
+  background: #111E33;
+  border-color: #1E2F4D;
+}
+
+.quar-kpi-card .kpi-number {
+  font-size: 24px;
+  font-weight: 800;
+  margin-top: 6px;
+}
+
+.quarantine-table-wrap {
+  border: 1px solid var(--color-border-slate);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--color-surface-white);
+}
+
+[data-theme="dark"] .quarantine-table-wrap,
+.theme-dark .quarantine-table-wrap {
+  background: #111E33;
+  border-color: #1E2F4D;
+}
+
+.quarantine-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.quarantine-table th {
+  background: var(--color-navy-dark);
+  color: #FFFFFF;
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.quarantine-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--color-border-slate);
+}
+
+[data-theme="dark"] .quarantine-table td,
+.theme-dark .quarantine-table td {
+  border-color: #1E2F4D;
+}
+
+/* 5. GoBD Audit Ledger & Customs Compliance Certificate (Tab 5) */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.modal-backdrop.hidden {
+  display: none !important;
+}
+
+.cert-modal-dialog {
+  background: #0E1626;
+  border: 1px solid #1E293B;
+  border-radius: 16px;
+  max-width: 800px;
+  width: 100%;
+  padding: 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  position: relative;
+  color: #F1F5F9;
+}
+
+.cert-paper-sheet {
+  background: #FFFFFF;
+  color: #0F172A;
+  border-radius: 8px;
+  padding: 32px;
+  font-family: "Courier New", Courier, monospace;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  margin: 16px 0;
+  border: 2px solid #0F172A;
+}
+
+.cert-official-seal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #0F172A;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .cert-paper-sheet, .cert-paper-sheet * {
+    visibility: visible;
+  }
+  .cert-paper-sheet {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20mm;
+    box-shadow: none;
+    border: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .split-audit-workspace {
+    flex-direction: column;
+  }
+  .audit-pane-left, .audit-pane-right {
+    width: 100%;
+  }
+  .dossier-slots-container {
+    grid-template-columns: 1fr;
+  }
+  .quarantine-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

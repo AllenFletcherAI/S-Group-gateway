@@ -198,4 +198,26 @@ Plain Reason Why:
 What We Gave Up: Automatic browser Accept-Language header sniffing without user consent (explicit user toggle takes permanent precedence).
 Revisit If: User profile database model introduces server-persisted user preferences for enterprise SSO accounts.
 
+## D-014: Operational Assembly Line Pipeline Reorganization & RedLine Feature Harmonization
+Date: 2026-10-18  Model: Gemini 3.8 Flash (High)
+Problem Context: S-Group Gateway was initially organized like a passive brochure website (separate informational pages for shipments, tracking, documents, compliance, dispatch). High-value tools were missing or buried: no visual document inspector with canvas pan/zoom, no 3-slot dossier intake dropzone with completeness indicators, no dedicated quarantine and demurrage center with ADSp 2017 legal notices, no official printable A4 Customs Compliance Certificate (§ 147 AO / ATLAS 9.1), and no IT/ERP connector console. Operators had to jump across multiple fragmented screens instead of working in a sequential operational assembly line.
+Options Looked At:
+  1) Keep the brochure layout and add modal popups to existing pages
+  2) Create two separate web applications (one for tracking and one for customs audit)
+  3) Reorganize into a 5-Tab Sequential Operational Assembly Line matching the container lifecycle, directly porting RedLine's proven tools and embedding the clickable Executive KPI Ribbon (Chosen)
+What We Chose: Option 3
+Plain Reason Why:
+  - Container Lifecycle Alignment: Organizes the interface around real logistics workflow:
+    1. Tab 1 (`Dokumenten-Audit`): 2-pane workspace with interactive pan/zoom canvas, authentic sample documents (Maersk B/L, Siemens Invoice, Daimler Packing List), and 5-stage deterministic validation checklist.
+    2. Tab 2 (`3-Wege-Abgleich`): 3 intake document bays (B/L, Invoice, Packing List) with completeness dots, 1-click scenario switcher ("Konformes Dossier" vs. "Demurrage-Falle"), and 4-column reconciliation matrix.
+    3. Tab 3 (`Quarantäne & Standgeld`): Dedicated cockpit displaying active container holds, ticking demurrage costs (€150–€500/day), 1-click formal ADSp 2017 Ziff. 19 & § 412 HGB legal notices, and supervisor overrides.
+    4. Tab 4 (`Disposition & Telemetrie`): Unifies the sovereign Hamburg-Berlin vector corridor map with the multimodal feeder dispatch board (road, rail, barge load meters, ADR segregation, DSGVO worker privacy).
+    5. Tab 5 (`Audit-Ledger & IT-Konsole`): Revisionssicheres GoBD audit ledger, 1-click printable DIN A4 German Federal Customs Compliance Certificate (§ 147 AO / ATLAS 9.1), and IT console with live PostgreSQL pool metrics and SAP IDoc / EDIFACT payload mappings.
+  - Executive KPI Ribbon: 4 clickable status chips directly in the header (`Verarbeitet: 24`, `Clean: 18`, `Quarantäne: 3`, `Standgeld vermieden: 3.850 €`) provide instant navigation to ledger and quarantine from any screen.
+  - Zero Wheel Reinvention: Directly reused authentic sample doc assets from RedLine Gateway and wired them to S-Group Gateway's tested backend engine (`customsAuditor.ts`, `dispatch.ts`, `shipments.ts`).
+  - Zero Regressions: Backwards-compatible route aliases preserve all legacy routes while expanding test coverage to 75/75 passing tests.
+What We Gave Up: Standalone isolated pages for tracking and dispatch (now unified onto Tab 4 command hub).
+Revisit If: Port terminal EDI feeds transition from batch webhooks to bidirectional MQTT streaming.
+
+
 

@@ -81,11 +81,11 @@ test("Slice 13: Layout navigation links explicitly propagate lang query paramete
   const htmlEn = resEn.payload;
 
   // Header navigation links must carry ?lang=en
-  assert.match(htmlEn, /href="\/portal\/shipments\?lang=en"/);
-  assert.match(htmlEn, /href="\/portal\/tracking\?lang=en"/);
+  assert.match(htmlEn, /href="\/portal\/audit\?lang=en"/);
+  assert.match(htmlEn, /href="\/portal\/reconcile\?lang=en"/);
+  assert.match(htmlEn, /href="\/portal\/quarantine\?lang=en"/);
   assert.match(htmlEn, /href="\/portal\/dispatch\?lang=en"/);
-  assert.match(htmlEn, /href="\/portal\/documents\?lang=en"/);
-  assert.match(htmlEn, /href="\/portal\/compliance\?lang=en"/);
+  assert.match(htmlEn, /href="\/portal\/ledger\?lang=en"/);
   assert.match(htmlEn, /href="\/portal\?lang=en"/);
 
   await app.close();

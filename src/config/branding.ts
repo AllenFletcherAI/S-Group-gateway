@@ -36,10 +36,10 @@ export const S_GROUP_BRAND = {
     copyright: "© 2026 Schäfer & SIS Interlogistik. Alle Rechte vorbehalten.",
   },
   navigation: [
-    { id: "shipments", labelDe: "Sendungen", labelEn: "Shipments", href: "/portal/shipments", active: true },
-    { id: "tracking", labelDe: "Live-Tracking", labelEn: "Live Tracking", href: "/portal/tracking", active: false },
-    { id: "dispatch", labelDe: "Disposition", labelEn: "Dispatches", href: "/portal/dispatch", active: false },
-    { id: "documents", labelDe: "Dokumente & Zoll", labelEn: "Documents & Customs", href: "/portal/documents", active: false },
-    { id: "compliance", labelDe: "Datenschutz (DSGVO)", labelEn: "Privacy & DSGVO", href: "/portal/compliance", active: false },
+    { id: "audit", labelDe: "Dokumenten-Audit", labelEn: "Document Audit", href: "/portal/audit", active: true },
+    { id: "reconcile", labelDe: "3-Wege-Abgleich", labelEn: "3-Way Match", href: "/portal/reconcile", active: false },
+    { id: "quarantine", labelDe: "Quarantäne & Standgeld", labelEn: "Quarantine & Demurrage", href: "/portal/quarantine", active: false },
+    { id: "dispatch", labelDe: "Disposition & Telemetrie", labelEn: "Dispatch & Telematics", href: "/portal/dispatch", active: false },
+    { id: "ledger", labelDe: "Audit-Ledger & IT", labelEn: "Audit-Ledger & IT", href: "/portal/ledger", active: false },
   ]
 };

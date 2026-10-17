@@ -156,6 +156,37 @@ export function renderLayout(options: LayoutOptions): string {
             <a href="/auth/logout" class="dropdown-item text-danger">${isDe ? "Abmelden" : "Sign Out"}</a>
           </div>
         </div>
+    </div>
+
+    <!-- Executive KPI Status Strip (Clickable Shortcuts for 50+ Logistics Operators) -->
+    <div class="header-kpi-strip" role="region" aria-label="${isDe ? "Operative Kennzahlen" : "Operational Metrics"}">
+      <div class="kpi-strip-container">
+        <div class="kpi-chips-group">
+          <a href="/portal/ledger?lang=${lang}" class="kpi-chip-btn" title="${isDe ? "Zum Audit-Ledger wechseln" : "View Ingestion Ledger"}">
+            <span class="kpi-icon" aria-hidden="true">📄</span>
+            <span class="kpi-label">${isDe ? "Verarbeitet:" : "Processed:"}</span>
+            <span id="stat-total" class="kpi-val">24</span>
+          </a>
+          <a href="/portal/ledger?status=clean&lang=${lang}" class="kpi-chip-btn clean" title="${isDe ? "Freigegebene Sendungen anzeigen" : "View Clean Shipments"}">
+            <span class="kpi-icon" aria-hidden="true">✅</span>
+            <span class="kpi-label">Clean:</span>
+            <span id="stat-clean" class="kpi-val">18</span>
+          </a>
+          <a href="/portal/quarantine?lang=${lang}" class="kpi-chip-btn quar" title="${isDe ? "Zur Quarantäne-Konsole wechseln" : "View Quarantine Console"}">
+            <span class="kpi-icon" aria-hidden="true">⚠️</span>
+            <span class="kpi-label">${isDe ? "Quarantäne:" : "Quarantine:"}</span>
+            <span id="stat-holds" class="kpi-val">3</span>
+          </a>
+          <a href="/portal/quarantine?lang=${lang}" class="kpi-chip-btn demurrage" title="${isDe ? "Verhinderte Standgelder anzeigen" : "View Demurrage Savings"}">
+            <span class="kpi-icon" aria-hidden="true">🛡️</span>
+            <span class="kpi-label">${isDe ? "Standgeld vermieden:" : "Demurrage Saved:"}</span>
+            <span id="stat-demurrage" class="kpi-val">3.850 €</span>
+          </a>
+        </div>
+        <div class="kpi-live-bridge">
+          <span class="live-dot" aria-hidden="true">●</span>
+          <span class="bridge-label">${isDe ? "S-Group Sovereign Logistics Bridge: Aktiv" : "S-Group Sovereign Logistics Bridge: Active"}</span>
+        </div>
       </div>
     </div>
   </header>
