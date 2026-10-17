@@ -4,9 +4,9 @@
 > Always know the last known good commit before starting risky work.
 
 ## Checkpoint Baseline
-- **Last Known Good Commit SHA:** `a8d5fc6` (Slice 11 Customs Pre-Clearance Redline Audit & 3-Way Reconciliation Engine)
-- **Previous Checkpoint SHA:** `efb814e` (Slice 10 Hick's Law Product Design Standard Refactor)
-- **Last Good Release Tag:** `v2.1.0` (Production Master Milestone)
+- **Last Known Good Commit SHA:** `a180106` (Slice 11 Customs Pre-Clearance Redline Audit & 3-Way Reconciliation Engine)
+- **Previous Checkpoint SHA:** `a8d5fc6` (Slice 11 Core Implementation)
+- **Last Good Release Tag:** `v2.2.0` (Production Master Milestone)
 
 ## Rollback Execution Runbook
 1. **Revert Git Commit:**

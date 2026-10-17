@@ -50,6 +50,21 @@ export function renderLayout(options: LayoutOptions): string {
   <title>${title} | ${S_GROUP_BRAND.companyName}</title>
   <link rel="stylesheet" href="/static/css/layout.css">
   <link rel="stylesheet" href="/static/css/telematicsMap.css">
+  <script>
+    (function () {
+      try {
+        var stored = localStorage.getItem("sgroup_theme");
+        var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var theme = stored || (prefersDark ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+        if (theme === "dark") {
+          document.documentElement.classList.add("theme-dark");
+        } else {
+          document.documentElement.classList.remove("theme-dark");
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body class="s-group-theme">
   <!-- Top Accessibility Skip Link -->
@@ -80,7 +95,7 @@ export function renderLayout(options: LayoutOptions): string {
         </div>
       </nav>
 
-      <!-- Header Actions: Quick Search, Language Toggle, User Menu -->
+      <!-- Header Actions: Quick Search, Theme Toggle, Language Toggle, User Menu -->
       <div class="header-actions">
         <!-- Quick Shipment Search -->
         <div class="header-search-box" role="search">
@@ -98,6 +113,18 @@ export function renderLayout(options: LayoutOptions): string {
             🔍
           </button>
         </div>
+
+        <!-- Theme Toggle Button (Light/Dark Mode) -->
+        <button
+          id="theme-toggle-btn"
+          class="theme-toggle-btn"
+          type="button"
+          aria-label="${isDe ? "Erscheinungsbild umschalten (Hell/Dunkel)" : "Toggle display theme (Light/Dark)"}"
+          title="${isDe ? "Erscheinungsbild umschalten (Hell/Dunkel)" : "Toggle display theme (Light/Dark)"}"
+        >
+          <span id="theme-toggle-icon" class="theme-toggle-icon" aria-hidden="true">🌙</span>
+          <span id="theme-toggle-text" class="theme-toggle-text">${isDe ? "Modus" : "Theme"}</span>
+        </button>
 
         <!-- Language Selector -->
         <div class="language-switch" aria-label="Sprachauswahl">
@@ -119,6 +146,10 @@ export function renderLayout(options: LayoutOptions): string {
               <p class="dropdown-tenant">${tenantName} (<code>${tenantId}</code>)</p>
             </div>
             <hr class="dropdown-divider">
+            <button id="dropdown-theme-toggle" class="dropdown-item dropdown-theme-btn" type="button" style="width: 100%; text-align: left; background: transparent; border: none; cursor: pointer;">
+              <span id="dropdown-theme-icon" aria-hidden="true">🌙</span>
+              <span id="dropdown-theme-text">${isDe ? "Dunkelmodus aktivieren" : "Switch to Dark Mode"}</span>
+            </button>
             <a href="/portal/settings" class="dropdown-item">${isDe ? "Konto-Einstellungen" : "Account Settings"}</a>
             <a href="/portal/compliance" class="dropdown-item">${isDe ? "DSGVO-Auskunft & Protokolle" : "DSGVO Audit & Export"}</a>
             <hr class="dropdown-divider">

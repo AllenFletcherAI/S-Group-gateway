@@ -44,7 +44,7 @@ export function renderDocumentsView(options: DocumentsViewOptions): string {
         <td style="padding: 10px 8px; font-family: monospace;">${row.atlasValue}</td>
         <td style="padding: 10px 8px; font-family: monospace;">${row.bolValue}</td>
         <td style="padding: 10px 8px; font-family: monospace;">${row.invoiceValue}</td>
-        <td style="padding: 10px 8px; font-size: 12px; color: ${row.matched ? '#065F46' : '#DC2626'};">${deltaText}</td>
+        <td style="padding: 10px 8px; font-size: 12px; font-weight: 600; color: ${row.matched ? 'var(--color-success-green)' : 'var(--color-alert-red)'};">${deltaText}</td>
         <td style="padding: 10px 8px; text-align: right;">${statusChip}</td>
       </tr>
     `;
@@ -156,7 +156,7 @@ export function renderDocumentsView(options: DocumentsViewOptions): string {
         </div>
 
         <!-- Sample Dossier Switcher (Progressive Demonstration) -->
-        <div style="display:flex; align-items:center; gap: 8px; background: #F8FAFC; border: 1px solid var(--color-border-slate); padding: 4px 8px; border-radius: 8px;">
+        <div style="display:flex; align-items:center; gap: 8px; background: var(--color-bg-neutral); border: 1px solid var(--color-border-slate); padding: 4px 8px; border-radius: 8px;">
           <span style="font-size: 12px; font-weight: 600; color: var(--color-text-muted);">${isDe ? "Dossier:" : "Dossier:"}</span>
           <a href="/portal/documents?sample=clean&lang=${lang}" class="filter-tab ${selectedSample === 'clean' ? 'active' : ''}" style="font-size: 12px; padding: 4px 10px;">
             ${isDe ? "✓ Konformes Dossier (SHP-SIS-1049)" : "✓ Clean Dossier (SHP-SIS-1049)"}
@@ -168,12 +168,12 @@ export function renderDocumentsView(options: DocumentsViewOptions): string {
       </div>
 
       <!-- Action Banner: Hick's Law Dominant Single CTA -->
-      <div style="background: ${isClean ? '#F0FDF4' : '#FEF2F2'}; border: 1px solid ${isClean ? '#BBF7D0' : '#FECACA'}; padding: var(--space-4); border-radius: 8px; margin-bottom: var(--space-4); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-3);">
+      <div style="background: ${isClean ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)'}; border: 1px solid ${isClean ? 'rgba(16, 185, 129, 0.35)' : 'rgba(239, 68, 68, 0.35)'}; padding: var(--space-4); border-radius: 8px; margin-bottom: var(--space-4); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-3);">
         <div>
-          <strong style="color: ${isClean ? '#166534' : '#991B1B'}; font-size: 15px;">
+          <strong style="color: ${isClean ? 'var(--color-success-green)' : 'var(--color-alert-red)'}; font-size: 15px;">
             ${isClean ? (isDe ? "✓ Vorabprüfung erfolgreich: Keine zollrelevanten Abweichungen" : "✓ Pre-clearance passed: No customs discrepancies detected") : (isDe ? "🛑 Achtung: Zollsperre droht durch Gewichts- / Colli-Abweichung" : "🛑 Alert: Customs hold imminent due to weight / package variance")}
           </strong>
-          <p style="font-size: 13px; color: ${isClean ? '#15803D' : '#B91C1C'}; margin-top: 2px;">
+          <p style="font-size: 13px; color: ${isClean ? 'var(--color-success-green)' : 'var(--color-alert-red)'}; margin-top: 2px;">
             ${isDe ? auditResult.actionRequiredDe : auditResult.actionRequiredEn}
           </p>
         </div>
@@ -192,7 +192,7 @@ export function renderDocumentsView(options: DocumentsViewOptions): string {
 
       <!-- 4-Column Cross-Audit Comparison Matrix -->
       <div style="overflow-x: auto; margin-top: 12px;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 13px; background: #FFFFFF; border-radius: 8px; overflow: hidden; border: 1px solid var(--color-border-slate);">
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px; background: var(--color-surface-white); border-radius: 8px; overflow: hidden; border: 1px solid var(--color-border-slate);">
           <thead>
             <tr style="background: var(--color-navy-dark); color: #FFFFFF; text-align: left;">
               <th style="padding: 10px 8px;">${isDe ? "Geprüfter Parameter" : "Audit Parameter"}</th>

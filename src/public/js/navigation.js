@@ -16,8 +16,100 @@
   const userDropdown = document.getElementById("user-menu-dropdown");
   const langButtons = document.querySelectorAll(".lang-btn");
   const quickSearchInput = document.getElementById("quick-search-input");
+  const themeToggleBtn = document.getElementById("theme-toggle-btn");
+  const dropdownThemeToggle = document.getElementById("dropdown-theme-toggle");
+  const themeToggleIcon = document.getElementById("theme-toggle-icon");
+  const themeToggleText = document.getElementById("theme-toggle-text");
+  const dropdownThemeIcon = document.getElementById("dropdown-theme-icon");
+  const dropdownThemeText = document.getElementById("dropdown-theme-text");
 
-  // 1. User Menu Dropdown Toggle
+  const isDe = (document.documentElement.getAttribute("lang") || "de") === "de";
+
+  // 1. Theme Controller (Dark / Light Mode)
+  function getPreferredTheme() {
+    const stored = localStorage.getItem("sgroup_theme");
+    if (stored === "dark" || stored === "light") {
+      return stored;
+    }
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  }
+
+  function applyTheme(theme, save = true) {
+    const isDark = theme === "dark";
+    document.documentElement.setAttribute("data-theme", theme);
+    document.documentElement.classList.toggle("theme-dark", isDark);
+    if (document.body) {
+      document.body.classList.toggle("theme-dark", isDark);
+    }
+
+    if (save) {
+      try {
+        localStorage.setItem("sgroup_theme", theme);
+      } catch (e) {}
+    }
+
+    // Update Header Toggle Button
+    if (themeToggleIcon) {
+      themeToggleIcon.textContent = isDark ? "☀️" : "🌙";
+    }
+    if (themeToggleText) {
+      themeToggleText.textContent = isDark ? (isDe ? "Hell" : "Light") : (isDe ? "Dunkel" : "Dark");
+    }
+    if (themeToggleBtn) {
+      const tooltip = isDark
+        ? (isDe ? "Zu hellem Modus wechseln" : "Switch to Light Mode")
+        : (isDe ? "Zu dunklem Modus wechseln" : "Switch to Dark Mode");
+      themeToggleBtn.setAttribute("title", tooltip);
+      themeToggleBtn.setAttribute("aria-label", tooltip);
+      themeToggleBtn.setAttribute("aria-pressed", String(isDark));
+    }
+
+    // Update Dropdown Item
+    if (dropdownThemeIcon) {
+      dropdownThemeIcon.textContent = isDark ? "☀️" : "🌙";
+    }
+    if (dropdownThemeText) {
+      dropdownThemeText.textContent = isDark
+        ? (isDe ? "Hellen Modus aktivieren" : "Switch to Light Mode")
+        : (isDe ? "Dunkelmodus aktivieren" : "Switch to Dark Mode");
+    }
+  }
+
+  function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
+    const nextTheme = currentTheme === "dark" ? "light" : "dark";
+    applyTheme(nextTheme, true);
+  }
+
+  // Initialize theme UI state
+  applyTheme(getPreferredTheme(), false);
+
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      toggleTheme();
+    });
+  }
+
+  if (dropdownThemeToggle) {
+    dropdownThemeToggle.addEventListener("click", function (e) {
+      e.preventDefault();
+      toggleTheme();
+    });
+  }
+
+  // Listen for OS theme changes if user hasn't explicitly set preference
+  if (window.matchMedia) {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function (e) {
+      if (!localStorage.getItem("sgroup_theme")) {
+        applyTheme(e.matches ? "dark" : "light", false);
+      }
+    });
+  }
+
+  // 2. User Menu Dropdown Toggle
   if (userMenuBtn && userDropdown) {
     userMenuBtn.addEventListener("click", function (event) {
       event.stopPropagation();

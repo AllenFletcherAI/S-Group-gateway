@@ -164,3 +164,21 @@ Plain Reason Why:
   - Zero external npm dependencies; runs locally on Node.js/TypeScript with zero third-party data leakage.
 What We Gave Up: Full optical AI vision OCR inside the container (uses pre-parsed structured document records and sample dossiers for instant deterministic validation).
 Revisit If: Dedicated serverless GPU OCR pipeline is deployed for raw scanned camera images.
+
+## D-012: Dark Mode & Light Mode Theme Engine with Anti-FOUC Instant Toggle
+Date: 2026-10-18  Model: Gemini 3.8 Flash (High)
+Problem Context: Logistics dispatchers operate in varied lighting environments—from brightly lit administrative offices during daylight hours to darkened dispatch control rooms with multiple multi-monitor setups at night. High-contrast white backgrounds cause severe eye strain during overnight shifts, while overly dim themes reduce legibility in daylight. Dispatchers require a seamless, instant toggle between Dark Mode and Light Mode with zero screen flicker (FOUC), system preference detection, and persistent preference memory across sessions.
+Options Looked At:
+  1) Cookie-based server-side theme rendering (requires HTTP request round-trips and page reloads on toggle)
+  2) Heavy external UI theme framework / CSS-in-JS library adding runtime overhead
+  3) Native CSS Custom Properties with Synchronous Inline Anti-FOUC Script and Client LocalStorage Persistence (Chosen)
+What We Chose: Option 3
+Plain Reason Why:
+  - Zero Flash of Unstyled Content (FOUC): Synchronous 5-line inline script in `<head>` sets `data-theme` attribute before DOM painting, preventing blinding white flashes upon navigation.
+  - Zero-latency client switching: Toggling themes executes instantly in the browser without server round-trips or full page reloads.
+  - Automatic system preference fallback: Detects `prefers-color-scheme: dark` if the user has not explicitly chosen a preference, then persists manual choices in `localStorage` (`sgroup_theme`).
+  - Hick's Law compliance: Theme toggle is an auxiliary utility icon in the header (Tertiary visual tier) and does not visually compete with dominant operational CTAs.
+  - WCAG AA contrast compliance: Industrial Dark Mode tokens provide minimum 7:1 contrast ratios on primary text and 4.5:1 on telemetry and status chips.
+What We Gave Up: Dynamic multi-color theme customization (purple, high-contrast yellow themes)—unnecessary cognitive overhead for standard logistics operations.
+Revisit If: Statutory accessibility audit mandates specialized high-contrast monochrome themes for visually impaired operators.
+

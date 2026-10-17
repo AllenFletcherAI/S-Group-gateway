@@ -124,6 +124,18 @@
   - *Cost / Risk:* Requires maintaining TypeScript domain reconciliation rules and sample verification fixtures.
   - *Why chosen:* Directly reuses battle-tested German forwarding and customs logic: pure ISO 6346 container check digit calculation, § 412 HGB 50 kg / 1% tare weight tolerance checking, package count matching, and automatic generation of formal ADSp 2017 Speditions-Beanstandung notices. Adheres strictly to Hick's Law with zero external dependencies and sub-5ms local execution.
 
+## Decision D-012: Dark Mode & Light Mode Theme Engine with Anti-FOUC Instant Toggle
+- **Option 1: Cookie-Based Server-Side Theme Rendering**
+  - *Cost / Risk:* Requires an HTTP POST or query-parameter change on toggle, forcing full page reloads, causing white page flashing, and increasing server request volume on every cosmetic preference switch.
+  - *Why rejected:* Degrades UX with reload latency and screen flicker; unnecessary for client-side display preferences.
+- **Option 2: Heavy External Theme Framework / CSS-in-JS Runtime Library**
+  - *Cost / Risk:* Adds 30KB+ to frontend bundle size, introduces external runtime dependencies, slows down page parsing, and risks third-party bundle vulnerabilities.
+  - *Why rejected:* Violates lightweight sovereign frontend discipline; native CSS variables solve this natively in < 2KB.
+- **Option 3: Native CSS Custom Properties with Synchronous Inline Anti-FOUC Script and Client LocalStorage Persistence (Chosen)**
+  - *Cost / Risk:* Requires defining paired light/dark color variables across all UI components.
+  - *Why chosen:* Executes instantaneously in the browser, prevents Flash of Unstyled Content (FOUC) with a tiny synchronous `<head>` script, auto-adapts to OS preferences (`prefers-color-scheme`), persists in `localStorage`, and provides WCAG AA contrast for both night-shift dispatch control rooms and daylight office desks.
+
+
 
 
 

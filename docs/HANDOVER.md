@@ -65,11 +65,20 @@ Done:
 - Expanded automated test suite to **60/60 tests passing** across 11 test suites with 0 npm vulnerabilities.
 - Verified live running daemon on `http://localhost:3000/portal/documents` (HTTP 200 OK) and API endpoints (`GET /api/v1/customs/samples`, `POST /api/v1/customs/reconcile`).
 
+- Recorded Decision D-012 in `docs/DECISIONS.md` and rejected options in `docs/ALTERNATIVES.md`.
+- Implemented and verified Slice 12: Dark Mode & Light Mode Theme Engine with Anti-FOUC Instant Toggle (`src/views/layout.ts`, `src/public/js/navigation.js`, `src/public/css/layout.css`, `src/views/documents.ts`, `test/slice12_theme_engine.test.ts`).
+- Added synchronous anti-FOUC `<head>` script preventing white screen flash upon navigation.
+- Added accessible responsive header theme button (`#theme-toggle-btn`) with Sun/Moon icons, tooltips, and keyboard support, plus secondary toggle inside user menu dropdown.
+- Implemented `localStorage` (`sgroup_theme`) persistence and automatic OS `prefers-color-scheme` synchronization.
+- Styled comprehensive high-contrast WCAG AA compliant dark mode palette across all cards, tables, maps, search inputs, badges, and progress bars.
+- Expanded automated test suite to **64/64 tests passing** across 12 test suites with 0 npm vulnerabilities.
+- Verified live running daemon on `http://localhost:3000/portal` (HTTP 200 OK) serving the theme toggle.
+
 In progress:
-- All core logistics gateway features and Redline Customs Pre-Clearance Audit engine complete; all 60 tests passing.
+- All core logistics gateway features, Redline Customs Pre-Clearance Audit engine, and Dark/Light Mode Theme Engine complete; all 64 tests passing.
 
 Broken or risky:
-- None. All 60 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
+- None. All 64 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
 
 Next:
 - Production deployment rollout, customer UAT handover, or optional additional enterprise ERP connectors.
@@ -78,4 +87,5 @@ Do not touch:
 - Production database environments, live secret keys, and deployment configurations.
 
 Read first: ARCHITECTURE.md, CONSTRAINTS.md
+
 
