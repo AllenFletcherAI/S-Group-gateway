@@ -4,7 +4,7 @@
 > Always know the last known good commit before starting risky work.
 
 ## Checkpoint Baseline
-- **Last Known Good Commit SHA:** `83cb2ace3e1b017b2b7fe3e7ba96e6d1c8112d1b` (Slice 2 Carrier Webhooks & Adapter)
+- **Last Known Good Commit SHA:** `c034af093475c404642ea869382f6e9bc35a98bf` (Slice 3 Timeline & Documents)
 - **Last Good Release Tag:** `v1.0.0`
 
 ## Rollback Execution Runbook
