@@ -4,8 +4,8 @@
 > Always know the last known good commit before starting risky work.
 
 ## Checkpoint Baseline
-- **Last Known Good Commit SHA:** `40f67994083318b12607a9b46a72a42fb6f678bd` (Slice 9 Enterprise Scoped API Keys & JWT RBAC Engine)
-- **Last Good Release Tag:** `v1.6.0`
+- **Last Known Good Commit SHA:** `0466d974de7a150431d99b91e1a271dcb00b955a` (Slice 10 PostgreSQL Production Relational Migrations & Persistence Engine)
+- **Last Good Release Tag:** `v2.0.0` (Production Master Milestone)
 
 ## Rollback Execution Runbook
 1. **Revert Git Commit:**
