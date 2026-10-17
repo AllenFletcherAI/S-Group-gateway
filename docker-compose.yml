@@ -1,0 +1,25 @@
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: s-group-gateway
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
+      - LOG_LEVEL=info
+      - DHL_WEBHOOK_SECRET=${DHL_WEBHOOK_SECRET:-dhl-secret-key-staging}
+      - SCHENKER_WEBHOOK_SECRET=${SCHENKER_WEBHOOK_SECRET:-schenker-secret-key-staging}
+      - MAERSK_WEBHOOK_SECRET=${MAERSK_WEBHOOK_SECRET:-maersk-secret-key-staging}
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:3000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    security_opt:
+      - no-new-privileges:true

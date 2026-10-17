@@ -36,3 +36,14 @@
   - *Cost / Risk:* Requires asynchronous event storage and strictly scoped database query abstractions.
   - *Why chosen:* Guarantees tenant isolation at the query layer (`WHERE tenant_id = :id`) and delivers instant, resilient sub-millisecond timeline rendering.
 
+## Decision D-004: Production Containerization & Health Orchestration
+- **Option 1: Direct bare-metal / VM deployment using PM2**
+  - *Cost / Risk:* High risk of host configuration drift, missing OS-level library dependencies, and complex rollback procedures. Hard to replicate staging environments consistently.
+  - *Why rejected:* Lacks environment immutability and modern cloud-native orchestrator compatibility.
+- **Option 2: Single-stage Docker container running as default root user**
+  - *Cost / Risk:* Security violation. Running Node.js as `root` (UID 0) inside a container creates severe privilege escalation risks if an exploit is found. Bloats container size to >500MB with development compilers and source code left inside the image.
+  - *Why rejected:* Breaches Lane B security hardening and increases container attack surface.
+- **Option 3: Hardened multi-stage Alpine container with non-root user and health orchestration (Chosen)**
+  - *Cost / Risk:* Requires maintaining multi-stage build definitions and explicit file copying.
+  - *Why chosen:* Produces a tiny ~75MB production image, completely strips TypeScript compilers and dev tools from runtime, runs securely as unprivileged `USER node`, and equips orchestrators with native `/health` probes.
+

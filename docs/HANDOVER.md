@@ -24,17 +24,20 @@ Done:
 - Completed Phase 2 Threat Analysis (`docs/THREAT.md`) with 5 actor locks and Failure Resilience Matrix (`docs/FAILURE.md`) with 4 breakdown limits.
 - Authored 1-Page Whiteboard Defense brief in `docs/defense/s-group-gateway.md`.
 - Formally signed off all 14 points of the Lane B Pre-Ship Gate checklist with zero unresolved items.
-- Successfully conducted Whiteboard Defense drill with user (Habit 25); verified plain-language mastery of IDOR tenant query partitioning, 5-minute HMAC replay locks, Zod boundary resilience, German DSGVO 90-day pruning, and 60-second emergency rollback.
+- Recorded Decision D-004 in `docs/DECISIONS.md` and rejected options in `docs/ALTERNATIVES.md`.
+- Implemented and verified Slice 4: Hardened Multi-Stage Production Containerization & Health Orchestration (`Dockerfile`, `.dockerignore`, `docker-compose.yml`, `test/slice4_docker_deployment.test.ts`).
+- Created automated test suite for deployment artifacts, expanding suite to **23/23 tests passing** with 0 npm vulnerabilities.
+- Verified Dockerfile security constraints: multi-stage Alpine build, non-root `USER node` (UID 1000) execution, native `/health` container HEALTHCHECK probe, and `no-new-privileges` in compose.
 - Recorded and pushed all checkpoint commits to `origin/main` (`https://github.com/AllenFletcherAI/S-Group-gateway.git`).
 
 In progress:
-- Feature 001 delivery complete; system ready for staging deployment or subsequent sprint feature slices.
+- Preparing next sprint feature (e.g. distributed Redis rate limiting or live WebSocket container map).
 
 Broken or risky:
-- None identified. All 19 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
+- None identified. All 23 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
 
 Next:
-- Prepare staging deployment container (Docker/Helm) or proceed with Slice 4 enhancements (e.g., distributed Redis rate limiting, live WebSocket telemetry map, external PostgreSQL migration).
+- Decide on next feature slice: Distributed Redis rate limiting & shared replay nonce cache, or Live WebSocket interactive vessel & truck map.
 
 Do not touch:
 - Production database environments, live secret keys, and deployment configurations.

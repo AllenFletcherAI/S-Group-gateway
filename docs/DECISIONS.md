@@ -47,6 +47,19 @@ Plain Reason Why:
   - Synchronous carrier proxying is fragile; carrier API downtime or latency freezes customer screens.
   - Client-side filtering in JavaScript leaks entire database tables across the network, violating DSGVO and Habit 18 (IDOR vulnerability).
   - A tenant-partitioned repository guarantees that database queries return only records matching the authenticated customer's `tenant_id`. Dynamic milestone aggregation cleanly merges ingested DHL, Schenker, and Maersk events into an intuitive visual timeline.
-What We Gave Up: Requires maintaining an internal event log and updating shipment states asynchronously rather than reading live from carrier servers on-the-fly.
-Revisit If: We introduce sub-second real-time vehicle GPS streaming requiring WebSocket clusters.
+## D-004: Production Containerization, Non-Root Execution, and Health Orchestration
+Date: 2026-10-18  Model: Gemini 3.8 Flash (High)
+Problem Context: We need a secure, reproducible, and portable deployment artifact for the S-Group Gateway for staging and production hosting (e.g. AWS ECS, Kubernetes, or German sovereign cloud providers like Hetzner/IONOS). We must prevent configuration drift, minimize container attack surface, enforce non-root execution, and ensure automated container orchestrator health checks.
+Options Looked At:
+  1) Direct bare-metal / VM deployment using PM2 process manager
+  2) Single-stage Docker container running as default root user
+  3) Hardened multi-stage Alpine container running as unprivileged `node` user with native health check and Docker Compose orchestration (Chosen)
+What We Chose: Option 3
+Plain Reason Why:
+  - Multi-stage build separates build-time dependencies (`typescript`, `tsx`, `@types/*`) from production runtime, shrinking image size by ~85% (from ~500MB down to ~75MB).
+  - Enforces unprivileged execution (`USER node`) so container breakout vulnerabilities cannot compromise host OS resources.
+  - Native `HEALTHCHECK` directive allows Docker and Kubernetes orchestrators to automatically query `/health` and recycle degraded instances.
+  - `docker-compose.yml` provides reproducible local staging with parameterizable environment variables.
+What We Gave Up: Requires maintaining Docker build configurations and multi-stage file sync alongside application code.
+Revisit If: Application moves to serverless edge runtimes (e.g. AWS Lambda / Cloudflare Workers).
 
