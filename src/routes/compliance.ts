@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyRequest, FastifyReply } from "fastify";
 import { TelematicsPrunerService } from "../services/telematicsPruner.js";
 import { compliancePruningRateLimiter } from "../middleware/rateLimiter.js";
+import { requireAuth } from "../middleware/auth.js";
 
 interface ComplianceQuery {
   tenantId?: string;
@@ -16,20 +17,24 @@ export async function complianceRoutes(fastify: FastifyInstance, _options: Fasti
   const DEFAULT_TENANT = "DE-SIS-8921";
 
   // 1. Export Full Tenant Data Package (DSGVO Art. 15 Right of Access)
-  fastify.get("/api/v1/compliance/export", async (req: FastifyRequest<{ Querystring: ComplianceQuery }>, reply: FastifyReply) => {
-    const tenantId = req.query.tenantId || DEFAULT_TENANT;
-    const pkg = TelematicsPrunerService.generateTenantExport(tenantId);
+  fastify.get<{ Querystring: ComplianceQuery }>(
+    "/api/v1/compliance/export",
+    { preHandler: [requireAuth({ requiredScopes: ["compliance:audit"], allowPublicDemoFallback: true })] },
+    async (req, reply: FastifyReply) => {
+      const tenantId = (req as any).tenantId || req.query.tenantId || DEFAULT_TENANT;
+      const pkg = TelematicsPrunerService.generateTenantExport(tenantId);
 
-    if (req.query.download === "true") {
-      reply.header("content-disposition", `attachment; filename="dsgvo-art15-export-${tenantId}.json"`);
+      if (req.query.download === "true") {
+        reply.header("content-disposition", `attachment; filename="dsgvo-art15-export-${tenantId}.json"`);
+      }
+
+      return reply.type("application/json").send(pkg);
     }
-
-    return reply.type("application/json").send(pkg);
-  });
+  );
 
   // 2. Fetch Pruning Audit Ledger
   fastify.get("/api/v1/compliance/ledger", async (req: FastifyRequest<{ Querystring: ComplianceQuery }>, reply: FastifyReply) => {
-    const tenantId = req.query.tenantId || DEFAULT_TENANT;
+    const tenantId = (req as any).tenantId || req.query.tenantId || DEFAULT_TENANT;
     const ledger = TelematicsPrunerService.getPruningLedger(tenantId);
     return reply.send({
       tenantId,
@@ -43,9 +48,9 @@ export async function complianceRoutes(fastify: FastifyInstance, _options: Fasti
   // 3. Trigger or Dry-Run 90-Day Telematics Pruning Sweep
   fastify.post<{ Body?: PruneBody }>(
     "/api/v1/compliance/prune",
-    { preHandler: [compliancePruningRateLimiter] },
+    { preHandler: [compliancePruningRateLimiter, requireAuth({ requiredScopes: ["compliance:audit"], allowPublicDemoFallback: true })] },
     async (req, reply: FastifyReply) => {
-    const tenantId = req.body?.tenantId || DEFAULT_TENANT;
+    const tenantId = (req as any).tenantId || req.body?.tenantId || DEFAULT_TENANT;
     const isDryRun = Boolean(req.body?.dryRun);
 
     const sweepResult = TelematicsPrunerService.executeSweep(tenantId, isDryRun);

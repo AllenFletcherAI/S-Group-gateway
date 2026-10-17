@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyRequest } from "fastify";
 import { ShipmentRepository } from "../repositories/shipments.js";
 import { apiQueryRateLimiter } from "../middleware/rateLimiter.js";
+import { requireAuth } from "../middleware/auth.js";
 
 interface ShipmentQuery {
   carrier?: string;
@@ -25,12 +26,14 @@ interface DocumentParams {
 export async function apiRoutes(fastify: FastifyInstance, _options: FastifyPluginOptions) {
   // Apply sliding-window rate limiting to API queries (D-007)
   fastify.addHook("preHandler", apiQueryRateLimiter);
+  fastify.addHook("preHandler", requireAuth({ requiredScopes: ["shipments:read"], allowPublicDemoFallback: true }));
 
   // 1. List Shipments for Tenant
   fastify.get(
     "/api/v1/shipments",
     async (req: FastifyRequest<{ Querystring: ShipmentQuery }>, reply) => {
       const tenantId =
+        (req as any).tenantId ||
         (req.headers["x-tenant-id"] as string) ||
         req.query.tenantId ||
         "DE-SIS-8921";
@@ -54,6 +57,7 @@ export async function apiRoutes(fastify: FastifyInstance, _options: FastifyPlugi
     "/api/v1/shipments/:id",
     async (req: FastifyRequest<{ Params: ShipmentParams; Querystring: { tenantId?: string } }>, reply) => {
       const tenantId =
+        (req as any).tenantId ||
         (req.headers["x-tenant-id"] as string) ||
         req.query.tenantId ||
         "DE-SIS-8921";
@@ -79,6 +83,7 @@ export async function apiRoutes(fastify: FastifyInstance, _options: FastifyPlugi
     "/api/v1/documents/:docId/download",
     async (req: FastifyRequest<{ Params: DocumentParams; Querystring: { tenantId?: string } }>, reply) => {
       const tenantId =
+        (req as any).tenantId ||
         (req.headers["x-tenant-id"] as string) ||
         req.query.tenantId ||
         "DE-SIS-8921";

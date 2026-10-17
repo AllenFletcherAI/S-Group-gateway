@@ -41,17 +41,22 @@ Done:
 - Enforced physical pallet capacity and gross payload limits: prevents vehicle overloads with HTTP 400 "Capacity Overload" responses.
 - Implemented German DSGVO worker pseudonymization (`DRV-HAM-491`), ADR dangerous goods declaration validation, and multi-modal transport mode badges (Road Feeder, Rail Shuttle, Inland Barge).
 - Created interactive dispatch board on `/portal/dispatch` with 4-metric KPI ribbon (Total Tours, En Route, Pallet Utilization %, ADR Compliance %), status tabs, load progress meters, and shipment assignment form.
-- Expanded automated test suite to **43/43 tests passing** across 8 test suites with 0 npm vulnerabilities.
+- Recorded Decision D-009 in `docs/DECISIONS.md` and rejected options in `docs/ALTERNATIVES.md`.
+- Implemented and verified Slice 9: Enterprise Scoped API Keys & Native Constant-Time JWT RBAC (`src/middleware/auth.ts`, `src/routes/auth.ts`, `test/slice9_auth_rbac.test.ts`).
+- Defended against timing side-channel attacks via constant-time SHA-256 buffer comparison (`crypto.timingSafeEqual`).
+- Implemented HMAC-SHA256 JWT token generation, verification, and API key token exchange (`POST /api/v1/auth/token`, `GET /api/v1/auth/me`).
+- Enforced granular Role-Based Access Control (RBAC) with scopes (`shipments:read`, `shipments:write`, `dispatch:manage`, `compliance:audit`, `webhooks:publish`) and anti-spoofing tenant claim bindings.
+- Expanded automated test suite to **48/48 tests passing** across 9 test suites with 0 npm vulnerabilities.
 - Recorded and pushed all checkpoint commits to `origin/main` (`https://github.com/AllenFletcherAI/S-Group-gateway.git`).
 
 In progress:
-- Slices 1 through 8 fully implemented, verified, tested, containerized, and defensible.
+- Slices 1 through 9 fully implemented, verified, tested, containerized, and defensible.
 
 Broken or risky:
-- None identified. All 43 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
+- None identified. All 48 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
 
 Next:
-- Prepare system demonstration, production rollout, or optional PostgreSQL persistent database migration pipeline.
+- Implement Slice 10 (Final Slice): PostgreSQL Production Relational Schema Migrations & Storage Persistence Engine.
 
 Do not touch:
 - Production database environments, live secret keys, and deployment configurations.

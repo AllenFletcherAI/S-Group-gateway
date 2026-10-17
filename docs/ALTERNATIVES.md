@@ -91,3 +91,15 @@
   - *Cost / Risk:* Requires developing and maintaining internal tour models and capacity calculators.
   - *Why chosen:* Directly unifies seaport container arrivals with feeder road and rail allocation, enforces physical pallet/weight capacity bounds, verifies ADR compliance, and strictly pseudonymizes driver records for German DSGVO compliance.
 
+## Decision D-009: Enterprise Scoped API Keys & Native Constant-Time JWT RBAC
+- **Option 1: HTTP Basic Authentication**
+  - *Cost / Risk:* Transmits static credentials across every HTTP request, lacks scope granularity, and provides no built-in token expiration or tenant claim validation.
+  - *Why rejected:* Inadequate security model for enterprise B2B freight gateways.
+- **Option 2: External Identity Provider SaaS (Auth0 / Okta)**
+  - *Cost / Risk:* Adds external latency to every authenticated request, incurs steep monthly subscription costs per B2B customer, and fails when disconnected from the public internet.
+  - *Why rejected:* Breaches architectural sovereignty and impairs air-gapped container deployments.
+- **Option 3: Sovereign Native Constant-Time API Key & Scoped JWT RBAC Engine (Chosen)**
+  - *Cost / Risk:* Requires maintaining internal key registry and token signature helpers.
+  - *Why chosen:* Guarantees sub-millisecond authentication, uses Node.js `crypto.timingSafeEqual` against timing attacks, strictly enforces role scopes (`shipments:read`, `dispatch:manage`, `compliance:audit`), binds tenant identity to eliminate IDOR spoofing, and introduces zero third-party dependencies.
+
+

@@ -8,6 +8,7 @@ import { webhookRoutes } from "./routes/webhooks.js";
 import { apiRoutes } from "./routes/api.js";
 import { complianceRoutes } from "./routes/compliance.js";
 import { dispatchRoutes } from "./routes/dispatch.js";
+import { authRoutes } from "./routes/auth.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,6 +41,7 @@ export async function buildServer(): Promise<FastifyInstance> {
   await app.register(apiRoutes);
   await app.register(complianceRoutes);
   await app.register(dispatchRoutes);
+  await app.register(authRoutes);
 
   return app;
 }

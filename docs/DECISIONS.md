@@ -114,3 +114,20 @@ Plain Reason Why:
 What We Gave Up: Dynamic algorithmic traffic rerouting (which requires live third-party telematics subscriptions).
 Revisit If: Active feeder operations scale past 500 simultaneous vehicles, requiring automated combinatorial route optimization.
 
+## D-009: Enterprise Scoped API Keys & Native Constant-Time JWT RBAC Architecture
+Date: 2026-10-18  Model: Gemini 3.8 Flash (High)
+Problem Context: Public API endpoints for freight tracking, dispatch booking, and DSGVO compliance operations require fine-grained access control. Unauthenticated clients must be blocked, and authorized clients must be restricted to their granted permission scopes (`shipments:read`, `dispatch:manage`, `compliance:audit`). Tenant context must be cryptographically bound to credentials to prevent spoofing of `X-Tenant-Id` headers (Zero IDOR / BOLA).
+Options Looked At:
+  1) HTTP Basic Authentication (username:password credentials passed over headers with no scope granularity)
+  2) External SaaS Identity Provider (Auth0 / Okta) requiring third-party network egress and subscription lock-in
+  3) Sovereign Native Constant-Time API Key & Scoped JWT RBAC Engine using Node.js `crypto` (timingSafeEqual) with scope guard middleware (Chosen)
+What We Chose: Option 3
+Plain Reason Why:
+  - Native Node.js `crypto.timingSafeEqual` prevents timing side-channel attacks when validating API keys.
+  - Enforces least privilege via explicit scopes: a customer ERP key with `shipments:read` cannot trigger compliance purges (`compliance:audit`) or dispatch freight (`dispatch:manage`).
+  - Cryptographically anchors `tenantId` to the credential, overriding arbitrary client-supplied headers and enforcing Zero IDOR / BOLA.
+  - Zero external npm dependencies keeps the build completely self-contained and avoids supply-chain vulnerabilities.
+What We Gave Up: User-facing self-service OAuth2 consent screens (unnecessary for Phase 1 B2B logistics gateway).
+Revisit If: Platform expands to public third-party app marketplace with delegated user consent.
+
+

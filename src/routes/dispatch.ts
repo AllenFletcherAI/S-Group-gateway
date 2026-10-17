@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyRequest, FastifyReply } from "fastify";
 import { DispatchRepository, TourFilterParams } from "../repositories/dispatch.js";
 import { apiQueryRateLimiter } from "../middleware/rateLimiter.js";
+import { requireAuth } from "../middleware/auth.js";
 import { z } from "zod";
 
 interface TourQuery extends TourFilterParams {
@@ -24,10 +25,12 @@ export async function dispatchRoutes(fastify: FastifyInstance, _options: Fastify
   fastify.addHook("preHandler", apiQueryRateLimiter);
 
   // 1. List tours for tenant
-  fastify.get(
+  fastify.get<{ Querystring: TourQuery }>(
     "/api/v1/dispatch/tours",
-    async (req: FastifyRequest<{ Querystring: TourQuery }>, reply: FastifyReply) => {
+    { preHandler: [requireAuth({ requiredScopes: ["shipments:read"], allowPublicDemoFallback: true })] },
+    async (req, reply: FastifyReply) => {
       const tenantId =
+        (req as any).tenantId ||
         (req.headers["x-tenant-id"] as string) ||
         req.query.tenantId ||
         DEFAULT_TENANT;
@@ -47,10 +50,12 @@ export async function dispatchRoutes(fastify: FastifyInstance, _options: Fastify
   );
 
   // 2. Get single tour with tenant scoping
-  fastify.get(
+  fastify.get<{ Params: TourParams; Querystring: TourQuery }>(
     "/api/v1/dispatch/tours/:id",
-    async (req: FastifyRequest<{ Params: TourParams; Querystring: TourQuery }>, reply: FastifyReply) => {
+    { preHandler: [requireAuth({ requiredScopes: ["shipments:read"], allowPublicDemoFallback: true })] },
+    async (req, reply: FastifyReply) => {
       const tenantId =
+        (req as any).tenantId ||
         (req.headers["x-tenant-id"] as string) ||
         req.query.tenantId ||
         DEFAULT_TENANT;
@@ -69,11 +74,14 @@ export async function dispatchRoutes(fastify: FastifyInstance, _options: Fastify
   );
 
   // 3. Assign shipment to tour with capacity boundary validation
-  fastify.post(
+  fastify.post<{ Params: TourParams; Body: unknown }>(
     "/api/v1/dispatch/tours/:id/assign",
-    async (req: FastifyRequest<{ Params: TourParams; Body: unknown }>, reply: FastifyReply) => {
+    { preHandler: [requireAuth({ requiredScopes: ["dispatch:manage"], allowPublicDemoFallback: true })] },
+    async (req, reply: FastifyReply) => {
       const tenantId =
-        (req.headers["x-tenant-id"] as string) || DEFAULT_TENANT;
+        (req as any).tenantId ||
+        (req.headers["x-tenant-id"] as string) ||
+        DEFAULT_TENANT;
 
       const parsedBody = AssignShipmentSchema.safeParse(req.body);
       if (!parsedBody.success) {
