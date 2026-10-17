@@ -717,17 +717,19 @@ body {
 
 .btn-search-submit {
   padding: 8px var(--space-4);
-  background: var(--color-signal-blue);
-  color: #FFF;
-  border: none;
+  background: #FFFFFF;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-slate);
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
-  transition: background var(--transition-fast);
+  transition: all var(--transition-fast);
 }
 
 .btn-search-submit:hover {
-  background: var(--color-signal-blue-hover);
+  background: #F8FAFC;
+  border-color: #94A3B8;
+  color: var(--color-signal-blue);
 }
 
 /* Shipment Cards */
@@ -857,33 +859,150 @@ body {
 .meta-right {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .doc-count-tag {
-  background: #F1F5F9;
-  border: 1px solid var(--color-border-slate);
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 500;
   color: var(--color-text-muted);
 }
 
+/* ============================================================
+   HICK'S LAW 3-TIER VISUAL WEIGHT HIERARCHY (ZERO COMPETITION)
+   ============================================================ */
+
+/* Tier 1: Primary Action (Single Dominant CTA per Viewport/Card) */
+.btn-cta-primary,
+.btn-primary-action,
 .btn-track-action {
-  display: inline-block;
-  background: var(--color-navy-dark);
-  color: #FFF;
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 6px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  background: var(--color-signal-blue);
+  color: #FFFFFF !important;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 8px 18px;
   border-radius: 6px;
+  border: 1px solid #0284C7;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-cta-primary:hover,
+.btn-primary-action:hover,
+.btn-track-action:hover {
+  background: #0369A1;
+  border-color: #0369A1;
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.45);
+  transform: translateY(-1px);
+}
+
+/* Tier 2: Secondary Action (Subordinate Supporting Controls) */
+.btn-cta-secondary,
+.btn-doc-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  background: #FFFFFF;
+  color: var(--color-text-primary);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 7px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border-slate);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-cta-secondary:hover,
+.btn-doc-download:hover {
+  background: #F8FAFC;
+  border-color: #94A3B8;
+  color: var(--color-signal-blue);
+}
+
+/* Tier 3: Tertiary Action (Subtle Text / Minimal Link) */
+.btn-cta-tertiary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border: none;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.btn-cta-tertiary:hover {
+  color: var(--color-signal-blue);
+  text-decoration: underline;
+}
+
+/* Tier 3 Danger: Controlled Action (Destructive Confirmations) */
+.btn-cta-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  background: transparent;
+  color: #DC2626;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 7px 14px;
+  border-radius: 6px;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-cta-danger:hover {
+  background: #FEF2F2;
+  border-color: #DC2626;
+}
+
+/* Progressive Disclosure Details & Accordions */
+.progressive-disclosure {
+  border: 1px solid var(--color-border-slate);
+  border-radius: 8px;
+  background: #F8FAFC;
+  margin-top: var(--space-4);
+  overflow: hidden;
+}
+
+.progressive-disclosure summary {
+  padding: var(--space-3) var(--space-4);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-navy-dark);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
   transition: background var(--transition-fast);
 }
 
-.btn-track-action:hover {
-  background: var(--color-signal-blue);
+.progressive-disclosure summary:hover {
+  background: #F1F5F9;
+}
+
+.progressive-disclosure-content {
+  padding: var(--space-4);
+  border-top: 1px solid var(--color-border-slate);
+  background: #FFFFFF;
 }
 
 /* Milestone Status Pills */
@@ -1257,19 +1376,21 @@ body {
 }
 
 .btn-dispatch-search {
-  padding: 6px 12px;
+  padding: 6px 14px;
   font-size: 13px;
   font-weight: 600;
-  background: var(--color-signal-blue);
-  color: #FFFFFF;
-  border: none;
+  background: #FFFFFF;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-slate);
   border-radius: 6px;
   cursor: pointer;
-  transition: background var(--transition-fast);
+  transition: all var(--transition-fast);
 }
 
 .btn-dispatch-search:hover {
-  background: var(--color-signal-blue-hover);
+  background: #F8FAFC;
+  border-color: #94A3B8;
+  color: var(--color-signal-blue);
 }
 
 .tours-list-grid {

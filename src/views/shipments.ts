@@ -45,7 +45,7 @@ export function renderShipmentsView(shipments: Shipment[], lang: "de" | "en", cu
             : "";
 
           return `
-          <article class="shipment-card" data-shipment-id="${s.shipmentId}">
+          <article class="shipment-card" data-shipment-id="${s.shipmentId}" onclick="window.location.href='/portal/tracking?id=${s.shipmentId}&lang=${lang}'" style="cursor: pointer;">
             <div class="shipment-card-top">
               <div class="shipment-id-group">
                 <span class="carrier-chip carrier-${s.carrier.toLowerCase()}">${s.carrier}</span>
@@ -73,7 +73,7 @@ export function renderShipmentsView(shipments: Shipment[], lang: "de" | "en", cu
               <p class="cargo-desc"><strong>${isDe ? "Frachtgut:" : "Cargo:"}</strong> ${cargoDesc} (<code>${s.weightKg.toLocaleString()} kg</code>)</p>
               <div class="meta-right">
                 ${docBadge}
-                <a href="/portal/tracking?id=${s.shipmentId}&lang=${lang}" class="btn-track-action">
+                <a href="/portal/tracking?id=${s.shipmentId}&lang=${lang}" class="btn-track-action" onclick="event.stopPropagation();">
                   ${isDe ? "Live-Tracking & Timeline ➔" : "Live Tracking & Timeline ➔"}
                 </a>
               </div>

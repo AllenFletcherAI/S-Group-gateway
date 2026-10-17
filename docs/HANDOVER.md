@@ -53,10 +53,11 @@ Done:
 - Integrated database connection health probe into `/health` endpoint and configured production PostgreSQL 16 container in `docker-compose.yml`.
 - Expanded automated test suite to **54/54 tests passing** across 10 test suites with 0 npm vulnerabilities.
 - Completed UI header cleanup: removed redundant top status bar and duplicate mobile navigation drawer while preserving tenant context in user menu and DSGVO badges in footer (`src/views/layout.ts`, `src/public/css/layout.css`, `src/public/js/navigation.js`, `test/slice1_layout.test.ts`).
+- Implemented Hick's Law 3-Tier Visual Weight System & Progressive Disclosure: eliminated competing CTAs, established single dominant action per screen, demoted utility searches to secondary tier, and enclosed manual administrative pruning behind collapsible progressive disclosure (`src/public/css/layout.css`, `src/views/shipments.ts`, `src/views/compliance.ts`).
 - Recorded and pushed all checkpoint commits to `origin/main` (`https://github.com/AllenFletcherAI/S-Group-gateway.git`).
 
 In progress:
-- Clean UI header refinement complete; all 54 tests passing.
+- Hick's Law design standard implemented globally; all 54 tests passing.
 
 Broken or risky:
 - None identified. All 54 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.

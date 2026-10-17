@@ -113,14 +113,23 @@ export function renderComplianceView(ledger: PruneLogEntry[], tenantId: string, 
             </p>
           </div>
 
-          <div style="margin-top: 16px; display:flex; gap: var(--space-2); flex-wrap: wrap;">
-            <button id="btn-trigger-prune" class="btn-search-submit" onclick="executePruningSweep(false)">
-              ⚡ ${isDe ? "Löschlauf jetzt ausführen" : "Run Pruning Sweep Now"}
-            </button>
-            <button id="btn-dryrun-prune" class="btn-doc-download" onclick="executePruningSweep(true)">
-              🔍 ${isDe ? "Testlauf (Dry-Run)" : "Simulate (Dry-Run)"}
-            </button>
-          </div>
+          <!-- Progressive Disclosure for Advanced Manual Pruning -->
+          <details class="progressive-disclosure" style="margin-top: 16px;">
+            <summary>${isDe ? "⚙️ Manuelle Speicherbereinigung & Testlauf (Erweitert)" : "⚙️ Manual Storage Pruning & Simulation (Advanced)"}</summary>
+            <div class="progressive-disclosure-content">
+              <p style="font-size: 13px; color: var(--color-text-muted); margin-bottom: 12px;">
+                ${isDe ? "Manuelle Läufe überschreiben den regulären Nacht-Cronjob. Führen Sie vor einem Löschlauf stets eine Simulation durch." : "Manual sweeps override the regular nightly cron schedule. Always perform a simulation run prior to permanent purging."}
+              </p>
+              <div style="display:flex; gap: var(--space-3); flex-wrap: wrap; align-items: center;">
+                <button id="btn-dryrun-prune" class="btn-cta-secondary" onclick="executePruningSweep(true)">
+                  🔍 ${isDe ? "Testlauf simulieren (Dry-Run)" : "Simulate (Dry-Run)"}
+                </button>
+                <button id="btn-trigger-prune" class="btn-cta-danger" onclick="executePruningSweep(false)">
+                  ⚡ ${isDe ? "Löschlauf unwiderruflich ausführen" : "Execute Permanent Prune"}
+                </button>
+              </div>
+            </div>
+          </details>
           <div id="prune-result-banner" style="margin-top: 12px; display: none;"></div>
         </section>
 
@@ -133,7 +142,7 @@ export function renderComplianceView(ledger: PruneLogEntry[], tenantId: string, 
             ${isDe ? "Laden Sie den vollständigen, kryptographisch signierten Datenbestand Ihres Mandanten (Sendungen, Ereignisse, Zolldokumente und Löschprotokolle) als maschinenlesbares JSON-Paket herunter." : "Download the complete, cryptographically signed data package for your tenant (shipments, events, customs waybills, and purge logs) as machine-readable JSON."}
           </p>
 
-          <a href="/api/v1/compliance/export?download=true&tenantId=${tenantId}" target="_blank" class="btn-search-submit" style="display:inline-block; text-decoration:none; margin-top: 8px;">
+          <a href="/api/v1/compliance/export?download=true&tenantId=${tenantId}" target="_blank" class="btn-cta-primary" style="margin-top: 12px;">
             ⬇️ ${isDe ? "Mandanten-Datenpaket exportieren (JSON)" : "Export Tenant Data Package (JSON)"}
           </a>
         </section>
