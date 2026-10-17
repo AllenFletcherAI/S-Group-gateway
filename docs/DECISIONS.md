@@ -18,6 +18,7 @@ Plain Reason Why:
   - PostgreSQL provides ACID compliance and indexed tenant isolation (`tenant_id`) required for German DSGVO multi-tenancy.
 What We Gave Up: Requires a TypeScript compilation step and strict Zod schema definitions upfront compared to rapid throwaway scripts.
 Revisit If: Telematics ingestion volume exceeds 50,000 events per second, justifying a distributed message streaming engine (e.g. Apache Kafka).
+
 ## D-002: Carrier Webhook Cryptographic Verification & Schema Normalization
 Date: 2026-10-18  Model: Gemini 3.8 Flash (High)
 Problem Context: Partner logistics carriers (DHL, DB Schenker, Maersk) transmit status updates and telematics over public internet webhooks. We must verify sender identity, detect payload tampering, reject replayed requests, and sanitize inputs to prevent injection attacks and corrupt records.

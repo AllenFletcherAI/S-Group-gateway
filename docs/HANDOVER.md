@@ -20,16 +20,20 @@ Done:
 - Implemented and verified Slice 3: Unified Shipment Status & Dispatch API, multi-tenant repository, live timeline stepper, and customs paperwork archive (`src/repositories/shipments.ts`, `src/routes/api.ts`, `src/views/shipments.ts`, `src/views/tracking.ts`).
 - Created automated test suite (`test/slice3_shipments_timeline.test.ts`), passing 6/6 tests. Total test suite: 19/19 passing with 0 vulnerabilities in `npm audit`.
 - Verified live customer path: interactive shipment directory, carrier filters, search, dynamic timeline merging, and document downloads.
+- Conducted Strix static security audit across routes and middleware: 0 vulnerabilities found.
+- Completed Phase 2 Threat Analysis (`docs/THREAT.md`) with 5 actor locks and Failure Resilience Matrix (`docs/FAILURE.md`) with 4 breakdown limits.
+- Authored 1-Page Whiteboard Defense brief in `docs/defense/s-group-gateway.md`.
 
 In progress:
-- Preparing Phase 2: Strix security vulnerability probe and Pre-Ship Gate inspection.
+- Lane B 14-Point Pre-Ship Gate sign-off and Whiteboard Defense Drill (Habit 25).
 
 Broken or risky:
-- None identified.
+- None identified. All 19 tests pass; TypeScript compiles with zero errors; 0 npm audit vulnerabilities.
 
 Next:
-- Execute Strix security probe on public API boundaries (`strix_probe_target`).
-- Complete 14-point Pre-Ship Gate in `docs/defense/s-group-gateway.md`.
+- Commit and tag Phase 2 security and Whiteboard Defense milestone to `origin/main`.
+- Update checkpoint SHA in `docs/ROLLBACK.md`.
+- Conduct 14-point Pre-Ship Gate review and Whiteboard Defense interview drill with user.
 
 Do not touch:
 - Production database environments, live secret keys, and deployment configurations.
