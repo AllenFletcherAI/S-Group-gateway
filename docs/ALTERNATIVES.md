@@ -14,4 +14,13 @@
   - *Cost / Risk:* Requires TypeScript build configuration and strict schema declarations.
   - *Why chosen:* Provides runtime and compile-time boundary safety, high HTTP performance, and clean modular isolation across files without giant scripts.
   - *Revisit if:* Telematics ingestion scales past 50,000 events/second, requiring distributed message streaming.
-
+## Decision D-002: Carrier Webhook Cryptographic Verification
+- **Option 1: Shared query token in URL (`?token=secret`)**
+  - *Cost / Risk:* High risk of token exposure. Query parameters are logged in plaintext across intermediate proxies, load balancers, and monitoring tools. Does not verify payload integrity; an attacker could alter status codes while keeping the valid token.
+  - *Why rejected:* Insecure against payload tampering and creates credential leakage liabilities.
+- **Option 2: Mutual TLS (mTLS) with client certificates**
+  - *Cost / Risk:* Heavy administrative burden. Third-party logistics carriers frequently struggle with certificate expiration and rotating private keys, causing blocked webhook delivery and shipment delays.
+  - *Why rejected:* Operational fragility for partner carriers.
+- **Option 3: HMAC-SHA256 signatures with 5-minute sliding replay window (Chosen)**
+  - *Cost / Risk:* Requires computing cryptographic hashes per request and securely distributing per-carrier shared secrets in environment configuration.
+  - *Why chosen:* Provides cryptographically verified integrity and sender authenticity while supporting standard HTTP webhook delivery from all carriers.
