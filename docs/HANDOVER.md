@@ -32,18 +32,21 @@ Done:
 - Enforced strict German privacy law (DSGVO Art. 5): displays macro-aggregated corridors with zero third-party map trackers, zero cookies, and zero driver personal data.
 - Recorded Decision D-006 in `docs/DECISIONS.md` and rejected options in `docs/ALTERNATIVES.md`.
 - Implemented and verified Slice 6: German Privacy (DSGVO Art. 15 / 17) Telematics Pruner & Export Engine (`src/services/telematicsPruner.ts`, `src/routes/compliance.ts`, `src/views/compliance.ts`, `test/slice6_compliance_pruner.test.ts`).
-- Created automated 90-day storage limitation pruning sweep with cryptographic SHA-256 ledger, Art. 15 customer data portability export package, and interactive compliance dashboard.
-- Expanded automated test suite to **33/33 tests passing** across 6 suites with 0 vulnerabilities in `npm audit`.
+- Recorded Decision D-007 in `docs/DECISIONS.md` and rejected options in `docs/ALTERNATIVES.md`.
+- Implemented and verified Slice 7: Sliding-Window Rate Limiter & DoS Shield Middleware (`src/middleware/rateLimiter.ts`, `test/slice7_rate_limiter.test.ts`).
+- Configured dedicated sliding-window rate limit buckets across public carrier webhooks (60 req/min), query APIs (100 req/min), and compliance sweeps (10 req/min).
+- Enforced standard RFC headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, `Retry-After`) and verified HTTP 429 Too Many Requests response.
+- Expanded automated test suite to **37/37 tests passing** across 7 test suites with 0 npm vulnerabilities.
 - Recorded and pushed all checkpoint commits to `origin/main` (`https://github.com/AllenFletcherAI/S-Group-gateway.git`).
 
 In progress:
-- Slices 1 through 6 fully implemented, tested, containerized, and defensible under Lane B standards.
+- Slices 1 through 7 fully implemented, verified, tested, containerized, and defensible.
 
 Broken or risky:
-- None identified. All 33 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
+- None identified. All 37 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
 
 Next:
-- Prepare next enhancements: distributed Redis rate limiter & replay nonce cache, or PostgreSQL external database migration pipeline.
+- Proceed with Slice 8: Dispatch Operations & Feeder Tour Planning Cockpit (`/portal/dispatch`), or PostgreSQL external migration pipeline.
 
 Do not touch:
 - Production database environments, live secret keys, and deployment configurations.

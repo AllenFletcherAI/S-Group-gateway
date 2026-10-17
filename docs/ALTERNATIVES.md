@@ -69,3 +69,14 @@
   - *Cost / Risk:* Requires maintaining automated retention window logic and data aggregation pipelines.
   - *Why chosen:* Provides guaranteed deletion of raw GPS telemetry past 90 days, maintains permanent macro-milestones, logs every purge event with ISO 27001 audit receipts, and allows instant customer export.
 
+## Decision D-007: Sliding-Window Rate Limiting & DoS Shield
+- **Option 1: Fixed-Window Counter**
+  - *Cost / Risk:* Traffic burst vulnerability. If a client sends its limit in the last second of a minute and sends another full limit in the first second of the next minute, it achieves a 2x rate burst in 2 seconds, which can overwhelm the backend.
+  - *Why rejected:* Flawed burst defense compared to sliding-window algorithms.
+- **Option 2: Cloud WAF / External API Gateway**
+  - *Cost / Risk:* Vendor lock-in (e.g. AWS WAF / Cloudflare), additional recurring cloud costs, and egress latency. Tests cannot run completely offline or in isolated corporate environments.
+  - *Why rejected:* Undermines self-contained sovereign architecture and local test speed.
+- **Option 3: Sliding-Window Rate Limiter Middleware (Chosen)**
+  - *Cost / Risk:* Requires tracking request timestamp arrays in memory.
+  - *Why chosen:* Completely prevents boundary bursts, emits standard `X-RateLimit-*` and `Retry-After` headers, runs with 0 cloud dependencies, and scales cleanly.
+

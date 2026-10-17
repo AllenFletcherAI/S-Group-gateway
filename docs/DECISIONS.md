@@ -85,6 +85,19 @@ Plain Reason Why:
   - Guarantees strict compliance with German DSGVO Art. 5: automatically purges high-frequency driver telematics older than 90 days while safely preserving permanent business milestones ("Delivered", "Customs Cleared").
   - Produces an immutable, timestamped audit log of every pruning sweep that enterprise compliance officers can inspect live in the portal.
   - Implements Art. 15 Right of Access via authenticated, SHA-256 hashed JSON data export for the customer.
-What We Gave Up: Detailed micro-GPS telemetry cannot be retrieved for forensic route analysis beyond 90 days.
-Revisit If: German Federal Office for Goods Transport (BALM / formerly BAG) mandates longer retention for specialized hazardous materials (ADR).
+## D-007: Sliding-Window Rate Limiting & DoS Shield Middleware
+Date: 2026-10-18  Model: Gemini 3.8 Flash (High)
+Problem Context: Public carrier webhook endpoints and client query APIs are exposed to the public internet and susceptible to volumetric DoS floods, bot traffic, and rogue carrier retry loops. We must throttle abusive traffic, protect event-loop availability, and return standardized HTTP 429 responses with `Retry-After` headers.
+Options Looked At:
+  1) Fixed-Window Counter (vulnerable to double-burst traffic surges right at minute boundaries)
+  2) Proprietary external cloud WAF / API Gateway requiring vendor lock-in and extra egress latency
+  3) Sliding-Window Rate Limiter Middleware with standard HTTP headers (`X-RateLimit-*`, `Retry-After`) and Redis-ready driver interface (Chosen)
+What We Chose: Option 3
+Plain Reason Why:
+  - Sliding-window tracking accurately prevents traffic spikes across sliding intervals without the boundary burst vulnerability of fixed counters.
+  - Operates locally with zero vendor lock-in and zero external network calls, keeping test suites fast and staging air-gapped.
+  - Configures dedicated buckets: Carrier Webhooks (60 req/min), Query APIs (100 req/min), and Compliance Pruning (10 req/min).
+  - Emits standard RFC rate limit headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`) and returns HTTP 429 with `Retry-After`.
+What We Gave Up: Slightly higher memory footprint than basic fixed counters due to sliding timestamp tracking.
+Revisit If: Horizontal Kubernetes cluster expansion requires distributed Redis counter synchronization across more than 10 pods.
 

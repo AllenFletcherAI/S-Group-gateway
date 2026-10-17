@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyRequest } from "fastify";
 import { ShipmentRepository } from "../repositories/shipments.js";
+import { apiQueryRateLimiter } from "../middleware/rateLimiter.js";
 
 interface ShipmentQuery {
   carrier?: string;
@@ -22,6 +23,9 @@ interface DocumentParams {
  * strictly preventing cross-tenant information disclosure (IDOR / BOLA defense).
  */
 export async function apiRoutes(fastify: FastifyInstance, _options: FastifyPluginOptions) {
+  // Apply sliding-window rate limiting to API queries (D-007)
+  fastify.addHook("preHandler", apiQueryRateLimiter);
+
   // 1. List Shipments for Tenant
   fastify.get(
     "/api/v1/shipments",

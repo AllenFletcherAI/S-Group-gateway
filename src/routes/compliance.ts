@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyRequest, FastifyReply } from "fastify";
 import { TelematicsPrunerService } from "../services/telematicsPruner.js";
+import { compliancePruningRateLimiter } from "../middleware/rateLimiter.js";
 
 interface ComplianceQuery {
   tenantId?: string;
@@ -40,7 +41,10 @@ export async function complianceRoutes(fastify: FastifyInstance, _options: Fasti
   });
 
   // 3. Trigger or Dry-Run 90-Day Telematics Pruning Sweep
-  fastify.post("/api/v1/compliance/prune", async (req: FastifyRequest<{ Body?: PruneBody }>, reply: FastifyReply) => {
+  fastify.post<{ Body?: PruneBody }>(
+    "/api/v1/compliance/prune",
+    { preHandler: [compliancePruningRateLimiter] },
+    async (req, reply: FastifyReply) => {
     const tenantId = req.body?.tenantId || DEFAULT_TENANT;
     const isDryRun = Boolean(req.body?.dryRun);
 

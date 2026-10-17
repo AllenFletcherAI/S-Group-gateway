@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyPluginOptions, FastifyRequest } from "fastify";
 import { CarrierCode, CarrierCodeEnum, NormalizedMilestoneEvent } from "../schemas/carrierEvents.js";
 import { verifyWebhookSignature } from "../middleware/webhookAuth.js";
 import { normalizeCarrierEvent } from "../adapters/carrierAdapter.js";
+import { carrierWebhookRateLimiter } from "../middleware/rateLimiter.js";
 import { ZodError } from "zod";
 
 // Shared carrier secret lookup (can be configured via environment variables)
@@ -34,6 +35,7 @@ export async function webhookRoutes(fastify: FastifyInstance, _options: FastifyP
   // We need the raw body for HMAC signature verification
   fastify.post(
     "/api/v1/webhooks/carrier",
+    { preHandler: [carrierWebhookRateLimiter] },
     async (req: FastifyRequest, reply) => {
       const carrierHeader = req.headers["x-carrier-id"] as string | undefined;
       const signatureHeader = req.headers["x-carrier-signature"] as string | undefined;
