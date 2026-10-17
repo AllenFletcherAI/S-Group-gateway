@@ -113,5 +113,17 @@
   - *Cost / Risk:* Requires maintaining explicit SQL migration scripts and schema checksum tracking.
   - *Why chosen:* Provides transparent, version-controlled DDL files (`V001` through `V005`), enforces physical capacity and gross weight CHECK constraints directly in PostgreSQL, tracks migration checksums in `schema_migrations`, runs in under 100ms, and enables instant rollback scripts.
 
+## Decision D-011: Customs Pre-Clearance Redline Audit & 3-Way Reconciliation Engine
+- **Option 1: Manual Visual Inspection of Paper/PDF Documents by Dispatchers**
+  - *Cost / Risk:* High labor cost, slow turnarounds, high human error rate leading to container detention fees (€150–€500/day), missed discrepancies between ATLAS declarations and carrier waybills, and uncoordinated port gate-in rejections.
+  - *Why rejected:* Fails to prevent demurrage penalties before trucks reach seaport gates and does not provide cryptographic audit trails.
+- **Option 2: Heavy Third-Party Cloud Customs SaaS with US Data Relays**
+  - *Cost / Risk:* Recurring per-document licensing fees, vendor lock-in, latency dependencies on outside APIs, and violation of German DSGVO (GDPR) data sovereignty when transferring freight commercial invoice data to foreign servers.
+  - *Why rejected:* Breaches Lane B privacy rules, adds unneeded external failure points, and incurs recurring operational costs.
+- **Option 3: Deterministic 3-Way Reconciliation & ISO 6346 Modulo-11 Audit Engine Ported from RedLine Gateway (Chosen)**
+  - *Cost / Risk:* Requires maintaining TypeScript domain reconciliation rules and sample verification fixtures.
+  - *Why chosen:* Directly reuses battle-tested German forwarding and customs logic: pure ISO 6346 container check digit calculation, § 412 HGB 50 kg / 1% tare weight tolerance checking, package count matching, and automatic generation of formal ADSp 2017 Speditions-Beanstandung notices. Adheres strictly to Hick's Law with zero external dependencies and sub-5ms local execution.
+
+
 
 

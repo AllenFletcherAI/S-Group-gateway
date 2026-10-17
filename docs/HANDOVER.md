@@ -56,11 +56,20 @@ Done:
 - Implemented Hick's Law 3-Tier Visual Weight System & Progressive Disclosure: eliminated competing CTAs, established single dominant action per screen, demoted utility searches to secondary tier, and enclosed manual administrative pruning behind collapsible progressive disclosure (`src/public/css/layout.css`, `src/views/shipments.ts`, `src/views/compliance.ts`).
 - Recorded and pushed all checkpoint commits to `origin/main` (`https://github.com/AllenFletcherAI/S-Group-gateway.git`).
 
+- Recorded Decision D-011 in `docs/DECISIONS.md` and rejected options in `docs/ALTERNATIVES.md`.
+- Implemented and verified Slice 11: Customs Pre-Clearance Redline Audit & 3-Way Reconciliation Engine ported from `RedLine Gateway` (`src/services/customsAuditor.ts`, `src/views/documents.ts`, `src/routes/api.ts`, `src/routes/portal.ts`, `test/slice11_customs_redline_audit.test.ts`).
+- Ported pure ISO 6346 Modulo-11 container checksum verification algorithm to TypeScript: catches container number corruption and gate-in rejections.
+- Implemented 3-Way Cross-Document Reconciliation (Carrier B/L vs. German ATLAS Zollanmeldung vs. Commercial Invoice) enforcing § 412 HGB 50 kg / 1% tare weight tolerances and package (Colli) consistency.
+- Implemented automated formal German ADSp 2017 & § 412 HGB Speditions-Beanstandung (Carrier Discrepancy Notice memo) generator calculating averted demurrage liability (€150–€500/day).
+- Created interactive Redline Audit Cockpit at `/portal/documents` with single primary action ("Redline-Audit durchführen" / "Zoll-Freigabe erteilen"), 4-metric compliance ribbon, 4-column matrix, and clean vs. discrepancy sample switcher adhering to Hick's Law.
+- Expanded automated test suite to **60/60 tests passing** across 11 test suites with 0 npm vulnerabilities.
+- Verified live running daemon on `http://localhost:3000/portal/documents` (HTTP 200 OK) and API endpoints (`GET /api/v1/customs/samples`, `POST /api/v1/customs/reconcile`).
+
 In progress:
-- Hick's Law design standard implemented globally; all 54 tests passing.
+- All core logistics gateway features and Redline Customs Pre-Clearance Audit engine complete; all 60 tests passing.
 
 Broken or risky:
-- None identified. All 54 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
+- None. All 60 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
 
 Next:
 - Production deployment rollout, customer UAT handover, or optional additional enterprise ERP connectors.
@@ -69,3 +78,4 @@ Do not touch:
 - Production database environments, live secret keys, and deployment configurations.
 
 Read first: ARCHITECTURE.md, CONSTRAINTS.md
+

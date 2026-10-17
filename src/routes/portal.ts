@@ -7,6 +7,8 @@ import { renderComplianceView } from "../views/compliance.js";
 import { TelematicsPrunerService } from "../services/telematicsPruner.js";
 import { DispatchRepository } from "../repositories/dispatch.js";
 import { renderDispatchView } from "../views/dispatch.js";
+import { renderDocumentsView } from "../views/documents.js";
+import { CustomsAuditorService } from "../services/customsAuditor.js";
 
 interface PortalQuery {
   lang?: "de" | "en";
@@ -14,6 +16,7 @@ interface PortalQuery {
   carrier?: string;
   status?: string;
   id?: string;
+  sample?: "clean" | "discrepancy";
 }
 
 /**
@@ -182,50 +185,35 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
     return reply.type("text/html; charset=utf-8").send(html);
   });
 
-  // 3. Customs Documents & Compliance Page
+  // 3. Customs Documents & Compliance Page with Redline 3-Way Audit
   fastify.get("/portal/documents", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
     const lang = req.query.lang === "en" ? "en" : "de";
     const isDe = lang === "de";
-    const shipments = ShipmentRepository.getShipmentsByTenant(DEFAULT_TENANT);
+    const selectedSample = req.query.sample === "discrepancy" ? "discrepancy" : "clean";
 
+    const shipments = ShipmentRepository.getShipmentsByTenant(DEFAULT_TENANT);
     const allDocs = shipments.flatMap((s) => s.documents.map((d) => ({ doc: d, shipmentId: s.shipmentId, carrier: s.carrier })));
 
-    const docItems = allDocs.map(({ doc, shipmentId, carrier }) => {
-      const title = isDe ? doc.titleDe : doc.titleEn;
-      return `
-        <div class="document-item-card">
-          <div class="doc-icon" aria-hidden="true">📄</div>
-          <div class="doc-info">
-            <p class="doc-title"><strong>${title}</strong></p>
-            <p class="doc-meta">
-              <span>${isDe ? "Sendung:" : "Shipment:"} <strong>${shipmentId}</strong> (${carrier})</span> • 
-              <span>${isDe ? "Aktenzeichen:" : "Ref:"} <code>${doc.fileNumber}</code></span> • 
-              <span>${doc.fileSizeKb} KB</span>
-            </p>
-          </div>
-          <div class="doc-action">
-            <a href="/api/v1/documents/${doc.docId}/download" target="_blank" class="btn-doc-download">
-              ⬇️ ${isDe ? "Prüfen & Download" : "Verify & Download"}
-            </a>
-          </div>
-        </div>
-      `;
-    }).join("\n");
+    const samples = CustomsAuditorService.getSampleDossiers();
+    const activeDossier = selectedSample === "discrepancy" ? samples.discrepancy : samples.clean;
 
-    const content = `
-      <section class="portal-hero-card">
-        <h1 class="hero-title">${isDe ? "Zolldokumente & Frachtbrief-Archiv" : "Customs Documents & Waybill Archive"}</h1>
-        <p class="hero-subtitle">
-          ${isDe ? "Zentrales Archiv für ATLAS-Ausfuhr-/Einfuhrbelege, CMR-Frachtbriefe und Konnossemente (Mandant DE-SIS-8921)." : "Central repository for ATLAS customs declarations, CMR waybills, and bills of lading (Tenant DE-SIS-8921)."}
-        </p>
-        <div class="documents-list" style="margin-top: 24px;">
-          ${docItems}
-        </div>
-      </section>
-    `;
+    const auditResult = CustomsAuditorService.reconcileDossier(
+      activeDossier.shipmentId,
+      activeDossier.bol,
+      activeDossier.atlas,
+      activeDossier.invoice,
+      lang
+    );
+
+    const content = renderDocumentsView({
+      documents: allDocs,
+      auditResult,
+      selectedSample,
+      lang,
+    });
 
     const html = renderLayout({
-      title: isDe ? "Dokumente & Zoll" : "Documents & Customs",
+      title: isDe ? "Zolldokumente & Redline-Audit" : "Customs Documents & Redline Audit",
       activeNavId: "documents",
       lang,
       content,

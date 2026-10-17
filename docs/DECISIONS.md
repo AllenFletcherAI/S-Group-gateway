@@ -143,8 +143,24 @@ Plain Reason Why:
   - Database-level physical safety invariants: enforces `CHECK (loaded_pallets <= max_pallets)` and `CHECK (loaded_weight_kg <= max_weight_kg)` directly in the database engine.
   - Tracks migration versions in `schema_migrations` with cryptographic SHA-256 checksums to detect file drift or tampering.
   - Decoupled driver architecture allows instant offline verification during tests while seamlessly binding to production PostgreSQL via `DATABASE_URL`.
-What We Gave Up: Automatic GUI database administrative dashboard (handled via standard pgAdmin or CLI).
 Revisit If: Database sharding across multi-region clusters is required in future European expansion phases.
 
-
-
+## D-011: Customs Pre-Clearance Redline Audit & 3-Way Reconciliation Engine (Ported from RedLine Gateway)
+Date: 2026-10-18  Model: Gemini 3.8 Flash (High)
+Problem Context: German Customs (Zoll / ATLAS) and European Customs Code (UZK) impose severe delays and demurrage penalties (€150–€500/day per container) if transport documents contain weight variances, incorrect package counts (Colli), invalid container check digits, or missing HS codes. S-Group dispatchers need a pre-clearance Redline Audit tool to cross-check the ATLAS Zollanmeldung against the Carrier Bill of Lading and Commercial Invoice before trucks arrive at seaport gates.
+Options Looked At:
+  1) Manual visual inspection of printed PDFs by dispatchers (error-prone, slow, doesn't scale)
+  2) Heavy external cloud customs validation SaaS with per-document fees and US cloud data transfer (violates GDPR)
+  3) Ported Deterministic 3-Way Reconciliation & ISO 6346 Modulo-11 Audit Engine from RedLine Gateway (Chosen)
+What We Chose: Option 3
+Plain Reason Why:
+  - Reuses battle-tested German customs forwarding logic directly from RedLine Gateway:
+    - ISO 6346 Modulo-11 container checksum verification.
+    - § 412 HGB and German Customs 50kg / 1% tare weight tolerance checking.
+    - Package count (Colli) delta detection.
+    - Incoterms 2020 commercial consistency rules.
+    - Automated generation of formal ADSp 2017 & § 412 HGB Speditions-Beanstandung (Carrier Discrepancy Notice memos).
+  - Implements the Hick's Law product design standard: single dominant primary CTA ("Redline-Audit durchführen" / "Zoll-Freigabe erteilen") with a clear 4-column side-by-side reconciliation matrix.
+  - Zero external npm dependencies; runs locally on Node.js/TypeScript with zero third-party data leakage.
+What We Gave Up: Full optical AI vision OCR inside the container (uses pre-parsed structured document records and sample dossiers for instant deterministic validation).
+Revisit If: Dedicated serverless GPU OCR pipeline is deployed for raw scanned camera images.

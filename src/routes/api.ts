@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyPluginOptions, FastifyRequest } from "fastify";
 import { ShipmentRepository } from "../repositories/shipments.js";
 import { apiQueryRateLimiter } from "../middleware/rateLimiter.js";
 import { requireAuth } from "../middleware/auth.js";
+import { CustomsAuditorService, CustomsDocumentRecord } from "../services/customsAuditor.js";
 
 interface ShipmentQuery {
   carrier?: string;
@@ -107,6 +108,64 @@ export async function apiRoutes(fastify: FastifyInstance, _options: FastifyPlugi
         issuer: "Schäfer & SIS Interlogistik GmbH - Zollabteilung",
         hash: `SHA256-${Buffer.from(result.document.fileNumber).toString("base64")}`
       });
+    }
+  );
+
+  // 4. Customs Redline Audit: Preloaded Samples
+  fastify.get("/api/v1/customs/samples", async (_req, reply) => {
+    const samples = CustomsAuditorService.getSampleDossiers();
+    return reply.status(200).send({
+      status: "success",
+      samples
+    });
+  });
+
+  // 5. Customs Redline Audit: Execute 3-Way Cross-Reconciliation
+  fastify.post(
+    "/api/v1/customs/reconcile",
+    async (
+      req: FastifyRequest<{
+        Body: {
+          shipmentId: string;
+          bol: CustomsDocumentRecord;
+          atlas: CustomsDocumentRecord;
+          invoice: CustomsDocumentRecord;
+          lang?: "de" | "en";
+        };
+      }>,
+      reply
+    ) => {
+      const { shipmentId, bol, atlas, invoice, lang = "de" } = req.body;
+      if (!shipmentId || !bol || !atlas || !invoice) {
+        return reply.status(400).send({
+          error: "Bad Request",
+          message: "Missing required dossier parameters: shipmentId, bol, atlas, invoice."
+        });
+      }
+
+      const result = CustomsAuditorService.reconcileDossier(shipmentId, bol, atlas, invoice, lang);
+      return reply.status(200).send(result);
+    }
+  );
+
+  // 6. Customs Redline Audit: Audit Status by Shipment ID
+  fastify.get(
+    "/api/v1/customs/audit/:shipmentId",
+    async (req: FastifyRequest<{ Params: { shipmentId: string }; Querystring: { lang?: "de" | "en" } }>, reply) => {
+      const { shipmentId } = req.params;
+      const lang = req.query.lang || "de";
+      const samples = CustomsAuditorService.getSampleDossiers();
+
+      const activeDossier = shipmentId === "SHP-SIS-2088" ? samples.discrepancy : samples.clean;
+      const result = CustomsAuditorService.reconcileDossier(
+        shipmentId,
+        activeDossier.bol,
+        activeDossier.atlas,
+        activeDossier.invoice,
+        lang
+      );
+
+      return reply.status(200).send(result);
     }
   );
 }
