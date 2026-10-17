@@ -4,8 +4,8 @@
 > Always know the last known good commit before starting risky work.
 
 ## Checkpoint Baseline
-- **Last Known Good Commit SHA:** `4b550d32be6f4e2884cb94675878f19e179f62dc` (Phase 2 Security & Whiteboard Defense)
-- **Last Good Release Tag:** `v1.0.0`
+- **Last Known Good Commit SHA:** `18b14bb8b4168c4658a6af43e045f8f4823e435d` (Slice 4 Containerization & Staging)
+- **Last Good Release Tag:** `v1.1.0`
 
 ## Rollback Execution Runbook
 1. **Revert Git Commit:**
