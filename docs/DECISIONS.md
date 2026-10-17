@@ -60,6 +60,19 @@ Plain Reason Why:
   - Enforces unprivileged execution (`USER node`) so container breakout vulnerabilities cannot compromise host OS resources.
   - Native `HEALTHCHECK` directive allows Docker and Kubernetes orchestrators to automatically query `/health` and recycle degraded instances.
   - `docker-compose.yml` provides reproducible local staging with parameterizable environment variables.
-What We Gave Up: Requires maintaining Docker build configurations and multi-stage file sync alongside application code.
-Revisit If: Application moves to serverless edge runtimes (e.g. AWS Lambda / Cloudflare Workers).
+## D-005: Sovereign SVG-Based Live Telematics Map Component
+Date: 2026-10-18  Model: Gemini 3.8 Flash (High)
+Problem Context: Enterprise logistics customers want to visualize their cargo's physical transit corridor, intermediate customs/port waypoints, and current vehicle or vessel position. We must comply with German DSGVO / TTDSG (zero third-party trackers or IP leaks to external mapping CDNs) while delivering a responsive, high-contrast, interactive map with official S-Group branding.
+Options Looked At:
+  1) External third-party map embed (e.g. Google Maps / Mapbox iframe)
+  2) Heavy client-side JS library (Leaflet/OpenLayers) downloading third-party OpenStreetMap raster tiles
+  3) Sovereign, self-contained SVG Vector Telematics Map with reactive CSS beacons and zero external network calls (Chosen)
+What We Chose: Option 3
+Plain Reason Why:
+  - Eliminates German DSGVO & TTDSG compliance risks: avoids loading third-party scripts that leak customer IP addresses and freight query identifiers to foreign servers.
+  - Zero external dependencies: operates reliably without external API keys, rate limits, or network tile failures.
+  - High performance & accessibility: pure vector SVG (<15KB), zero bundle bloat, responsive 8px grid layout, and WCAG AA contrast with S-Group Deep Navy (`#0B192C`) and Signal Blue (`#0284C7`).
+  - Respects driver privacy constraint (Habit 20): displays corridor macro-waypoints rather than invasive street-level driver tracking.
+What We Gave Up: Street-level pan-and-zoom (which is explicitly prohibited under driver privacy rules anyway).
+Revisit If: Enterprise customers mandate certified global AIS satellite feeds with raw bathymetric nautical depth charts.
 

@@ -49,6 +49,7 @@ export function renderLayout(options: LayoutOptions): string {
   <meta name="description" content="S-Group Gateway - Schäfer & SIS Interlogistik Customer Freight & Tracking Portal">
   <title>${title} | ${S_GROUP_BRAND.companyName}</title>
   <link rel="stylesheet" href="/static/css/layout.css">
+  <link rel="stylesheet" href="/static/css/telematicsMap.css">
 </head>
 <body class="s-group-theme">
   <!-- Top Accessibility Skip Link -->

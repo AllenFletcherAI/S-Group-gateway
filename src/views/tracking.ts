@@ -1,5 +1,6 @@
 import { ShipmentDetailsResult } from "../repositories/shipments.js";
 import { UnifiedMilestone } from "../schemas/carrierEvents.js";
+import { renderTelematicsMap } from "./components/telematicsMap.js";
 
 function getMilestoneText(milestone: UnifiedMilestone, isDe: boolean): { label: string; icon: string } {
   const map: Record<UnifiedMilestone, { de: string; en: string; icon: string }> = {
@@ -89,6 +90,8 @@ export function renderTrackingView(details: ShipmentDetailsResult, lang: "de" | 
         `;
       }).join("\n");
 
+  const telematicsMapHtml = renderTelematicsMap(shipment, isDe);
+
   return `
     <nav class="breadcrumb-bar" aria-label="Breadcrumb">
       <a href="/portal/shipments?lang=${lang}">← ${isDe ? "Zurück zur Sendungsübersicht" : "Back to Shipments"}</a>
@@ -140,6 +143,9 @@ export function renderTrackingView(details: ShipmentDetailsResult, lang: "de" | 
         </div>
       </div>
     </section>
+
+    <!-- Live Corridor & Telematics Map -->
+    ${telematicsMapHtml}
 
     <!-- Two-Column Grid: Live Timeline & Customs Documents -->
     <div class="tracking-two-col">

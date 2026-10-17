@@ -47,3 +47,14 @@
   - *Cost / Risk:* Requires maintaining multi-stage build definitions and explicit file copying.
   - *Why chosen:* Produces a tiny ~75MB production image, completely strips TypeScript compilers and dev tools from runtime, runs securely as unprivileged `USER node`, and equips orchestrators with native `/health` probes.
 
+## Decision D-005: Sovereign SVG-Based Live Telematics Map Component
+- **Option 1: External third-party map embed (e.g. Google Maps / Mapbox iframe)**
+  - *Cost / Risk:* Major DSGVO liability. External mapping iframes download third-party tracking cookies and transmit customer browser IP addresses and destination queries to US cloud providers without user consent. Requires managing paid API tokens with usage limits.
+  - *Why rejected:* Breaches German privacy rules and introduces external point of failure.
+- **Option 2: Heavy client-side JS library (Leaflet/OpenLayers) with external OpenStreetMap tile server calls**
+  - *Cost / Risk:* Adds ~150KB of client JS libraries; external tile server rate limits cause broken map tiles ("gray squares") under high traffic; leaks user IP addresses to OSM tile hosts.
+  - *Why rejected:* Fragile in corporate intranets and slows down portal render speed.
+- **Option 3: Sovereign, self-contained SVG Vector Telematics Map with reactive CSS beacons (Chosen)**
+  - *Cost / Risk:* Does not support arbitrary street-level zooming.
+  - *Why chosen:* Zero external requests, zero cookie tracking, 100% DSGVO compliant, instant render speed, WCAG AA contrast, and elegant corridor telemetry display.
+
