@@ -135,6 +135,18 @@
   - *Cost / Risk:* Requires defining paired light/dark color variables across all UI components.
   - *Why chosen:* Executes instantaneously in the browser, prevents Flash of Unstyled Content (FOUC) with a tiny synchronous `<head>` script, auto-adapts to OS preferences (`prefers-color-scheme`), persists in `localStorage`, and provides WCAG AA contrast for both night-shift dispatch control rooms and daylight office desks.
 
+## Decision D-013: Persistent Multi-Language Session Routing & Zero-Bounce Tab Navigation
+- **Option 1: Heavy SPA Framework Client Router (React Router / Vue Router)**
+  - *Cost / Risk:* Requires full client-side SPA re-architecture, introduces bundle bloat, compromises server-side rendered HTML security, and complicates air-gapped container testing.
+  - *Why rejected:* Excessive architectural complexity for simple tab navigation language preservation.
+- **Option 2: Client-Side-Only DOM Language Replacement via JavaScript JSON Dictionaries**
+  - *Cost / Risk:* Slow client rendering, translation flicker on page load, incomplete translation of server-generated dynamic error messages and legal memos (ADSp 2017).
+  - *Why rejected:* Breaks server-side generation of legal customs texts and requires duplicating all translation strings into client memory.
+- **Option 3: Dual-Layer Session Cookie Persistence with Query-Param Inheritance & No-Op Active Guards (Chosen)**
+  - *Cost / Risk:* Requires server cookie check helper and propagating `lang` in layout navigation link generation.
+  - *Why chosen:* Transparently maintains the user's selected language across all tab transitions, direct links, and reloads via HTTP cookies (`sgroup_lang`) without resetting. Eliminates redundant page refreshes when clicking an already active language button.
+
+
 
 
 

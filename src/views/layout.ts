@@ -34,7 +34,7 @@ export function renderLayout(options: LayoutOptions): string {
       const label = isDe ? item.labelDe : item.labelEn;
       const activeClass = isActive ? "nav-link active" : "nav-link";
       const ariaCurrent = isActive ? ' aria-current="page"' : "";
-      return `<a href="${item.href}" class="${activeClass}"${ariaCurrent} data-nav-id="${item.id}">
+      return `<a href="${item.href}?lang=${lang}" class="${activeClass}"${ariaCurrent} data-nav-id="${item.id}">
         ${label}
       </a>`;
     })
@@ -77,7 +77,7 @@ export function renderLayout(options: LayoutOptions): string {
     <div class="header-container">
       <!-- Brand Logo / Identity -->
       <div class="header-brand">
-        <a href="/portal" class="brand-link" aria-label="S-Group Gateway Home">
+        <a href="/portal?lang=${lang}" class="brand-link" aria-label="S-Group Gateway Home">
           <div class="brand-mark">
             <span class="brand-s">S</span>
           </div>
@@ -150,8 +150,8 @@ export function renderLayout(options: LayoutOptions): string {
               <span id="dropdown-theme-icon" aria-hidden="true">🌙</span>
               <span id="dropdown-theme-text">${isDe ? "Dunkelmodus aktivieren" : "Switch to Dark Mode"}</span>
             </button>
-            <a href="/portal/settings" class="dropdown-item">${isDe ? "Konto-Einstellungen" : "Account Settings"}</a>
-            <a href="/portal/compliance" class="dropdown-item">${isDe ? "DSGVO-Auskunft & Protokolle" : "DSGVO Audit & Export"}</a>
+            <a href="/portal/settings?lang=${lang}" class="dropdown-item">${isDe ? "Konto-Einstellungen" : "Account Settings"}</a>
+            <a href="/portal/compliance?lang=${lang}" class="dropdown-item">${isDe ? "DSGVO-Auskunft & Protokolle" : "DSGVO Audit & Export"}</a>
             <hr class="dropdown-divider">
             <a href="/auth/logout" class="dropdown-item text-danger">${isDe ? "Abmelden" : "Sign Out"}</a>
           </div>
@@ -192,9 +192,9 @@ export function renderLayout(options: LayoutOptions): string {
       <div class="footer-col links-col">
         <p class="footer-col-title"><strong>${isDe ? "Rechtliches" : "Legal"}</strong></p>
         <ul class="footer-links-list">
-          <li><a href="/portal/impressum">${isDe ? "Impressum" : "Imprint"}</a></li>
-          <li><a href="/portal/datenschutz">${isDe ? "Datenschutzerklärung (DSGVO)" : "Privacy Policy"}</a></li>
-          <li><a href="/portal/agb">${isDe ? "AGB (ADSp 2017)" : "Terms & Conditions"}</a></li>
+          <li><a href="/portal/impressum?lang=${lang}">${isDe ? "Impressum" : "Imprint"}</a></li>
+          <li><a href="/portal/datenschutz?lang=${lang}">${isDe ? "Datenschutzerklärung (DSGVO)" : "Privacy Policy"}</a></li>
+          <li><a href="/portal/agb?lang=${lang}">${isDe ? "AGB (ADSp 2017)" : "Terms & Conditions"}</a></li>
           <li><a href="/health" target="_blank">${isDe ? "System-Status (API)" : "System Health (API)"}</a></li>
         </ul>
       </div>

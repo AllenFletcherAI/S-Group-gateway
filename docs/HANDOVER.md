@@ -74,11 +74,20 @@ Done:
 - Expanded automated test suite to **64/64 tests passing** across 12 test suites with 0 npm vulnerabilities.
 - Verified live running daemon on `http://localhost:3000/portal` (HTTP 200 OK) serving the theme toggle.
 
+- Recorded Decision D-013 in `docs/DECISIONS.md` and rejected options in `docs/ALTERNATIVES.md`.
+- Implemented and verified Slice 13: Persistent Multi-Language Session Routing & Zero-Bounce Tab Navigation (`src/routes/portal.ts`, `src/views/layout.ts`, `src/public/js/navigation.js`, `test/slice13_persistent_lang.test.ts`).
+- Solved tab language resetting: header navigation links, brand logo, and dropdown links explicitly propagate `?lang=${lang}`.
+- Added session cookie `sgroup_lang=de|en` with 1-year max-age in `resolvePortalLang`: direct links, bookmarks, and tab switches without query parameters automatically preserve user's language choice.
+- Added active language guard in `navigation.js`: clicking an already active language button does not trigger redundant page reloads.
+- Added internal link enhancer in `navigation.js` to ensure dynamically rendered `/portal` links retain language context.
+- Expanded automated test suite to **68/68 tests passing** across 13 test suites with 0 npm vulnerabilities.
+- Verified live running daemon on `http://localhost:3000` preserving English across tabs without resetting or page bounce.
+
 In progress:
-- All core logistics gateway features, Redline Customs Pre-Clearance Audit engine, and Dark/Light Mode Theme Engine complete; all 64 tests passing.
+- All core logistics gateway features, Redline Customs Pre-Clearance Audit engine, Dark/Light Mode Theme Engine, and Persistent Language Session Routing complete; all 68 tests passing.
 
 Broken or risky:
-- None. All 64 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
+- None. All 68 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
 
 Next:
 - Production deployment rollout, customer UAT handover, or optional additional enterprise ERP connectors.
@@ -87,5 +96,6 @@ Do not touch:
 - Production database environments, live secret keys, and deployment configurations.
 
 Read first: ARCHITECTURE.md, CONSTRAINTS.md
+
 
 

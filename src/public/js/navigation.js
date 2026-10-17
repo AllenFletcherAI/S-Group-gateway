@@ -139,16 +139,41 @@
   // 3. Language Preference Toggle (DE/EN)
   if (langButtons.length > 0) {
     langButtons.forEach((btn) => {
-      btn.addEventListener("click", function () {
-        const lang = btn.getAttribute("data-lang");
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        const selectedLang = btn.getAttribute("data-lang");
+        // Guard: Do not reload if user clicks the currently active language
+        if (btn.classList.contains("active")) {
+          return;
+        }
+
+        // Persist language choice in session cookie and localStorage
+        document.cookie = "sgroup_lang=" + selectedLang + "; path=/; max-age=31536000; SameSite=Lax";
+        try {
+          localStorage.setItem("sgroup_lang", selectedLang);
+        } catch (err) {}
+
         const currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.set("lang", lang);
+        currentUrl.searchParams.set("lang", selectedLang);
         window.location.href = currentUrl.toString();
       });
     });
   }
 
-  // 4. Quick Search Handler
+  // 4. Preserve Language Across Internal Portal Tabs & Navigation Links
+  const activePortalLang = document.documentElement.getAttribute("lang") || "de";
+  document.querySelectorAll('a[href^="/portal"]').forEach((link) => {
+    try {
+      const rawHref = link.getAttribute("href");
+      if (rawHref && !rawHref.includes("lang=")) {
+        const url = new URL(rawHref, window.location.origin);
+        url.searchParams.set("lang", activePortalLang);
+        link.setAttribute("href", url.pathname + url.search);
+      }
+    } catch (e) {}
+  });
+
+  // 5. Quick Search Handler
   if (quickSearchInput) {
     quickSearchInput.addEventListener("keydown", function (event) {
       if (event.key === "Enter") {
@@ -156,6 +181,7 @@
         if (query) {
           const targetUrl = new URL("/portal/shipments", window.location.origin);
           targetUrl.searchParams.set("q", query);
+          targetUrl.searchParams.set("lang", activePortalLang);
           window.location.href = targetUrl.toString();
         }
       }

@@ -20,6 +20,28 @@ interface PortalQuery {
 }
 
 /**
+ * Resolve preferred language from query parameters or session cookie.
+ * WHY: Prevents language preference from resetting when navigating between portal tabs (D-013).
+ */
+export function resolvePortalLang(
+  req: FastifyRequest<{ Querystring: PortalQuery }>,
+  reply?: { header: (name: string, value: string) => void }
+): "de" | "en" {
+  let lang: "de" | "en";
+  if (req.query.lang === "en" || req.query.lang === "de") {
+    lang = req.query.lang;
+    if (reply) {
+      reply.header("Set-Cookie", `sgroup_lang=${lang}; Path=/; Max-Age=31536000; SameSite=Lax`);
+    }
+  } else {
+    const cookieHeader = req.headers.cookie || "";
+    const match = cookieHeader.match(/sgroup_lang=(de|en)/);
+    lang = match ? (match[1] as "de" | "en") : "de";
+  }
+  return lang;
+}
+
+/**
  * Customer Portal Routing Module
  * WHY: Delivers the branded Schäfer & SIS Interlogistik customer interface,
  * integrating real-time shipment directory, interactive milestone timelines, and document downloads.
@@ -28,13 +50,16 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
   const DEFAULT_TENANT = "DE-SIS-8921";
 
   // Root redirect
-  fastify.get("/", async (_req, reply) => {
-    return reply.redirect("/portal");
+  fastify.get("/", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
+    const queryLang = req.query.lang;
+    const cookieLang = resolvePortalLang(req, reply);
+    const targetQuery = queryLang ? `?lang=${queryLang}` : (cookieLang !== "de" ? `?lang=${cookieLang}` : "");
+    return reply.redirect(targetQuery ? `/portal${targetQuery}` : "/portal");
   });
 
   // Portal Main Dashboard (Overview)
   fastify.get("/portal", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
-    const lang = req.query.lang === "en" ? "en" : "de";
+    const lang = resolvePortalLang(req, reply);
     const isDe = lang === "de";
     const shipments = ShipmentRepository.getShipmentsByTenant(DEFAULT_TENANT);
 
@@ -135,7 +160,7 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
 
   // 1. Shipments Directory Page
   fastify.get("/portal/shipments", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
-    const lang = req.query.lang === "en" ? "en" : "de";
+    const lang = resolvePortalLang(req, reply);
     const shipments = ShipmentRepository.getShipmentsByTenant(DEFAULT_TENANT, {
       carrier: req.query.carrier,
       status: req.query.status,
@@ -156,7 +181,7 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
 
   // 2. Live Tracking & Timeline Page
   fastify.get("/portal/tracking", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
-    const lang = req.query.lang === "en" ? "en" : "de";
+    const lang = resolvePortalLang(req, reply);
     const isDe = lang === "de";
     const shipmentId = req.query.id || "SHP-SIS-1049";
 
@@ -187,7 +212,7 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
 
   // 3. Customs Documents & Compliance Page with Redline 3-Way Audit
   fastify.get("/portal/documents", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
-    const lang = req.query.lang === "en" ? "en" : "de";
+    const lang = resolvePortalLang(req, reply);
     const isDe = lang === "de";
     const selectedSample = req.query.sample === "discrepancy" ? "discrepancy" : "clean";
 
@@ -224,7 +249,7 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
 
   // 4. Disposition & Tour Planning Page
   fastify.get("/portal/dispatch", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
-    const lang = req.query.lang === "en" ? "en" : "de";
+    const lang = resolvePortalLang(req, reply);
     const isDe = lang === "de";
     const activeFilter = req.query.status || "ALL";
     const searchQuery = req.query.q || "";
@@ -248,7 +273,7 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
 
   // 5. DSGVO Compliance & Audit Page
   fastify.get("/portal/compliance", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
-    const lang = req.query.lang === "en" ? "en" : "de";
+    const lang = resolvePortalLang(req, reply);
     const isDe = lang === "de";
     const ledger = TelematicsPrunerService.getPruningLedger(DEFAULT_TENANT);
 

@@ -182,3 +182,20 @@ Plain Reason Why:
 What We Gave Up: Dynamic multi-color theme customization (purple, high-contrast yellow themes)—unnecessary cognitive overhead for standard logistics operations.
 Revisit If: Statutory accessibility audit mandates specialized high-contrast monochrome themes for visually impaired operators.
 
+## D-013: Persistent Multi-Language Session Routing & Zero-Bounce Tab Navigation
+Date: 2026-10-18  Model: Gemini 3.8 Flash (High)
+Problem Context: When dispatchers toggled language (e.g. from German to English) and subsequently clicked any primary navigation tab (Sendungen, Live-Tracking, Disposition, Dokumente & Zoll), the portal immediately reverted to German. Header navigation links did not preserve the language parameter, and no persistent HTTP cookie was stored. Consequently, dispatchers had to click the language toggle on every tab transition, triggering repeated jarring page refreshes and losing context. Furthermore, clicking the already active language button re-triggered redundant reloads.
+Options Looked At:
+  1) Client-side full Single-Page Application (SPA) rewrite with client routing (heavy rewrite, breaks SSR security and SEO)
+  2) Dynamic language parameter rewriting on tab click only (brittle, misses direct bookmarks, external referrals, and logo clicks)
+  3) Dual-Layer Session Cookie Persistence with Query-Param Inheritance & No-Op Active Guards (Chosen)
+What We Chose: Option 3
+Plain Reason Why:
+  - Cookie Session Persistence: Fastify server inspects `Set-Cookie: sgroup_lang=de|en` with 1-year max-age. Any tab navigation—whether direct link, bookmark, or browser history—automatically retains the user's chosen language without query string fragility.
+  - Query String Propagation: Navigation links (`href="${item.href}?lang=${lang}"`) and brand logo explicitly propagate the current language to preserve URL bar clarity and shareable URLs.
+  - Active Toggle Guard: In `navigation.js`, clicking a language button that is already active (`btn.classList.contains("active")`) exits immediately without triggering a page reload.
+  - Dual Client Storage: Persists in both `document.cookie` and `localStorage("sgroup_lang")` for complete cross-origin and client-side consistency.
+What We Gave Up: Automatic browser Accept-Language header sniffing without user consent (explicit user toggle takes permanent precedence).
+Revisit If: User profile database model introduces server-persisted user preferences for enterprise SSO accounts.
+
+
