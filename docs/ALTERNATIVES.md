@@ -24,3 +24,15 @@
 - **Option 3: HMAC-SHA256 signatures with 5-minute sliding replay window (Chosen)**
   - *Cost / Risk:* Requires computing cryptographic hashes per request and securely distributing per-carrier shared secrets in environment configuration.
   - *Why chosen:* Provides cryptographically verified integrity and sender authenticity while supporting standard HTTP webhook delivery from all carriers.
+
+## Decision D-003: Multi-Tenant Shipment Repository & Timeline Model
+- **Option 1: Direct synchronous carrier proxying**
+  - *Cost / Risk:* High latency and cascading failures. If DHL or Schenker has an API outage, customer page requests freeze and fail.
+  - *Why rejected:* Breaches reliability requirements; exposes customers directly to third-party outages.
+- **Option 2: Single untyped table with client-side filtering**
+  - *Cost / Risk:* Massive security vulnerability (IDOR/BOLA). Any user can open developer tools and view raw JSON payloads containing competitor shipments and confidential pricing.
+  - *Why rejected:* Violates German DSGVO, commercial confidentiality, and project safety boundaries.
+- **Option 3: Tenant-partitioned database queries with timeline aggregation (Chosen)**
+  - *Cost / Risk:* Requires asynchronous event storage and strictly scoped database query abstractions.
+  - *Why chosen:* Guarantees tenant isolation at the query layer (`WHERE tenant_id = :id`) and delivers instant, resilient sub-millisecond timeline rendering.
+

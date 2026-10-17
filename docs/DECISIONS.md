@@ -33,3 +33,19 @@ Plain Reason Why:
   - Zod schemas parse and normalize heterogeneous carrier event codes into strict, unified S-Group milestone enums before business logic executes.
 What We Gave Up: Requires CPU overhead to compute cryptographic hashes for each incoming webhook and managing carrier secret keys.
 Revisit If: An enterprise client or national customs authority mandates hardware-backed certificates (e.g. AS2 EDI or certified mTLS).
+
+## D-003: Multi-Tenant Shipment Repository & Unified Timeline Domain Model
+Date: 2026-10-18  Model: Gemini 3.8 Flash (High)
+Problem Context: Customers require a real-time freight tracking timeline and customs document archive. We must merge static shipment manifests with dynamic ingested carrier events while strictly enforcing multi-tenant isolation (zero IDOR) under German DSGVO standards.
+Options Looked At:
+  1) Direct synchronous carrier proxying (querying external carrier APIs whenever a customer loads the page)
+  2) Single global untyped repository with browser-side filtering by tenant
+  3) Internal Unified Shipment Repository with mandatory tenant-partitioned queries (`WHERE tenant_id = :tenant_id`) and chronological milestone aggregation (Chosen)
+What We Chose: Option 3
+Plain Reason Why:
+  - Synchronous carrier proxying is fragile; carrier API downtime or latency freezes customer screens.
+  - Client-side filtering in JavaScript leaks entire database tables across the network, violating DSGVO and Habit 18 (IDOR vulnerability).
+  - A tenant-partitioned repository guarantees that database queries return only records matching the authenticated customer's `tenant_id`. Dynamic milestone aggregation cleanly merges ingested DHL, Schenker, and Maersk events into an intuitive visual timeline.
+What We Gave Up: Requires maintaining an internal event log and updating shipment states asynchronously rather than reading live from carrier servers on-the-fly.
+Revisit If: We introduce sub-second real-time vehicle GPS streaming requiring WebSocket clusters.
+

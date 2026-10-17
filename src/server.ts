@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import { healthRoutes } from "./routes/health.js";
 import { portalRoutes } from "./routes/portal.js";
 import { webhookRoutes } from "./routes/webhooks.js";
+import { apiRoutes } from "./routes/api.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,6 +35,7 @@ export async function buildServer(): Promise<FastifyInstance> {
   await app.register(healthRoutes);
   await app.register(portalRoutes);
   await app.register(webhookRoutes);
+  await app.register(apiRoutes);
 
   return app;
 }

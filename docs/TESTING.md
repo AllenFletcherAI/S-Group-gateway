@@ -34,25 +34,38 @@ npm audit
 ✔ Slice 2 Security Lock: Rejects tampered payload body after signing (HTTP 401) (7.453ms)
 ✔ Slice 2 Schema Guard: Rejects malformed carrier payload failing Zod validation (HTTP 400) (9.1563ms)
 ✔ Slice 2 Tenant Isolation: Shipments query only returns events for the authenticated tenant (7.5297ms)
-ℹ tests 13
+✔ Slice 3: API returns tenant-isolated shipments for DE-SIS-8921 (289.2543ms)
+✔ Slice 3: Filters shipments by carrier and search query (12.6807ms)
+✔ Slice 3: Ingested carrier webhook dynamically merges into shipment timeline (26.0825ms)
+✔ Slice 3 Security Lock: Rejects unauthorized cross-tenant shipment access with 404 (Zero IDOR) (12.6041ms)
+✔ Slice 3: Customs document verification receipt endpoint functions properly (12.133ms)
+✔ Slice 3: Portal views render shipment directory, timeline, and customs paperwork (45.3201ms)
+ℹ tests 19
 ℹ suites 0
-ℹ pass 13
+ℹ pass 19
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 912.8728
+ℹ duration_ms 1113.3112
 
 > npm audit
 found 0 vulnerabilities
 ```
 
 ## Mandatory Customer Path (Tested by Hand End-to-End)
-1. Launch local gateway server: `npm run dev`
+1. Launch local gateway server: `npm start`
 2. Open `http://localhost:3000/portal` in browser.
 3. Verify top status bar displays `Gateway: Betriebsbereit`, `DE-SIS-8921` tenant chip, and DSGVO badge.
-4. Verify navigation links: `Sendungen`, `Live-Tracking`, `Disposition`, `Dokumente & Zoll`, `Datenschutz (DSGVO)`.
-5. Click `EN` language toggle to confirm English rendering.
-6. Click user profile button (`dispatcher@schaefer-sis.de`) to verify dropdown menu.
-7. Shrink viewport below 992px to confirm mobile hamburger drawer toggles cleanly.
+4. Click `Sendungen` (or open `http://localhost:3000/portal/shipments`):
+   - Verify 3 active shipments appear (DHL, DB Schenker, Maersk).
+   - Test filtering by carrier (click `DHL` or `SCHENKER`).
+   - Test search by keyword (type `Shanghai` or `Hamburg`).
+5. Click `Live-Tracking & Timeline` on shipment `SHP-SIS-1049`:
+   - Inspect milestone stepper timeline (`Booking Created`, `Port Arrived`, `Customs Cleared`).
+   - Note verified telematics badges and locations.
+6. Click `⬇️ Herunterladen & Prüfen` on `ATLAS Zollanmeldung` or `CMR-Frachtbrief`:
+   - Inspect verified JSON receipt with cryptographic hash and tenant verification.
+7. Run live webhook simulation in terminal: `npm run demo`
+   - Refresh browser timeline to see the live ingested event automatically appear.
 

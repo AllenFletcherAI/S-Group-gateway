@@ -15,17 +15,21 @@ Done:
 - Created automated test suite (`test/slice1_layout.test.ts`), passing 5/5 assertions with 0 vulnerabilities in `npm audit`.
 - Recorded Decision D-002 in `docs/DECISIONS.md` and rejected options in `docs/ALTERNATIVES.md`.
 - Implemented and verified Slice 2: Carrier Webhook Ingestion & EDI Protocol Adapter (`src/middleware/webhookAuth.ts`, `src/schemas/carrierEvents.ts`, `src/adapters/carrierAdapter.ts`, `src/routes/webhooks.ts`).
-- Created automated test suite (`test/slice2_carrier_adapter.test.ts`), passing 8/8 security & protocol mapping tests (total 13/13 passing in test suite).
+- Created automated test suite (`test/slice2_carrier_adapter.test.ts`), passing 8/8 security & protocol mapping tests.
+- Recorded Decision D-003 in `docs/DECISIONS.md` and rejected options in `docs/ALTERNATIVES.md`.
+- Implemented and verified Slice 3: Unified Shipment Status & Dispatch API, multi-tenant repository, live timeline stepper, and customs paperwork archive (`src/repositories/shipments.ts`, `src/routes/api.ts`, `src/views/shipments.ts`, `src/views/tracking.ts`).
+- Created automated test suite (`test/slice3_shipments_timeline.test.ts`), passing 6/6 tests. Total test suite: 19/19 passing with 0 vulnerabilities in `npm audit`.
+- Verified live customer path: interactive shipment directory, carrier filters, search, dynamic timeline merging, and document downloads.
 
 In progress:
-- Preparing Slice 3: Unified Shipment Status & Dispatch API, live shipment tracking UI timeline, and customs paperwork links (`src/repositories/`, `src/views/tracking.ts`).
+- Preparing Phase 2: Strix security vulnerability probe and Pre-Ship Gate inspection.
 
 Broken or risky:
 - None identified.
 
 Next:
-- Implement Slice 3: Build shipment repository with multi-tenant filtering (`WHERE tenant_id = current_tenant_id`) to display the live ingested carrier milestones on the customer portal timeline.
-- Connect the search bar and filter controls to display active DHL, Schenker, and Maersk shipments.
+- Execute Strix security probe on public API boundaries (`strix_probe_target`).
+- Complete 14-point Pre-Ship Gate in `docs/defense/s-group-gateway.md`.
 
 Do not touch:
 - Production database environments, live secret keys, and deployment configurations.
