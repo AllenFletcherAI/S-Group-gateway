@@ -36,17 +36,22 @@ Done:
 - Implemented and verified Slice 7: Sliding-Window Rate Limiter & DoS Shield Middleware (`src/middleware/rateLimiter.ts`, `test/slice7_rate_limiter.test.ts`).
 - Configured dedicated sliding-window rate limit buckets across public carrier webhooks (60 req/min), query APIs (100 req/min), and compliance sweeps (10 req/min).
 - Enforced standard RFC headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, `Retry-After`) and verified HTTP 429 Too Many Requests response.
-- Expanded automated test suite to **37/37 tests passing** across 7 test suites with 0 npm vulnerabilities.
+- Recorded Decision D-008 in `docs/DECISIONS.md` and rejected options in `docs/ALTERNATIVES.md`.
+- Implemented and verified Slice 8: Multi-Modal Feeder Dispatch & Vehicle Capacity Planning (`src/repositories/dispatch.ts`, `src/routes/dispatch.ts`, `src/views/dispatch.ts`, `src/routes/portal.ts`, `src/server.ts`, `test/slice8_dispatch_operations.test.ts`).
+- Enforced physical pallet capacity and gross payload limits: prevents vehicle overloads with HTTP 400 "Capacity Overload" responses.
+- Implemented German DSGVO worker pseudonymization (`DRV-HAM-491`), ADR dangerous goods declaration validation, and multi-modal transport mode badges (Road Feeder, Rail Shuttle, Inland Barge).
+- Created interactive dispatch board on `/portal/dispatch` with 4-metric KPI ribbon (Total Tours, En Route, Pallet Utilization %, ADR Compliance %), status tabs, load progress meters, and shipment assignment form.
+- Expanded automated test suite to **43/43 tests passing** across 8 test suites with 0 npm vulnerabilities.
 - Recorded and pushed all checkpoint commits to `origin/main` (`https://github.com/AllenFletcherAI/S-Group-gateway.git`).
 
 In progress:
-- Slices 1 through 7 fully implemented, verified, tested, containerized, and defensible.
+- Slices 1 through 8 fully implemented, verified, tested, containerized, and defensible.
 
 Broken or risky:
-- None identified. All 37 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
+- None identified. All 43 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
 
 Next:
-- Proceed with Slice 8: Dispatch Operations & Feeder Tour Planning Cockpit (`/portal/dispatch`), or PostgreSQL external migration pipeline.
+- Prepare system demonstration, production rollout, or optional PostgreSQL persistent database migration pipeline.
 
 Do not touch:
 - Production database environments, live secret keys, and deployment configurations.

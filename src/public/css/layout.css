@@ -1266,4 +1266,454 @@ body {
   font-style: italic;
 }
 
+/* ==========================================================================
+   Slice 8: Dispatch Operations & Capacity Planning Styles
+   ========================================================================== */
+
+.dispatch-layout-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+}
+
+@media (max-width: 1024px) {
+  .dispatch-layout-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dispatch-tours-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.dispatch-toolbar-card {
+  background: var(--color-surface-white);
+  border: 1px solid var(--color-border-slate);
+  border-radius: 8px;
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.dispatch-tabs-container {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.dispatch-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--color-text-muted);
+  background: var(--color-bg-neutral);
+  border: 1px solid var(--color-border-slate);
+  transition: all var(--transition-fast);
+}
+
+.dispatch-tab:hover {
+  background: #E2E8F0;
+  color: var(--color-navy-dark);
+}
+
+.dispatch-tab.active {
+  background: var(--color-navy-dark);
+  color: #FFFFFF;
+  border-color: var(--color-navy-dark);
+}
+
+.tab-count-badge {
+  background: rgba(0, 0, 0, 0.08);
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 11px;
+}
+
+.dispatch-tab.active .tab-count-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+}
+
+.dispatch-search-form {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.dispatch-search-input {
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 1px solid var(--color-border-slate);
+  border-radius: 6px;
+  min-width: 200px;
+}
+
+.dispatch-search-input:focus {
+  outline: none;
+  border-color: var(--color-signal-blue);
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+}
+
+.btn-dispatch-search {
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--color-signal-blue);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.btn-dispatch-search:hover {
+  background: var(--color-signal-blue-hover);
+}
+
+.tours-list-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.tour-card {
+  background: var(--color-surface-white);
+  border: 1px solid var(--color-border-slate);
+  border-radius: 10px;
+  padding: var(--space-4);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.tour-card:hover {
+  border-color: var(--color-signal-blue);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.tour-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+
+.tour-id-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.tour-id-tag code {
+  font-weight: 700;
+  color: var(--color-navy-dark);
+  background: #E2E8F0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.mode-road {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid #BFDBFE;
+}
+
+.mode-rail {
+  background: #F0FDF4;
+  color: #15803D;
+  border: 1px solid #BBF7D0;
+}
+
+.mode-barge {
+  background: #F0F9FF;
+  color: #0369A1;
+  border: 1px solid #BAE6FD;
+}
+
+.tour-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-navy-dark);
+  margin-bottom: var(--space-2);
+}
+
+.tour-corridor-box {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--color-bg-neutral);
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: var(--space-3);
+  font-size: 14px;
+}
+
+.corridor-icon {
+  color: var(--color-signal-blue);
+  font-weight: bold;
+}
+
+.corridor-text {
+  color: var(--color-text-primary);
+}
+
+.tour-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-2) var(--space-4);
+  font-size: 13px;
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-slate);
+}
+
+.tour-meta-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.meta-label {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.meta-val {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.driver-token {
+  background: #FEF3C7;
+  color: #92400E;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  border: 1px solid #FDE68A;
+}
+
+/* Capacity Section & Meters */
+.capacity-section {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.capacity-heading {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-navy-light);
+  margin-bottom: var(--space-2);
+}
+
+.load-meter-row {
+  margin-bottom: 8px;
+}
+
+.load-meter-row:last-child {
+  margin-bottom: 0;
+}
+
+.load-meter-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.load-type {
+  color: var(--color-text-muted);
+}
+
+.load-stats {
+  color: var(--color-text-primary);
+}
+
+.load-track {
+  height: 8px;
+  background: #E2E8F0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.load-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 300ms ease;
+}
+
+.load-bar-normal {
+  background: var(--color-success-green);
+}
+
+.load-bar-med {
+  background: var(--color-warning-amber);
+}
+
+.load-bar-high {
+  background: var(--color-alert-red);
+}
+
+/* ADR Hazard Boxes */
+.adr-alert-box {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  background: #FFFBEB;
+  border: 1px solid #FCD34D;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #92400E;
+  margin-bottom: var(--space-3);
+}
+
+.adr-alert-box strong {
+  color: #B45309;
+}
+
+.adr-icon {
+  font-size: 16px;
+}
+
+.adr-safe-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #166534;
+  margin-bottom: var(--space-3);
+}
+
+.adr-safe-icon {
+  font-weight: bold;
+}
+
+.assigned-shipments-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+
+.assigned-label {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.assigned-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.shipment-code-chip {
+  background: #EFF6FF;
+  color: var(--color-signal-blue);
+  border: 1px solid #BFDBFE;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.shipment-code-chip:hover {
+  background: var(--color-signal-blue);
+  color: #FFFFFF;
+}
+
+/* Empty State */
+.empty-tours-card {
+  background: var(--color-surface-white);
+  border: 1px dashed var(--color-border-slate);
+  border-radius: 8px;
+  padding: var(--space-8);
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 36px;
+  margin-bottom: var(--space-2);
+}
+
+.empty-title {
+  font-size: 16px;
+  color: var(--color-navy-dark);
+}
+
+.empty-desc {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
+
+/* Assignment Console Side Box */
+.dispatch-assign-box {
+  position: sticky;
+  top: var(--space-4);
+}
+
+.assign-feedback-box {
+  margin-top: var(--space-3);
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.feedback-loading {
+  background: #F0F9FF;
+  border: 1px solid #BAE6FD;
+  color: #0369A1;
+}
+
+.feedback-success {
+  background: #F0FDF4;
+  border: 1px solid #86EFAC;
+  color: #166534;
+}
+
+.feedback-error {
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  color: #991B1B;
+}
+
+
 

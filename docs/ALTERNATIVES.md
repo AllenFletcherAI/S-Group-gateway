@@ -80,3 +80,14 @@
   - *Cost / Risk:* Requires tracking request timestamp arrays in memory.
   - *Why chosen:* Completely prevents boundary bursts, emits standard `X-RateLimit-*` and `Retry-After` headers, runs with 0 cloud dependencies, and scales cleanly.
 
+## Decision D-008: Multi-Modal Feeder Dispatch & Capacity Tour Planning
+- **Option 1: External TMS iframe integration**
+  - *Cost / Risk:* Fragmented user experience, recurring third-party software licensing fees, and vendor authentication lock-in. Cross-origin iframe boundaries make unified portal search impossible.
+  - *Why rejected:* Breaches architectural sovereignty and adds unnecessary recurring cost.
+- **Option 2: Offline spreadsheet batch upload**
+  - *Cost / Risk:* High risk of human entry error, stale data, and zero live validation against vehicle gross weight limits or ADR dangerous goods segregation.
+  - *Why rejected:* Fails real-time operational safety standards for Lane B logistics.
+- **Option 3: Integrated Multi-Modal Dispatch Repository (Chosen)**
+  - *Cost / Risk:* Requires developing and maintaining internal tour models and capacity calculators.
+  - *Why chosen:* Directly unifies seaport container arrivals with feeder road and rail allocation, enforces physical pallet/weight capacity bounds, verifies ADR compliance, and strictly pseudonymizes driver records for German DSGVO compliance.
+

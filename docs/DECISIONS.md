@@ -98,6 +98,19 @@ Plain Reason Why:
   - Operates locally with zero vendor lock-in and zero external network calls, keeping test suites fast and staging air-gapped.
   - Configures dedicated buckets: Carrier Webhooks (60 req/min), Query APIs (100 req/min), and Compliance Pruning (10 req/min).
   - Emits standard RFC rate limit headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`) and returns HTTP 429 with `Retry-After`.
-What We Gave Up: Slightly higher memory footprint than basic fixed counters due to sliding timestamp tracking.
-Revisit If: Horizontal Kubernetes cluster expansion requires distributed Redis counter synchronization across more than 10 pods.
+## D-008: Multi-Modal Feeder Dispatch & Capacity Tour Planning Architecture
+Date: 2026-10-18  Model: Gemini 3.8 Flash (High)
+Problem Context: Seaport container arrivals in Hamburg and cross-border European cargo require coordinated feeder dispatch (road truck, rail, inland waterway) to inland distribution hubs. Dispatchers need real-time capacity tracking (pallets/weight), ADR hazardous cargo validation, and shipment assignment without violating driver privacy laws (DSGVO).
+Options Looked At:
+  1) External third-party Transportation Management System (TMS) iframe embed
+  2) Synchronous Excel/CSV spreadsheet upload pipeline without live validation
+  3) Integrated Multi-Modal Dispatch Repository with capacity validation, ADR hazardous goods checks, and pseudonymized driver scheduling (Chosen)
+What We Chose: Option 3
+Plain Reason Why:
+  - Keeps dispatch operations fully integrated into the S-Group Gateway portal with zero third-party licensing costs or authentication silos.
+  - Enforces strict vehicle capacity invariants: validates pallet counts and gross weight limits before allowing shipments to be booked onto feeder tours.
+  - Validates ADR hazardous goods segregation according to European road transport safety rules.
+  - Respects German privacy law (DSGVO): assigns pseudonymized worker IDs (`DRV-HAM-491`) instead of real employee personal names on customer manifests.
+What We Gave Up: Dynamic algorithmic traffic rerouting (which requires live third-party telematics subscriptions).
+Revisit If: Active feeder operations scale past 500 simultaneous vehicles, requiring automated combinatorial route optimization.
 

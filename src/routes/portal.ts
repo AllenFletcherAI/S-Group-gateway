@@ -5,6 +5,8 @@ import { renderShipmentsView } from "../views/shipments.js";
 import { renderTrackingView } from "../views/tracking.js";
 import { renderComplianceView } from "../views/compliance.js";
 import { TelematicsPrunerService } from "../services/telematicsPruner.js";
+import { DispatchRepository } from "../repositories/dispatch.js";
+import { renderDispatchView } from "../views/dispatch.js";
 
 interface PortalQuery {
   lang?: "de" | "en";
@@ -236,26 +238,18 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
   fastify.get("/portal/dispatch", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
     const lang = req.query.lang === "en" ? "en" : "de";
     const isDe = lang === "de";
+    const activeFilter = req.query.status || "ALL";
+    const searchQuery = req.query.q || "";
 
-    const content = `
-      <section class="portal-hero-card">
-        <h1 class="hero-title">${isDe ? "Disposition & Tourenplanung" : "Dispatch & Fleet Routing"}</h1>
-        <p class="hero-subtitle">
-          ${isDe ? "Übersicht disponierter Frachten und geplanter Zubringer-LKW für Schäfer & SIS Interlogistik." : "Overview of dispatched freight and planned feeder trucks for Schäfer & SIS Interlogistik."}
-        </p>
-        <div class="content-placeholder-box">
-          <p><strong>${isDe ? "Disponierte Frachttouren:" : "Dispatched Tours:"}</strong></p>
-          <ul style="margin-left: 20px; line-height: 1.8;">
-            <li>🚛 <strong>Tour SIS-HAM-01:</strong> Hamburg Hafen ➔ Frankfurt Hub (Abfahrt 22:00 Uhr) • 18 Paletten</li>
-            <li>🚛 <strong>Tour SIS-STR-04:</strong> Stuttgart Industriepark ➔ Rotterdam Europort (Abfahrt 18:30 Uhr) • Gefahrgutfrei</li>
-            <li>🚢 <strong>Feeder MSK-SH-09:</strong> Shanghai ➔ Hamburg Waltershof (Im Transit / Nordsee)</li>
-          </ul>
-        </div>
-      </section>
-    `;
+    const tours = DispatchRepository.getToursByTenant(DEFAULT_TENANT, {
+      status: activeFilter,
+      search: searchQuery,
+    });
+
+    const content = renderDispatchView(tours, DEFAULT_TENANT, lang, activeFilter, searchQuery);
 
     const html = renderLayout({
-      title: isDe ? "Disposition" : "Dispatch",
+      title: isDe ? "Disposition & Tourenplanung" : "Dispatch & Fleet Routing",
       activeNavId: "dispatch",
       lang,
       content,
