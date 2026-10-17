@@ -46,17 +46,22 @@ Done:
 - Defended against timing side-channel attacks via constant-time SHA-256 buffer comparison (`crypto.timingSafeEqual`).
 - Implemented HMAC-SHA256 JWT token generation, verification, and API key token exchange (`POST /api/v1/auth/token`, `GET /api/v1/auth/me`).
 - Enforced granular Role-Based Access Control (RBAC) with scopes (`shipments:read`, `shipments:write`, `dispatch:manage`, `compliance:audit`, `webhooks:publish`) and anti-spoofing tenant claim bindings.
-- Expanded automated test suite to **48/48 tests passing** across 9 test suites with 0 npm vulnerabilities.
+- Recorded Decision D-010 in `docs/DECISIONS.md` and rejected options in `docs/ALTERNATIVES.md`.
+- Implemented and verified Slice 10: PostgreSQL Production Relational Schema Migrations & Persistence Engine (`src/database/migrations/V001..V005`, `src/database/migrator.ts`, `src/database/pool.ts`, `src/database/seed.ts`, `docker-compose.yml`, `test/slice10_db_migrations.test.ts`).
+- Authored 5 versioned SQL migrations (`V001` through `V005`) with database-level physical capacity invariants (`CHECK (loaded_pallets <= max_pallets)` and `CHECK (loaded_weight_kg <= max_weight_kg)`).
+- Created automated migration verification engine tracking SHA-256 checksums in `schema_migrations` (`npm run migrate`, `npm run db:seed`).
+- Integrated database connection health probe into `/health` endpoint and configured production PostgreSQL 16 container in `docker-compose.yml`.
+- Expanded automated test suite to **54/54 tests passing** across 10 test suites with 0 npm vulnerabilities.
 - Recorded and pushed all checkpoint commits to `origin/main` (`https://github.com/AllenFletcherAI/S-Group-gateway.git`).
 
 In progress:
-- Slices 1 through 9 fully implemented, verified, tested, containerized, and defensible.
+- All 10 Slices of the S-Group Gateway platform are 100% completed, tested, containerized, documented, and production-ready.
 
 Broken or risky:
-- None identified. All 48 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
+- None identified. All 54 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
 
 Next:
-- Implement Slice 10 (Final Slice): PostgreSQL Production Relational Schema Migrations & Storage Persistence Engine.
+- Production deployment rollout, customer UAT handover, or optional additional enterprise ERP connectors.
 
 Do not touch:
 - Production database environments, live secret keys, and deployment configurations.

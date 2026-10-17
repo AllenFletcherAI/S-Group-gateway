@@ -130,4 +130,21 @@ Plain Reason Why:
 What We Gave Up: User-facing self-service OAuth2 consent screens (unnecessary for Phase 1 B2B logistics gateway).
 Revisit If: Platform expands to public third-party app marketplace with delegated user consent.
 
+## D-010: PostgreSQL Production Relational Schema Migrations & Persistence Engine
+Date: 2026-10-18  Model: Gemini 3.8 Flash (High)
+Problem Context: Production deployment requires an ACID-compliant relational schema enforcing tenant foreign keys, check constraints on vehicle load bounds, composite performance indexes, and automated schema migration tracking. The migration runner must be versioned, idempotent, and checksummed without adding heavy ORM dependencies that slow down container startup or air-gapped test runs.
+Options Looked At:
+  1) Heavy ORM framework (TypeORM / Prisma) requiring native engine binaries and generating unpredictable multi-join SQL
+  2) Dynamic runtime schema generation (auto-creating unversioned tables on first write)
+  3) Native Versioned SQL Migration Engine with Checksummed Transaction DDL & Decoupled Repository Drivers (Chosen)
+What We Chose: Option 3
+Plain Reason Why:
+  - Raw SQL DDL migrations (`V001` through `V005`) provide 100% clarity, explicit index definitions, and direct PostgreSQL execution.
+  - Database-level physical safety invariants: enforces `CHECK (loaded_pallets <= max_pallets)` and `CHECK (loaded_weight_kg <= max_weight_kg)` directly in the database engine.
+  - Tracks migration versions in `schema_migrations` with cryptographic SHA-256 checksums to detect file drift or tampering.
+  - Decoupled driver architecture allows instant offline verification during tests while seamlessly binding to production PostgreSQL via `DATABASE_URL`.
+What We Gave Up: Automatic GUI database administrative dashboard (handled via standard pgAdmin or CLI).
+Revisit If: Database sharding across multi-region clusters is required in future European expansion phases.
+
+
 

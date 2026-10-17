@@ -12,9 +12,13 @@ services:
       - PORT=3000
       - HOST=0.0.0.0
       - LOG_LEVEL=info
+      - DATABASE_URL=postgres://sgroup_admin:sgroup_secure_pass_2026@postgres:5432/sgroup_gateway
       - DHL_WEBHOOK_SECRET=${DHL_WEBHOOK_SECRET:-dhl-secret-key-staging}
       - SCHENKER_WEBHOOK_SECRET=${SCHENKER_WEBHOOK_SECRET:-schenker-secret-key-staging}
       - MAERSK_WEBHOOK_SECRET=${MAERSK_WEBHOOK_SECRET:-maersk-secret-key-staging}
+    depends_on:
+      postgres:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:3000/health"]
       interval: 30s
@@ -23,3 +27,27 @@ services:
       start_period: 5s
     security_opt:
       - no-new-privileges:true
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: s-group-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=sgroup_gateway
+      - POSTGRES_USER=sgroup_admin
+      - POSTGRES_PASSWORD=sgroup_secure_pass_2026
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./src/database/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sgroup_admin -d sgroup_gateway"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  pgdata:

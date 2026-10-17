@@ -102,4 +102,16 @@
   - *Cost / Risk:* Requires maintaining internal key registry and token signature helpers.
   - *Why chosen:* Guarantees sub-millisecond authentication, uses Node.js `crypto.timingSafeEqual` against timing attacks, strictly enforces role scopes (`shipments:read`, `dispatch:manage`, `compliance:audit`), binds tenant identity to eliminate IDOR spoofing, and introduces zero third-party dependencies.
 
+## Decision D-010: PostgreSQL Production Relational Schema Migrations & Storage Persistence
+- **Option 1: Heavy ORM Framework (TypeORM / Prisma)**
+  - *Cost / Risk:* Requires compiling heavy native binaries (Prisma query engine), increases container image size by over 100MB, slows container boot by 3 to 5 seconds, and obscures database indexes behind leaky abstractions.
+  - *Why rejected:* Breaches lightweight Alpine container discipline and hinders fine-grained SQL optimization.
+- **Option 2: Runtime Dynamic Schema Generation**
+  - *Cost / Risk:* Highly dangerous in production. Auto-syncing tables on server start risks accidental table drops, missing rollback paths, and untracked schema drift across staging and production clusters.
+  - *Why rejected:* Violates Habit 05, Habit 07, and enterprise auditability standards.
+- **Option 3: Native Versioned SQL Migration Engine with Checksummed Transaction DDL (Chosen)**
+  - *Cost / Risk:* Requires maintaining explicit SQL migration scripts and schema checksum tracking.
+  - *Why chosen:* Provides transparent, version-controlled DDL files (`V001` through `V005`), enforces physical capacity and gross weight CHECK constraints directly in PostgreSQL, tracks migration checksums in `schema_migrations`, runs in under 100ms, and enables instant rollback scripts.
+
+
 

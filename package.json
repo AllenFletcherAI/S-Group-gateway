@@ -6,10 +6,12 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc && node --input-type=module -e \"import fs from 'fs'; fs.cpSync('src/public', 'dist/public', {recursive: true});\"",
+    "build": "tsc && node --input-type=module -e \"import fs from 'fs'; fs.cpSync('src/public', 'dist/public', {recursive: true}); fs.cpSync('src/database/migrations', 'dist/database/migrations', {recursive: true});\"",
     "start": "node dist/server.js",
     "test": "tsx --test test/*.test.ts",
-    "demo": "node scripts/demo.js"
+    "demo": "node scripts/demo.js",
+    "migrate": "node --input-type=module -e \"import { DatabaseMigrator } from './dist/database/migrator.js'; console.log(JSON.stringify(DatabaseMigrator.verifyMigrations(), null, 2));\"",
+    "db:seed": "node --input-type=module -e \"import { generateSeedSql } from './dist/database/seed.js'; console.log(generateSeedSql());\""
   },
   "keywords": [
     "logistics",
