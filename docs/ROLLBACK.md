@@ -4,7 +4,7 @@
 > Always know the last known good commit before starting risky work.
 
 ## Checkpoint Baseline
-- **Last Known Good Commit SHA:** `HEAD~1` (Update with specific 40-char SHA before deploying)
+- **Last Known Good Commit SHA:** `28c490d26a94b4daeb3f72e2f3aee2c992b5a9ba` (docs bootstrap baseline)
 - **Last Good Release Tag:** `v1.0.0`
 
 ## Rollback Execution Runbook
