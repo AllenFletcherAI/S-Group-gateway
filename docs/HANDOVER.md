@@ -7,6 +7,8 @@ Done:
 - Initialized local Git repository (`main` branch) and established `.gitignore` baseline.
 - Linked remote `origin` to `https://github.com/AllenFletcherAI/S-Group-gateway.git`.
 - Pushed initial documentation and baseline commit SHA (`8f1e27f`) to `origin/main`.
+- Formally designated project as Lane B (Customer-Facing / Real Business) in `docs/CONSTRAINTS.md`.
+- Added explicit constraints: modular code architecture (no 300KB scripts), German DSGVO compliance, and S-Group branding.
 
 In progress:
 - Defining domain architecture, protocol adapters, and routes for S-Group Gateway (`docs/ARCHITECTURE.md`, `docs/FLOW.md`).
