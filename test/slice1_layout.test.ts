@@ -77,8 +77,9 @@ test("Slice 1: Portal renders S-Group branding, tenant indicator, and nav header
   assert.match(html, /Disposition/);
   assert.match(html, /Dokumente &amp; Zoll|Dokumente & Zoll/);
 
-  // Mobile Drawer Check
-  assert.match(html, /mobile-nav-drawer/);
+  // Main Navigation Check (clean bar without redundant drawer)
+  assert.match(html, /desktop-nav/);
+  assert.doesNotMatch(html, /mobile-nav-drawer/);
 
   await app.close();
 });

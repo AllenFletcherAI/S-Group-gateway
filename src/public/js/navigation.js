@@ -3,32 +3,21 @@
  * Schäfer & SIS Interlogistik
  *
  * Lightweight vanilla script providing accessible toggling for:
- * 1. Mobile navigation drawer
- * 2. User profile dropdown
- * 3. Language preference toggle (DE/EN)
+ * 1. User profile dropdown
+ * 2. Language preference toggle (DE/EN)
+ * 3. Quick search box
  */
 
 (function () {
   "use strict";
 
   // Elements
-  const mobileToggle = document.getElementById("mobile-menu-toggle");
-  const mobileDrawer = document.getElementById("mobile-nav-drawer");
   const userMenuBtn = document.getElementById("user-menu-btn");
   const userDropdown = document.getElementById("user-menu-dropdown");
   const langButtons = document.querySelectorAll(".lang-btn");
   const quickSearchInput = document.getElementById("quick-search-input");
 
-  // 1. Mobile Drawer Toggle
-  if (mobileToggle && mobileDrawer) {
-    mobileToggle.addEventListener("click", function () {
-      const isExpanded = mobileToggle.getAttribute("aria-expanded") === "true";
-      mobileToggle.setAttribute("aria-expanded", String(!isExpanded));
-      mobileDrawer.hidden = isExpanded;
-    });
-  }
-
-  // 2. User Menu Dropdown Toggle
+  // 1. User Menu Dropdown Toggle
   if (userMenuBtn && userDropdown) {
     userMenuBtn.addEventListener("click", function (event) {
       event.stopPropagation();

@@ -57,27 +57,6 @@ export function renderLayout(options: LayoutOptions): string {
     ${isDe ? "Zum Hauptinhalt springen" : "Skip to main content"}
   </a>
 
-  <!-- Top Banner: System Health & Tenant Indicator -->
-  <aside class="top-status-bar" aria-label="System status and active tenant">
-    <div class="top-status-container">
-      <div class="status-indicator">
-        <span class="status-pulse-dot" aria-hidden="true"></span>
-        <span class="status-text">${isDe ? "Gateway: Betriebsbereit" : "Gateway: Operational"}</span>
-        <span class="status-badge-divider" aria-hidden="true">|</span>
-        <span class="status-dsgvo-badge" title="Verarbeitung nach Art. 5 & 32 DSGVO">
-          🛡️ ${S_GROUP_BRAND.legal.complianceBadge}
-        </span>
-      </div>
-
-      <div class="tenant-indicator">
-        <span class="tenant-label">${isDe ? "Aktiver Mandant:" : "Active Tenant:"}</span>
-        <span class="tenant-chip" title="Tenant Isolation Enforced">
-          🏢 <strong>${tenantName}</strong> <code class="tenant-id-tag">${tenantId}</code>
-        </span>
-      </div>
-    </div>
-  </aside>
-
   <!-- Main Navigation Header -->
   <header class="main-header" role="banner">
     <div class="header-container">
@@ -137,7 +116,7 @@ export function renderLayout(options: LayoutOptions): string {
           <div id="user-menu-dropdown" class="user-dropdown-panel" hidden>
             <div class="dropdown-user-info">
               <p class="dropdown-role">${isDe ? "Rolle: Speditionsdisponent" : "Role: Freight Dispatcher"}</p>
-              <p class="dropdown-tenant">${tenantId}</p>
+              <p class="dropdown-tenant">${tenantName} (<code>${tenantId}</code>)</p>
             </div>
             <hr class="dropdown-divider">
             <a href="/portal/settings" class="dropdown-item">${isDe ? "Konto-Einstellungen" : "Account Settings"}</a>
@@ -146,22 +125,6 @@ export function renderLayout(options: LayoutOptions): string {
             <a href="/auth/logout" class="dropdown-item text-danger">${isDe ? "Abmelden" : "Sign Out"}</a>
           </div>
         </div>
-
-        <!-- Mobile Menu Toggle Button -->
-        <button id="mobile-menu-toggle" class="mobile-toggle-btn" aria-expanded="false" aria-controls="mobile-nav-drawer" aria-label="${isDe ? "Navigation öffnen" : "Open navigation"}">
-          <span class="hamburger-icon" aria-hidden="true">☰</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Mobile Slide-Down Navigation Drawer -->
-    <div id="mobile-nav-drawer" class="mobile-nav-drawer" hidden>
-      <div class="mobile-nav-links">
-        ${navItemsHtml}
-      </div>
-      <div class="mobile-tenant-box">
-        <p class="mobile-tenant-title">${isDe ? "Angemeldeter Mandant:" : "Current Tenant:"}</p>
-        <p class="mobile-tenant-value">${tenantName} (<code>${tenantId}</code>)</p>
       </div>
     </div>
   </header>
@@ -183,7 +146,10 @@ export function renderLayout(options: LayoutOptions): string {
       </div>
 
       <div class="footer-col compliance-col">
-        <p class="footer-col-title"><strong>${isDe ? "Datenschutz & Compliance" : "Privacy & Compliance"}</strong></p>
+        <p class="footer-col-title">
+          <strong>${isDe ? "Datenschutz & Compliance" : "Privacy & Compliance"}</strong>
+          <span class="compliance-badge">🛡️ ${S_GROUP_BRAND.legal.complianceBadge}</span>
+        </p>
         <p class="footer-dsgvo-notice">
           🛡️ ${isDe ? S_GROUP_BRAND.legal.retentionNoticeDe : S_GROUP_BRAND.legal.retentionNoticeEn}
         </p>

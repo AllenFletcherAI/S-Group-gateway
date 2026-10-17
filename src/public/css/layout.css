@@ -82,88 +82,6 @@ body {
   top: var(--space-2);
 }
 
-/* 1. Top System Status Bar */
-.top-status-bar {
-  background-color: #060E18;
-  color: #94A3B8;
-  font-size: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 6px var(--space-4);
-}
-
-.top-status-container {
-  max-width: 1360px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.status-indicator {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.status-pulse-dot {
-  width: 8px;
-  height: 8px;
-  background-color: var(--color-success-green);
-  border-radius: 50%;
-  display: inline-block;
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-}
-
-.status-text {
-  font-weight: 500;
-  color: #E2E8F0;
-}
-
-.status-badge-divider {
-  color: #475569;
-}
-
-.status-dsgVO-badge {
-  color: #38BDF8;
-  font-weight: 600;
-}
-
-.tenant-indicator {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.tenant-label {
-  color: #94A3B8;
-}
-
-.tenant-chip {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  padding: 2px 8px;
-  border-radius: 4px;
-  color: #F1F5F9;
-}
-
-.tenant-id-tag {
-  background: var(--color-signal-blue);
-  color: #FFF;
-  padding: 1px 5px;
-  border-radius: 3px;
-  font-size: 11px;
-  margin-left: 4px;
-}
-
 /* 2. Main Navigation Header */
 .main-header {
   background-color: var(--color-navy-dark);
@@ -449,48 +367,6 @@ body {
   background-color: #FEF2F2;
 }
 
-/* Mobile Toggle */
-.mobile-toggle-btn {
-  display: none;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #FFF;
-  font-size: 20px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.mobile-nav-drawer {
-  background-color: #060E18;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding: var(--space-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.mobile-nav-links {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.mobile-tenant-box {
-  background: rgba(255, 255, 255, 0.04);
-  padding: var(--space-3);
-  border-radius: 6px;
-  font-size: 12px;
-}
-
-.mobile-tenant-title {
-  color: #94A3B8;
-}
-
-.mobile-tenant-value {
-  color: #F8FAFC;
-  font-weight: 600;
-}
 
 /* 3. Main Portal Container */
 .portal-main-container {
@@ -541,6 +417,20 @@ body {
   font-size: 14px;
 }
 
+.compliance-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #38BDF8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-left: var(--space-2);
+}
+
 .footer-dsgvo-notice {
   color: #38BDF8;
   margin-bottom: var(--space-2);
@@ -572,11 +462,13 @@ body {
 /* Media Queries for Responsive Design */
 @media (max-width: 992px) {
   .desktop-nav {
-    display: none;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
   }
 
-  .mobile-toggle-btn {
-    display: block;
+  .nav-links-wrapper {
+    white-space: nowrap;
   }
 
   .header-search-box {
