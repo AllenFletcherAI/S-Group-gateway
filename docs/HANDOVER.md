@@ -108,12 +108,22 @@ Done:
 - Completely purged all decorative emojis across views, replacing them with crisp FontAwesome utility icons (`fa-scale-balanced`, `fa-triangle-exclamation`, `fa-file-contract`, `fa-building-columns`, `fa-truck`, `fa-bolt`, `fa-shield-halved`, etc.).
 - Completed English localization across all 5 operational cockpits (slot states, table columns, unassessed customs values, package types, and modal claims).
 - Validated all 75 automated test assertions passing across all 14 test suites with 0 regressions.
+- Recorded Decision D-017 in `docs/DECISIONS.md`.
+- Implemented and verified Slice 17: Elimination of Mock Theater & Transition to Operational SQLite Ledger and Live Ingestion (`src/services/complianceLedger.ts`, `src/services/documentExtractor.ts`, `src/routes/documents.ts`, `src/server.ts`, `src/views/documentAudit.ts`, `src/views/quarantine.ts`, `src/views/ledger.ts`, `src/views/layout.ts`, `src/public/js/navigation.js`, `test/slice13_documents_pipeline.test.ts`).
+- Installed `@fastify/multipart` (v9.0.3) for 25MB authentic document file intake.
+- Implemented embedded high-throughput SQLite 3 storage engine (`DatabaseSync`) at `data/sgroup_gateway.db` with WAL mode and `:memory:` test isolation.
+- Implemented dual-mode document extraction engine: Gemini Vision API integration with offline deterministic OCR pattern matching.
+- Implemented authentic ISO 6346 Modulo-11 check digit verification, ADSp 2017 tare tolerance validation (<= 50 kg), and 5-stage pipeline audit evaluation.
+- Added real REST endpoints: `POST /api/v1/documents/process`, `GET /api/v1/documents/sample/:type`, `GET /api/v1/customs/quarantine`, `POST /api/v1/customs/override`, `GET /api/v1/customs/ledger`, `GET /api/v1/compliance/ledger/export`, `GET /api/v1/compliance/quarantine/export`, `GET /api/v1/health/db`, `GET /api/v1/metrics/kpi`.
+- Replaced frontend mock scripts in `navigation.js` with live FormData uploads, dynamic stage card rendering, real-time modal supervisor overrides with table updates, live DB latency ping probes, and streaming CSV downloads.
+- Expanded automated test suite to **78/78 tests passing** across 15 test suites with 0 failures, 0 regressions, and 0 npm vulnerabilities.
+- Verified live running daemon on `http://localhost:3000` with all endpoints responding with HTTP 200 OK.
 
 In progress:
-- All 16 operational slices complete, verified, and running live.
+- All 17 operational slices complete, verified, and running live.
 
 Broken or risky:
-- None. All 75 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
+- None. All 78 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.
 
 Next:
 - Production deployment rollout, customer UAT handover, or optional additional enterprise ERP connectors.

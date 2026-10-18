@@ -1,4 +1,5 @@
 import { S_GROUP_BRAND } from "../config/branding.js";
+import { ComplianceLedgerService } from "../services/complianceLedger.js";
 
 export interface LayoutOptions {
   title?: string;
@@ -164,28 +165,33 @@ export function renderLayout(options: LayoutOptions): string {
       </nav>
 
       <!-- Executive KPI Chips (Clickable shortcuts for 50+ operators) -->
+      ${(() => {
+        const metrics = ComplianceLedgerService.getKpiMetrics();
+        return `
       <div class="kpi-chips-strip header-kpi-strip" role="region" aria-label="Executive KPI">
         <a href="/portal/ledger?lang=${lang}" class="kpi-chip-btn" title="${isDe ? "Zum Audit-Ledger wechseln" : "View Ingestion Ledger"}">
           <i class="fa-solid fa-file-lines text-slate-400"></i>
           <span class="kpi-label">${isDe ? "Verarbeitet:" : "Processed:"}</span>
-          <span id="stat-total" class="kpi-val">24</span>
+          <span id="stat-total" class="kpi-val">${metrics.totalProcessed}</span>
         </a>
         <a href="/portal/ledger?filter=clean&lang=${lang}" class="kpi-chip-btn clean" title="${isDe ? "Freigegebene Sendungen anzeigen" : "View Clean Shipments"}">
           <i class="fa-solid fa-circle-check text-emerald-400"></i>
           <span class="kpi-label">Clean:</span>
-          <span id="stat-clean" class="kpi-val">18</span>
+          <span id="stat-clean" class="kpi-val">${metrics.verifiedClean}</span>
         </a>
         <a href="/portal/quarantine?lang=${lang}" class="kpi-chip-btn quar" title="${isDe ? "Zur Quarantäne-Konsole wechseln" : "View Quarantine Console"}">
           <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
           <span class="kpi-label">${isDe ? "Quarantäne:" : "Quarantine:"}</span>
-          <span id="stat-holds" class="kpi-val">3</span>
+          <span id="stat-holds" class="kpi-val">${metrics.quarantineHolds}</span>
         </a>
         <a href="/portal/quarantine?lang=${lang}" class="kpi-chip-btn demurrage" title="${isDe ? "Verhinderte Standgelder anzeigen" : "View Demurrage Savings"}">
           <i class="fa-solid fa-shield-halved text-emerald-400"></i>
           <span class="kpi-label">${isDe ? "Standgeld vermieden:" : "Demurrage Saved:"}</span>
-          <span id="stat-demurrage" class="kpi-val">3.850 €</span>
+          <span id="stat-demurrage" class="kpi-val">${metrics.demurrageSavedEur.toLocaleString()} €</span>
         </a>
       </div>
+        `;
+      })()}
 
       <!-- Regulatory Compliance & Retention Metadata (DSGVO Art. 5) -->
       <div class="sr-only">

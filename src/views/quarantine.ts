@@ -6,15 +6,86 @@
  * tracking ticking demurrage costs (€150–€500/day), and issuing formal ADSp 2017 legal claims.
  */
 
+import { ProcessedShipmentRecord, ComplianceLedgerService } from "../services/complianceLedger.js";
+
 export interface QuarantineViewOptions {
   lang?: "de" | "en";
   filter?: string;
   search?: string;
+  cases?: ProcessedShipmentRecord[];
 }
 
 export function renderQuarantineView(options: QuarantineViewOptions = {}): string {
   const { lang = "de", filter = "all", search = "" } = options;
   const isDe = lang === "de";
+
+  const activeCases = options.cases || ComplianceLedgerService.getQuarantineShipments(filter, search);
+  const criticalCount = activeCases.filter((c) => (c.free_days_remaining_hours ?? 72) <= 24).length;
+  const metrics = ComplianceLedgerService.getKpiMetrics();
+
+  const rowsHtml = activeCases.length > 0
+    ? activeCases.map((c) => {
+        const remainingHours = c.free_days_remaining_hours ?? 48;
+        const isCritical = remainingHours <= 24;
+        const timeBadgeColor = isCritical ? "#EF4444" : "#F59E0B";
+        const dailyRate = c.daily_demurrage_eur ? `${c.daily_demurrage_eur.toFixed(0)} € / ${isDe ? "Tag" : "day"}` : `350 € / ${isDe ? "Tag" : "day"}`;
+        const discrepancy = c.override_reason || (c.gross_weight_kg ? `+220 kg VGM Delta (B/L vs Packliste)` : "Fehlende Handelsrechnung / ATLAS Deklaration");
+        const statusBadge = c.audit_status === "OVERRIDDEN_RELEASED"
+          ? `<span class="stage-badge-pill pass">${isDe ? "FREIGEGEBEN" : "OVERRIDDEN"}</span>`
+          : (isCritical
+            ? `<span class="stage-badge-pill hold">${isDe ? "AKUT" : "CRITICAL"}</span>`
+            : `<span class="stage-badge-pill hold">${isDe ? "QUARANTÄNE" : "QUARANTINE"}</span>`);
+
+        return `
+          <tr id="row-quarantine-${c.shipment_ref}">
+            <td>
+              <strong style="color:#0284C7;">${c.shipment_ref}</strong>
+              <div style="font-size:11px; color:var(--color-text-muted);">${c.terminal || "Hamburg CTA (Altenwerder)"}</div>
+            </td>
+            <td>
+              <code style="font-size:12px; font-weight:700;">${c.container_number || "N/A"}</code>
+              <div style="font-size:11px; color:var(--color-text-muted);">${c.carrier || "Maersk Line (Ocean Feeder)"}</div>
+            </td>
+            <td>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="color:${timeBadgeColor}; font-weight:700;">
+                  <i class="fa-regular fa-clock"></i> ${remainingHours}h ${isDe ? "verbleibend" : "remaining"}
+                </span>
+              </div>
+              <div style="font-size:11px; color:var(--color-text-muted);">${isDe ? "Freitage bis Schiffsabfahrt" : "Free days until departure"}</div>
+            </td>
+            <td>
+              <span class="stage-badge-pill hold"><i class="fa-solid fa-triangle-exclamation"></i> ${discrepancy}</span>
+              <div style="font-size:11px; color:var(--color-text-muted); margin-top:2px;">
+                ${isDe ? "Deklariert" : "Declared"}: ${c.gross_weight_kg ? `${c.gross_weight_kg.toLocaleString()} kg` : "N/A"} • ${c.incoterm || "CIF"}
+              </div>
+            </td>
+            <td style="text-align:right; font-weight:700; color:#EF4444;">
+              ${dailyRate}
+            </td>
+            <td style="text-align:center;" id="status-cell-${c.shipment_ref}">
+              ${statusBadge}
+            </td>
+            <td style="text-align:right;">
+              <button type="button" class="zoom-btn" onclick="openAdspModal('${c.container_number || c.shipment_ref}')" style="color:#EF4444; border-color:#DC2626; display:inline-flex; align-items:center; gap:4px;">
+                <i class="fa-solid fa-scale-balanced"></i> ${isDe ? "Haftungsanzeige" : "ADSp Claim"}
+              </button>
+              ${c.audit_status !== "OVERRIDDEN_RELEASED" ? `
+              <button type="button" class="zoom-btn" onclick="openSupervisorOverrideModal('${c.shipment_ref}')" style="margin-left:4px; display:inline-flex; align-items:center; gap:4px;">
+                <i class="fa-solid fa-lock-open"></i> ${isDe ? "Freigabe" : "Override"}
+              </button>` : ""}
+            </td>
+          </tr>
+        `;
+      }).join("\n")
+    : `
+      <tr>
+        <td colspan="7" style="text-align:center; padding:32px; color:var(--color-text-muted);">
+          <i class="fa-solid fa-circle-check" style="color:#10B981; font-size:24px; margin-bottom:8px; display:block;"></i>
+          ${isDe ? "Keine aktiven Quarantäne-Fälle für diesen Filter vorhanden." : "No active quarantine holds found for this filter."}
+        </td>
+      </tr>
+    `;
 
   return `
     <div class="quarantine-workspace-container" id="quarantine-workspace">
@@ -37,7 +108,7 @@ export function renderQuarantineView(options: QuarantineViewOptions = {}): strin
         </div>
 
         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-          <button type="button" class="zoom-btn" onclick="openAdspModal('MSKU7829104')" style="background:#EF4444; color:#FFFFFF; border-color:#DC2626; padding:8px 12px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+          <button type="button" class="zoom-btn" onclick="openAdspModal('MSKU7829107')" style="background:#EF4444; color:#FFFFFF; border-color:#DC2626; padding:8px 12px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
             <i class="fa-solid fa-scale-balanced"></i> ${isDe ? "ADSp 2017 Haftungsanzeige" : "ADSp 2017 Legal Claim"}
           </button>
           <button type="button" class="zoom-btn" onclick="exportQuarantineCsv()" style="padding:8px 12px; display:inline-flex; align-items:center; gap:6px;">
@@ -52,7 +123,7 @@ export function renderQuarantineView(options: QuarantineViewOptions = {}): strin
           <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--color-text-muted);">
             ${isDe ? "Aktive Quarantäne-Fälle" : "Active Quarantine Cases"}
           </div>
-          <div class="kpi-number" style="color:#EF4444;">3</div>
+          <div class="kpi-number" style="color:#EF4444;">${activeCases.length}</div>
           <div style="font-size:11.5px; color:#EF4444; font-weight:600; margin-top:2px;">
             ${isDe ? "Sofortige Klärung erforderlich" : "Immediate action required"}
           </div>
@@ -62,7 +133,7 @@ export function renderQuarantineView(options: QuarantineViewOptions = {}): strin
           <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--color-text-muted);">
             ${isDe ? "Akute Frist (< 24h)" : "Critical Deadline (< 24h)"}
           </div>
-          <div class="kpi-number" style="color:#F59E0B;">1</div>
+          <div class="kpi-number" style="color:#F59E0B;">${criticalCount}</div>
           <div style="font-size:11.5px; color:var(--color-text-muted); margin-top:2px;">
             ${isDe ? "Freitage laufen heute ab" : "Free days expire today"}
           </div>
@@ -72,7 +143,7 @@ export function renderQuarantineView(options: QuarantineViewOptions = {}): strin
           <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--color-text-muted);">
             ${isDe ? "Abgewendete Standgelder" : "Demurrage Prevented"}
           </div>
-          <div class="kpi-number" style="color:#10B981;">3.850 €</div>
+          <div class="kpi-number" style="color:#10B981;">${metrics.demurrageSavedEur.toLocaleString()} €</div>
           <div style="font-size:11.5px; color:#10B981; font-weight:600; margin-top:2px;">
             ${isDe ? "Erfolgreich abgewendet" : "Successfully averted"}
           </div>
@@ -93,13 +164,13 @@ export function renderQuarantineView(options: QuarantineViewOptions = {}): strin
       <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
         <div style="display:flex; gap:6px;">
           <a href="/portal/quarantine?filter=all&lang=${lang}" class="zoom-btn" style="${filter === "all" ? "background:#0284C7; color:#FFFFFF; border-color:#38BDF8;" : ""}">
-            ${isDe ? "Alle Fälle (3)" : "All Holds (3)"}
+            ${isDe ? `Alle Fälle (${activeCases.length})` : `All Holds (${activeCases.length})`}
           </a>
           <a href="/portal/quarantine?filter=critical&lang=${lang}" class="zoom-btn" style="${filter === "critical" ? "background:#0284C7; color:#FFFFFF; border-color:#38BDF8;" : ""}">
-            ${isDe ? "Akut < 24h (1)" : "Critical < 24h (1)"}
+            ${isDe ? `Akut < 24h (${criticalCount})` : `Critical < 24h (${criticalCount})`}
           </a>
           <a href="/portal/quarantine?filter=hamburg&lang=${lang}" class="zoom-btn" style="${filter === "hamburg" ? "background:#0284C7; color:#FFFFFF; border-color:#38BDF8;" : ""}">
-            ${isDe ? "Seehafen Hamburg (2)" : "Hamburg Seaport (2)"}
+            ${isDe ? "Seehafen Hamburg" : "Hamburg Seaport"}
           </a>
         </div>
 
@@ -130,113 +201,7 @@ export function renderQuarantineView(options: QuarantineViewOptions = {}): strin
             </tr>
           </thead>
           <tbody id="quarantine-table-rows">
-            <!-- Case 1: Active Discrepancy (VGM Weight Delta) -->
-            <tr>
-              <td>
-                <strong style="color:#0284C7;">SHP-SIS-1049</strong>
-                <div style="font-size:11px; color:var(--color-text-muted);">Hamburg CTA (Altenwerder)</div>
-              </td>
-              <td>
-                <code style="font-size:12px; font-weight:700;">MSKU7829104</code>
-                <div style="font-size:11px; color:var(--color-text-muted);">Maersk Line (Ocean Feeder)</div>
-              </td>
-              <td>
-                <div style="display:flex; align-items:center; gap:6px;">
-                  <span style="color:#F59E0B; font-weight:700;"><i class="fa-regular fa-clock"></i> ${isDe ? "48h verbleibend" : "48h remaining"}</span>
-                </div>
-                <div style="font-size:11px; color:var(--color-text-muted);">${isDe ? "Freitage bis 20. Okt 18:00" : "Free days until Oct 20, 18:00"}</div>
-              </td>
-              <td>
-                <span class="stage-badge-pill hold"><i class="fa-solid fa-triangle-exclamation"></i> +220 kg VGM Delta</span>
-                <div style="font-size:11px; color:var(--color-text-muted); margin-top:2px;">${isDe ? "B/L: 24.500 kg vs Packliste: 24.720 kg" : "B/L: 24,500 kg vs Packing list: 24,720 kg"}</div>
-              </td>
-              <td style="text-align:right; font-weight:700; color:#EF4444;">
-                ${isDe ? "350 € / Tag" : "350 € / day"}
-              </td>
-              <td style="text-align:center;">
-                <span class="stage-badge-pill hold">${isDe ? "QUARANTÄNE" : "QUARANTINE"}</span>
-              </td>
-              <td style="text-align:right;">
-                <button type="button" class="zoom-btn" onclick="openAdspModal('MSKU7829104')" style="color:#EF4444; border-color:#DC2626; display:inline-flex; align-items:center; gap:4px;">
-                  <i class="fa-solid fa-scale-balanced"></i> ${isDe ? "Haftungsanzeige" : "ADSp Claim"}
-                </button>
-                <button type="button" class="zoom-btn" onclick="openSupervisorOverrideModal('SHP-SIS-1049')" style="margin-left:4px; display:inline-flex; align-items:center; gap:4px;">
-                  <i class="fa-solid fa-lock-open"></i> ${isDe ? "Freigabe" : "Override"}
-                </button>
-              </td>
-            </tr>
-
-            <!-- Case 2: Missing Commercial Invoice -->
-            <tr>
-              <td>
-                <strong style="color:#0284C7;">SHP-SIS-1052</strong>
-                <div style="font-size:11px; color:var(--color-text-muted);">Hamburg CTB (Burchardkai)</div>
-              </td>
-              <td>
-                <code style="font-size:12px; font-weight:700;">HLXU9201472</code>
-                <div style="font-size:11px; color:var(--color-text-muted);">Hapag-Lloyd</div>
-              </td>
-              <td>
-                <div style="display:flex; align-items:center; gap:6px;">
-                  <span style="color:#EF4444; font-weight:800;"><i class="fa-solid fa-triangle-exclamation"></i> ${isDe ? "8h Frist (AKUT)" : "8h Deadline (CRITICAL)"}</span>
-                </div>
-                <div style="font-size:11px; color:var(--color-text-muted);">${isDe ? "Freitage laufen heute 18:00 ab" : "Free days expire today at 18:00"}</div>
-              </td>
-              <td>
-                <span class="stage-badge-pill hold"><i class="fa-regular fa-file-lines"></i> ${isDe ? "Fehlende Handelsrechnung" : "Missing Commercial Invoice"}</span>
-                <div style="font-size:11px; color:var(--color-text-muted); margin-top:2px;">${isDe ? "Zollwert für ATLAS 9.1 nicht deklariert" : "Customs value undeclared for ATLAS 9.1"}</div>
-              </td>
-              <td style="text-align:right; font-weight:700; color:#EF4444;">
-                ${isDe ? "180 € / Tag" : "180 € / day"}
-              </td>
-              <td style="text-align:center;">
-                <span class="stage-badge-pill hold">${isDe ? "AKUT" : "CRITICAL"}</span>
-              </td>
-              <td style="text-align:right;">
-                <button type="button" class="zoom-btn" onclick="openAdspModal('HLXU9201472')" style="color:#EF4444; border-color:#DC2626; display:inline-flex; align-items:center; gap:4px;">
-                  <i class="fa-solid fa-scale-balanced"></i> ${isDe ? "Haftungsanzeige" : "ADSp Claim"}
-                </button>
-                <button type="button" class="zoom-btn" onclick="openSupervisorOverrideModal('SHP-SIS-1052')" style="margin-left:4px; display:inline-flex; align-items:center; gap:4px;">
-                  <i class="fa-solid fa-lock-open"></i> ${isDe ? "Freigabe" : "Override"}
-                </button>
-              </td>
-            </tr>
-
-            <!-- Case 3: Hazardous Goods Segregation Alert -->
-            <tr>
-              <td>
-                <strong style="color:#0284C7;">SHP-SIS-1055</strong>
-                <div style="font-size:11px; color:var(--color-text-muted);">Eurogate Waltershof</div>
-              </td>
-              <td>
-                <code style="font-size:12px; font-weight:700;">TGHU4182901</code>
-                <div style="font-size:11px; color:var(--color-text-muted);">S-Group Feeder Truck</div>
-              </td>
-              <td>
-                <div style="display:flex; align-items:center; gap:6px;">
-                  <span style="color:#F59E0B; font-weight:700;"><i class="fa-regular fa-clock"></i> ${isDe ? "72h verbleibend" : "72h remaining"}</span>
-                </div>
-                <div style="font-size:11px; color:var(--color-text-muted);">${isDe ? "Freitage bis 21. Okt 12:00" : "Free days until Oct 21, 12:00"}</div>
-              </td>
-              <td>
-                <span class="stage-badge-pill hold"><i class="fa-solid fa-biohazard"></i> ${isDe ? "ADR Klasse 3 Segregation" : "ADR Class 3 Segregation"}</span>
-                <div style="font-size:11px; color:var(--color-text-muted); margin-top:2px;">${isDe ? "Entzündbare Flüssigkeiten ohne DGD-Zertifikat" : "Flammable liquids without DGD certificate"}</div>
-              </td>
-              <td style="text-align:right; font-weight:700; color:#EF4444;">
-                ${isDe ? "450 € / Tag" : "450 € / day"}
-              </td>
-              <td style="text-align:center;">
-                <span class="stage-badge-pill hold">ADR HOLD</span>
-              </td>
-              <td style="text-align:right;">
-                <button type="button" class="zoom-btn" onclick="openAdspModal('TGHU4182901')" style="color:#EF4444; border-color:#DC2626; display:inline-flex; align-items:center; gap:4px;">
-                  <i class="fa-solid fa-scale-balanced"></i> ${isDe ? "Haftungsanzeige" : "ADSp Claim"}
-                </button>
-                <button type="button" class="zoom-btn" onclick="openSupervisorOverrideModal('SHP-SIS-1055')" style="margin-left:4px; display:inline-flex; align-items:center; gap:4px;">
-                  <i class="fa-solid fa-lock-open"></i> ${isDe ? "Freigabe" : "Override"}
-                </button>
-              </td>
-            </tr>
+            ${rowsHtml}
           </tbody>
         </table>
       </div>
@@ -248,55 +213,31 @@ export function renderQuarantineView(options: QuarantineViewOptions = {}): strin
             <div style="display:flex; align-items:center; gap:8px;">
               <i class="fa-solid fa-scale-balanced" style="font-size:18px; color:#EF4444;"></i>
               <strong style="font-size:15px; color:#FFFFFF;">
-                ${isDe ? "Offizielle Haftungsanzeige nach ADSp 2017 Ziff. 19 & § 412 HGB" : "Official Notice of Demurrage Claim (ADSp 2017 & § 412 HGB)"}
+                ${isDe ? "Offizielle Haftungsanzeige nach ADSp 2017 Ziff. 19 & § 412 HGB" : "Official Carrier Discrepancy Claim (ADSp 2017 & § 412 HGB)"}
               </strong>
             </div>
             <button type="button" onclick="closeAdspModal()" class="zoom-btn" style="padding:4px 8px;">✕</button>
           </div>
 
-          <div style="background:#05080E; border:1px solid #1E293B; border-radius:8px; padding:16px; margin:16px 0; font-family:monospace; font-size:12px; color:#E2E8F0; line-height:1.6; max-height:360px; overflow-y:auto;" id="adsp-claim-text">
-            ${isDe ? `
-              <strong>SCHÄFER & SIS INTERLOGISTIK GMBH</strong><br>
-              Abteilung Seehafen-Spedition & Zollabwicklung • Hamburg Hub<br>
-              Datum: 18. Oktober 2026<br><br>
-              <strong>VORBEHALTS- UND HAFTUNGSANZEIGE GEMÄSS ADSp 2017 ZIFF. 19 / § 412 HGB</strong><br>
-              Bezug: Container-ID <span id="adsp-container-ref">MSKU7829104</span> / Sendung SHP-SIS-1049<br>
-              Terminal: CTA Hamburg (Altenwerder)<br><br>
-              Sehr geehrte Damen und Herren,<br><br>
-              bei der deterministischen 3-Wege-Prüfung der Frachtdokumente vor Terminal Gate-in wurde eine 
-              unzulässige Gewichtsdiskrepanz von <strong>+220 kg</strong> zwischen Frachturkunde (B/L) und Packliste festgestellt.<br><br>
-              Gemäß Ziffer 19 ADSp 2017 sowie § 412 HGB haftet der Auftraggeber/Verlader für alle Schäden und 
-              Kosten, die durch unrichtige oder unvollständige Angaben im Frachtbrief entstehen.<br><br>
-              Wir zeigen hiermit vorsorglich an, dass sämtliche anfallenden Stand- und Liegegelder 
-              (Demurrage/Detention) in Höhe von aktuell <strong>350,00 EUR pro Kalendertag</strong> sowie 
-              etwaige ATLAS-Nachverzollungskosten zu Ihren Lasten gehen.<br><br>
-              Mit freundlichen Grüßen,<br>
-              Schäfer & SIS Interlogistik GmbH • Automatisierter Zoll-Leitstand
-            ` : `
-              <strong>SCHÄFER & SIS INTERLOGISTIK GMBH</strong><br>
-              Seaport Forwarding & Customs Department • Hamburg Hub<br>
-              Date: 18 October 2026<br><br>
-              <strong>DEMURRAGE CLAIM AND RESERVATION OF RIGHTS (ADSp 2017 SEC. 19 / § 412 HGB)</strong><br>
-              Reference: Container <span id="adsp-container-ref">MSKU7829104</span> / Shipment SHP-SIS-1049<br>
-              Terminal: CTA Hamburg (Altenwerder)<br><br>
-              Dear Sir or Madam,<br><br>
-              During deterministic 3-way cross-check of transport documentation prior to terminal gate-in, an inadmissible 
-              gross weight discrepancy of <strong>+220 kg</strong> was detected between bill of lading (B/L) and packing list.<br><br>
-              Pursuant to Clause 19 ADSp 2017 and § 412 of the German Commercial Code (HGB), shipper/consignor is strictly liable for 
-              all damages and costs incurred from inaccurate or incomplete transport declarations.<br><br>
-              Notice is hereby given that all demurrage and detention charges amounting to currently 
-              <strong>EUR 350.00 per calendar day</strong> as well as secondary customs inspection expenses will be debited to your account.<br><br>
-              Yours faithfully,<br>
-              Schäfer & SIS Interlogistik GmbH • Automated Customs Cockpit
-            `}
+          <div style="padding:16px 0; font-size:13px; line-height:1.6; color:#E2E8F0;" id="adsp-claim-text">
+            <p><strong>SPEDITIONS-BEANSTANDUNG & LIEGEGELD-AVIS</strong></p>
+            <p>Bezug Container: <code id="adsp-container-ref" style="color:#38BDF8; font-weight:700;">MSKU7829107</code></p>
+            <p>Sehr geehrte Damen und Herren,</p>
+            <p>
+              hiermit zeigen wir namens und im Auftrag unseres Mandanten an, dass bezüglich des oben bezeichneten 
+              Seecontainers vor Gate-In am Terminal eine erhebliche Diskrepanz zwischen den Frachtpapieren (B/L) 
+              und der Packliste bzw. dem VGM-Wiegeschein festgestellt wurde.
+            </p>
+            <p>
+              Zur Abwendung zollrechtlicher Beschlagnahmen oder Liegegelder (Demurrage & Detention) nach Schiffsankunft 
+              wird die Einheit bis zur Nachreichung korrigierter Dokumente in unserem Quarantäne-Leitstand geführt. 
+              Wir behalten uns alle Rechte nach § 412 HGB und Ziff. 19 ADSp 2017 vollumfänglich vor.
+            </p>
           </div>
 
           <div style="display:flex; justify-content:flex-end; gap:8px;">
-            <button type="button" class="zoom-btn" onclick="copyAdspClaimText()" style="background:#0284C7; color:#FFFFFF; border-color:#38BDF8; padding:8px 14px; display:inline-flex; align-items:center; gap:6px;">
-              <i class="fa-regular fa-copy"></i> ${isDe ? "In Zwischenablage kopieren" : "Copy to Clipboard"}
-            </button>
-            <button type="button" class="zoom-btn" onclick="window.print()" style="padding:8px 14px; display:inline-flex; align-items:center; gap:6px;">
-              <i class="fa-solid fa-print"></i> ${isDe ? "Drucken" : "Print"}
+            <button type="button" class="zoom-btn" onclick="copyAdspClaimText()" style="background:#EF4444; color:#FFFFFF; border-color:#DC2626; padding:8px 14px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+              <i class="fa-regular fa-copy"></i> ${isDe ? "Avis-Text kopieren" : "Copy Claim Text"}
             </button>
             <button type="button" class="zoom-btn" onclick="closeAdspModal()" style="padding:8px 14px;">
               ${isDe ? "Schließen" : "Close"}

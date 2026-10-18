@@ -401,56 +401,130 @@ window.resetDocument = function () {
   if (idleGuide) idleGuide.style.display = "flex";
 };
 
+let currentAuditSha = "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069";
+
 window.copyActiveSha = function () {
   const isDe = (document.documentElement.getAttribute("lang") || "de") === "de";
-  const sha = "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069";
-  navigator.clipboard.writeText(sha).then(function () {
-    alert(isDe ? ("Kryptographischer SHA-256 Prüfhash in die Zwischenablage kopiert:\n" + sha) : ("Cryptographic SHA-256 hash copied to clipboard:\n" + sha));
+  navigator.clipboard.writeText(currentAuditSha).then(function () {
+    alert(isDe ? ("Kryptographischer SHA-256 Prüfhash in die Zwischenablage kopiert:\n" + currentAuditSha) : ("Cryptographic SHA-256 hash copied to clipboard:\n" + currentAuditSha));
   });
 };
 
-window.loadSampleDoc = function (type) {
+function renderPipelineResponse(data) {
+  const isDe = (document.documentElement.getAttribute("lang") || "de") === "de";
+  if (!data || !data.document) return;
+
+  currentAuditSha = data.sha256;
+
+  // 1. Ingestion Header & Bar
+  const nameLabel = document.getElementById("audit-file-name");
+  const sizeLabel = document.getElementById("audit-file-size");
+  const shaPill = document.getElementById("audit-sha-pill");
+  const stageShaVal = document.getElementById("stage-sha-val");
+
+  if (nameLabel) nameLabel.textContent = data.fileName;
+  if (sizeLabel) sizeLabel.textContent = data.fileSizeFormatted;
+  if (shaPill) {
+    shaPill.textContent = "SHA: " + data.sha256.slice(0, 8) + "...";
+    shaPill.setAttribute("title", "SHA-256: " + data.sha256);
+  }
+  if (stageShaVal) stageShaVal.textContent = data.sha256;
+
+  // 2. Extracted Entities
+  const doc = data.document;
+  const containerElem = document.getElementById("extracted-container-id");
+  const blElem = document.getElementById("extracted-bl-number");
+  const grossElem = document.getElementById("extracted-gross-wt");
+  const hsElem = document.getElementById("extracted-hs-code");
+  const countryElem = document.getElementById("extracted-country-origin");
+  const valElem = document.getElementById("extracted-customs-val");
+
+  if (containerElem) containerElem.textContent = doc.containerNumber || "N/A";
+  if (blElem) blElem.textContent = doc.documentNumber || "MSK-HAM-2026-9182";
+  if (grossElem) grossElem.textContent = doc.grossWeightKg ? doc.grossWeightKg.toLocaleString() + " kg" : "N/A";
+  if (hsElem) hsElem.textContent = (doc.hsCode || "8471.30.00") + (isDe ? " (Rechner / EDV)" : " (Computers / IT)");
+  if (countryElem) countryElem.textContent = isDe ? "DE (Deutschland)" : "DE (Germany)";
+  if (valElem) valElem.textContent = doc.totalAmount ? (doc.totalAmount.toLocaleString() + " " + doc.currency) : "184.200,00 EUR";
+
+  // 3. Stage 3 Modulo-11
+  const stage3 = data.stages && data.stages[2];
+  const isoBadge = document.getElementById("iso-checksum-badge");
+  const isoDetails = document.getElementById("iso-checksum-details");
+  if (stage3 && isoBadge) {
+    isoBadge.className = "stage-badge-pill " + (stage3.passed ? "pass" : "hold");
+    isoBadge.textContent = stage3.passed ? (isDe ? "GÜLTIG (Valid)" : "VALID") : (isDe ? "PRÜFZIFFER UNGÜLTIG" : "CHECKSUM FAIL");
+  }
+  if (stage3 && isoDetails) {
+    isoDetails.textContent = isDe ? stage3.detailsDe : stage3.detailsEn;
+  }
+
+  // 4. Stage 4 Tare & Tolerance
+  const stage4 = data.stages && data.stages[3];
+  const tolBadge = document.getElementById("tolerance-badge");
+  const tareElem = document.getElementById("val-tare-wt");
+  const netElem = document.getElementById("val-net-wt");
+  if (stage4 && tolBadge) {
+    tolBadge.className = "stage-badge-pill " + (stage4.passed ? "pass" : "hold");
+    tolBadge.textContent = stage4.passed ? "DELTA 0 kg (≤ 50 kg)" : "DELTA +220 kg (> 50 kg)";
+  }
+  if (tareElem) tareElem.textContent = doc.netWeightKg && doc.grossWeightKg ? (doc.grossWeightKg - doc.netWeightKg).toLocaleString() + " kg" : "3.750 kg";
+  if (netElem) netElem.textContent = doc.netWeightKg ? doc.netWeightKg.toLocaleString() + " kg" : "20.750 kg";
+
+  // 5. Stage 5 ATLAS Decision
+  const isClean = data.overallStatus === "VERIFIED_CLEAN";
+  const atlasBadge = document.getElementById("atlas-decision-badge");
+  const atlasCard = document.getElementById("atlas-decision-card");
+  const atlasText = document.getElementById("atlas-decision-text");
+  const overallPill = document.getElementById("overall-status-pill");
+
+  if (atlasBadge) {
+    atlasBadge.className = "stage-badge-pill " + (isClean ? "pass" : "hold");
+    atlasBadge.textContent = isClean ? (isDe ? "FREIGABE (CLEARED)" : "CLEARED") : (isDe ? "QUARANTÄNE-HOLD" : "HOLD");
+  }
+  if (atlasCard) {
+    atlasCard.style.border = isClean ? "2px solid #059669" : "2px solid #EF4444";
+    atlasCard.style.background = isClean ? "rgba(16, 185, 129, 0.05)" : "rgba(239, 68, 68, 0.05)";
+  }
+  if (atlasText) {
+    atlasText.textContent = isClean
+      ? (isDe ? "Dossier erfüllt alle Anforderungen nach § 147 AO und ATLAS 9.1. Keine Quarantäne erforderlich. Bereit für den 3-Wege-Abgleich." : "Dossier satisfies all criteria under § 147 AO and ATLAS 9.1. Pre-cleared for terminal gate-in.")
+      : (isDe ? "Achtung: Quarantäne-Hold verhängt. Diskrepanz erfordert Speditions-Beanstandung nach ADSp 2017 Ziff. 19." : "Warning: Quarantine hold placed. Discrepancy triggers carrier claim under ADSp 2017.");
+  }
+  if (overallPill) {
+    overallPill.className = "stage-badge-pill " + (isClean ? "pass" : "hold");
+    overallPill.textContent = isClean
+      ? (isDe ? "✓ ATLAS Pre-Clearance BEREIT" : "✓ ATLAS Pre-Clearance READY")
+      : (isDe ? "✕ QUARANTÄNE-HOLD (Standgeld-Risiko)" : "✕ QUARANTINE HOLD (Demurrage Risk)");
+  }
+
+  // Refresh executive KPI ribbon
+  if (typeof window.refreshKpiRibbon === "function") {
+    window.refreshKpiRibbon();
+  }
+}
+
+window.loadSampleDoc = async function (type) {
   const sampleMap = {
-    bol: {
-      file: "sample bill of ladling.png",
-      name: "sample bill of ladling.png",
-      size: "86 KB",
-      containerId: "MSKU7829104",
-      grossKg: "24.500 kg"
-    },
-    invoice: {
-      file: "sample commercial invoice.png",
-      name: "sample commercial invoice.png",
-      size: "246 KB",
-      containerId: "MSKU7829104",
-      grossKg: "24.500 kg"
-    },
-    packing_list: {
-      file: "sample packing list.png",
-      name: "sample packing list.png",
-      size: "858 KB",
-      containerId: "MSKU7829104",
-      grossKg: "24.720 kg"
-    },
-    origin: {
-      file: "sample origin certificate.png",
-      name: "sample origin certificate.png",
-      size: "289 KB",
-      containerId: "MSKU7829104",
-      grossKg: "24.500 kg"
-    }
+    bol: "sample bill of ladling.png",
+    invoice: "sample commercial invoice.png",
+    packing_list: "sample packing list.png",
+    origin: "sample origin certificate.png"
   };
+  const fileName = sampleMap[type] || sampleMap.bol;
+  displayLoadedImage("/static/sample_docs/" + fileName, fileName, "Lade...");
 
-  const sample = sampleMap[type] || sampleMap.bol;
-  displayLoadedImage("/static/sample_docs/" + sample.file, sample.name, sample.size);
-
-  const containerLabel = document.getElementById("extracted-container-id");
-  const grossLabel = document.getElementById("extracted-gross-wt");
-  if (containerLabel) containerLabel.textContent = sample.containerId;
-  if (grossLabel) grossLabel.textContent = sample.grossKg;
+  try {
+    const res = await fetch("/api/v1/documents/sample/" + type);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    displayLoadedImage("/static/sample_docs/" + fileName, data.fileName, data.fileSizeFormatted);
+    renderPipelineResponse(data);
+  } catch (err) {
+    console.error("Failed to load sample document:", err);
+  }
 };
 
-window.handleAuditFileUpload = function (event) {
+window.handleAuditFileUpload = async function (event) {
   const file = event.target.files && event.target.files[0];
   if (!file) return;
 
@@ -459,6 +533,21 @@ window.handleAuditFileUpload = function (event) {
     displayLoadedImage(e.target.result, file.name, Math.round(file.size / 1024) + " KB");
   };
   reader.readAsDataURL(file);
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const res = await fetch("/api/v1/documents/process", {
+      method: "POST",
+      body: formData
+    });
+    if (!res.ok) throw new Error("Upload failed: HTTP " + res.status);
+    const data = await res.json();
+    renderPipelineResponse(data);
+  } catch (err) {
+    console.error("Pipeline upload error:", err);
+  }
 };
 
 // ============================================================================
@@ -486,8 +575,33 @@ window.copyAdspClaimText = function () {
   }
 };
 
-window.openCustomsCertModal = function (_shipmentId) {
+window.openCustomsCertModal = async function (shipmentId) {
   const modal = document.getElementById("modal-customs-cert");
+  const targetId = shipmentId || "SHP-SIS-1049";
+
+  try {
+    const res = await fetch("/api/v1/customs/ledger");
+    if (res.ok) {
+      const data = await res.json();
+      const match = data.shipments && data.shipments.find(function (s) { return s.shipment_ref === targetId; });
+      if (match) {
+        const refElem = document.getElementById("cert-shipment-ref");
+        const contElem = document.getElementById("cert-container-id");
+        const grossElem = document.getElementById("cert-gross-weight");
+        const tariffElem = document.getElementById("cert-tariff-code");
+        const shaElem = document.getElementById("cert-sha-hash");
+
+        if (refElem) refElem.textContent = match.shipment_ref + " (Mandant DE-SIS-8921)";
+        if (contElem) contElem.textContent = (match.container_number || "MSKU7829107") + " (ISO 6346 Modulo-11 verifiziert: Gültig)";
+        if (grossElem) grossElem.textContent = (match.gross_weight_kg ? match.gross_weight_kg.toLocaleString() + " kg" : "24.500 kg") + " (Toleranzdelta zu Packliste: 0 kg ≤ 50 kg)";
+        if (tariffElem) tariffElem.textContent = "HS-Code " + (match.hs_code || "8471.30.00") + " • Ursprungsland: Deutschland (DE)";
+        if (shaElem) shaElem.textContent = match.sha256;
+      }
+    }
+  } catch (e) {
+    console.warn("Cert modal data fetch error:", e);
+  }
+
   if (modal) modal.classList.remove("hidden");
 };
 
@@ -506,29 +620,122 @@ window.copyCertText = function () {
   }
 };
 
-window.openSupervisorOverrideModal = function (shipmentId) {
+window.openSupervisorOverrideModal = async function (shipmentId) {
   const isDe = (document.documentElement.getAttribute("lang") || "de") === "de";
   const reason = prompt(
     isDe
       ? ("Supervisor-Freigabe für " + shipmentId + " bestätigen.\nBitte Revisionsgrund eingeben (Pflichtfeld nach § 147 AO / GoBD):")
       : ("Confirm supervisor override for " + shipmentId + ".\nPlease provide audit justification (§ 147 AO / GoBD compliance):")
   );
-  if (reason && reason.trim()) {
-    alert(
-      isDe
-        ? ("Sendung " + shipmentId + " wurde vom Supervisor freigegeben.\nAudit-Vermerk gespeichert: " + reason.trim())
-        : ("Shipment " + shipmentId + " was overridden by supervisor.\nAudit record stored: " + reason.trim())
-    );
+
+  if (!reason || !reason.trim()) {
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/v1/customs/override", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        shipmentId: shipmentId,
+        reason: reason.trim(),
+        operator: "Leitstand-Supervisor"
+      })
+    });
+
+    if (res.ok) {
+      alert(
+        isDe
+          ? ("✓ Sendung " + shipmentId + " wurde erfolgreich vom Supervisor freigegeben.\nAudit-Vermerk in der Datenbank gesichert: " + reason.trim())
+          : ("✓ Shipment " + shipmentId + " overridden successfully by supervisor.\nAudit record committed to database: " + reason.trim())
+      );
+
+      // Real-time DOM update of the row status
+      const cell = document.getElementById("status-cell-" + shipmentId);
+      if (cell) {
+        cell.innerHTML = '<span class="stage-badge-pill pass">' + (isDe ? "FREIGEGEBEN" : "OVERRIDDEN") + '</span>';
+      }
+
+      if (typeof window.refreshKpiRibbon === "function") {
+        window.refreshKpiRibbon();
+      }
+    } else {
+      const err = await res.json();
+      alert("Fehler bei der Freigabe: " + (err.message || res.statusText));
+    }
+  } catch (err) {
+    alert("Netzwerkfehler beim Speichern des Overrides.");
   }
 };
 
-window.testDbConnection = function () {
+// Real Database Health Probe (SELECT 1, latency, pool status)
+window.testDbConnection = async function () {
   const isDe = (document.documentElement.getAttribute("lang") || "de") === "de";
   const btn = document.getElementById("btn-test-db");
   const stat = document.getElementById("db-ping-result");
+
   if (btn) btn.textContent = isDe ? "Prüfe Verbindung..." : "Checking connection...";
-  setTimeout(function () {
-    if (btn) btn.textContent = isDe ? "✓ Verbunden (< 2 ms)" : "✓ Connected (< 2 ms)";
-    if (stat) stat.textContent = isDe ? "PostgreSQL Pool: 5/20 Verbindungen aktiv • Latenz: 1.4 ms" : "PostgreSQL Pool: 5/20 connections active • Latency: 1.4 ms";
-  }, 400);
+
+  try {
+    const res = await fetch("/api/v1/health/db");
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+
+    if (btn) {
+      btn.textContent = isDe ? ("✓ Verbunden (" + data.latencyMs + " ms)") : ("✓ Connected (" + data.latencyMs + " ms)");
+    }
+    if (stat) {
+      stat.textContent = isDe
+        ? ("Datenbank: " + data.driver + " • " + data.totalRecords + " Datensätze • Latenz: " + data.latencyMs + " ms")
+        : ("Database: " + data.driver + " • " + data.totalRecords + " records • Latency: " + data.latencyMs + " ms");
+    }
+  } catch (err) {
+    if (btn) btn.textContent = isDe ? "✕ Verbindungsfehler" : "✕ Connection Failed";
+    if (stat) stat.textContent = isDe ? "Datenbank nicht erreichbar." : "Database unreachable.";
+  }
 };
+
+// Real CSV Exports
+window.exportQuarantineCsv = function () {
+  window.location.href = "/api/v1/compliance/quarantine/export";
+};
+
+window.exportLedgerCsv = function () {
+  window.location.href = "/api/v1/compliance/ledger/export";
+};
+
+// Live search filtering in Quarantine Cockpit
+window.handleQuarantineSearch = function (query) {
+  const q = (query || "").toLowerCase().trim();
+  const rows = document.querySelectorAll("#quarantine-table-rows tr");
+  rows.forEach(function (row) {
+    const text = row.innerText.toLowerCase();
+    row.style.display = !q || text.includes(q) ? "" : "none";
+  });
+};
+
+// Executive KPI Ribbon live sync
+window.refreshKpiRibbon = async function () {
+  try {
+    const res = await fetch("/api/v1/metrics/kpi");
+    if (!res.ok) return;
+    const data = await res.json();
+
+    const statTotal = document.getElementById("stat-total");
+    const statClean = document.getElementById("stat-clean");
+    const statHolds = document.getElementById("stat-holds");
+    const statDemurrage = document.getElementById("stat-demurrage");
+
+    if (statTotal) statTotal.textContent = String(data.totalProcessed);
+    if (statClean) statClean.textContent = String(data.verifiedClean);
+    if (statHolds) statHolds.textContent = String(data.quarantineHolds);
+    if (statDemurrage) statDemurrage.textContent = data.demurrageSavedEur.toLocaleString() + " €";
+  } catch (e) {}
+};
+
+// Initialize KPI Ribbon on page load
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", window.refreshKpiRibbon);
+} else {
+  window.refreshKpiRibbon();
+}

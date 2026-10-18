@@ -146,6 +146,50 @@
   - *Cost / Risk:* Requires server cookie check helper and propagating `lang` in layout navigation link generation.
   - *Why chosen:* Transparently maintains the user's selected language across all tab transitions, direct links, and reloads via HTTP cookies (`sgroup_lang`) without resetting. Eliminates redundant page refreshes when clicking an already active language button.
 
+## Decision D-014: Operational Assembly Line Pipeline Reorganization & RedLine Feature Harmonization
+- **Option 1: Keep brochure website layout and add modal popups to existing pages**
+  - *Cost / Risk:* Operators must jump across 6 separate disconnected pages; high mental friction; no clear sequential progression matching freight container arrival.
+  - *Why rejected:* Fails fast-paced logistics operations where customs, demurrage, and dispatch are sequential steps.
+- **Option 2: Create two separate web applications (one for tracking, one for customs audit)**
+  - *Cost / Risk:* High maintenance burden; dual deployment pipelines; disjointed authentication and tenant context.
+  - *Why rejected:* Unnecessary architectural fracture for what should be a single operational gateway.
+- **Option 3: 5-Tab Sequential Operational Assembly Line with Clickable Header KPI Ribbon (Chosen)**
+  - *Cost / Risk:* Requires reorganizing view templates and route aliases.
+  - *Why chosen:* Directly mirrors the physical freight lifecycle (Audit -> Reconcile -> Quarantine -> Dispatch -> Ledger), unifies RedLine's proven tooling, and provides 1-click global status shortcuts.
+
+## Decision D-015: Two-Tier Fixed 100vh Cockpit Standard, Proportional Auto-Fit Engine & Dismissible Flow
+- **Option 1: Retain marketing footer, outer page scrollbars, and unconstrained image views**
+  - *Cost / Risk:* Double-scrolling friction; 1200px image blowouts hiding action buttons; wasted screen space for operators on multi-monitor desk setups.
+  - *Why rejected:* Breaches industrial desktop ergonomics standards.
+- **Option 2: Heavy third-party Canvas/PDF viewer library**
+  - *Cost / Risk:* Adds 500KB+ client JS bundle, slow initialization, breaks air-gapped performance.
+  - *Why rejected:* Violates lightweight sovereign frontend discipline.
+- **Option 3: Fixed 100vh Two-Tier Cockpit with Native Proportional Auto-Fit and Dismissible Intake (Chosen)**
+  - *Cost / Risk:* Requires careful flexbox layout configuration and client resize listeners.
+  - *Why chosen:* Zero external JS bundle; eliminates outer scrollbars; auto-fits documents with zero blowout; includes F1 operator cheat sheet.
+
+## Decision D-016: 100% Full-Width Layout Harmonization, State Desync Resolution & Icon Standardization
+- **Option 1: Quick inline CSS patches and opacity toggles**
+  - *Cost / Risk:* Fragile layout shifts; dead black voids remain on wide screens; state contradictions remain in DOM.
+  - *Why rejected:* Unprofessional and fails Lane B quality bar.
+- **Option 2: Complete stylesheet rewrite**
+  - *Cost / Risk:* High regression risk across 14 existing test suites.
+  - *Why rejected:* High risk of breaking working components.
+- **Option 3: Targeted Flexbox Direction Standardization, Bidirectional State Sync, and FontAwesome Icons (Chosen)**
+  - *Cost / Risk:* Requires editing view markup and stylesheet alignment.
+  - *Why chosen:* Eradicates widescreen dead void; syncs idle vs. active document states; removes emoji clutter; provides 100% clean English and German localization.
+
+## Decision D-017: Elimination of Mock Theater & Transition to Operational SQLite Ledger and Live Ingestion
+- **Option 1: Retain frontend mock timers (`setTimeout`) and static hardcoded table rows**
+  - *Cost / Risk:* Complete failure of credibility; non-functional file upload; fake database ping alerts; zero data persistence across reloads.
+  - *Why rejected:* Mockup theater unacceptable for customer-facing Lane B software.
+- **Option 2: External cloud database and external SaaS OCR provider**
+  - *Cost / Risk:* High latency, per-document SaaS costs, vendor lock-in, and transfer of confidential freight invoices outside sovereign boundaries (violating German DSGVO).
+  - *Why rejected:* Violates data sovereignty and adds recurring operational costs.
+- **Option 3: Embedded Native `node:sqlite` ACID Ledger with Dual-Mode Extractor and Real Multipart APIs (Chosen)**
+  - *Cost / Risk:* Requires maintaining schema DDL and SQLite query helpers.
+  - *Why chosen:* Zero mock theater: real cryptographic SHA-256 computation, real Modulo-11 check digit verification, real ADSp 2017 tare tolerance checking, high-throughput ACID persistence in `data/sgroup_gateway.db` with WAL mode, test runner isolation via `:memory:`, working multipart file intake, real supervisor override endpoints, live database latency probes, and streaming CSV downloads.
+
 
 
 

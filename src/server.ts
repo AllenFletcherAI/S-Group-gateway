@@ -1,5 +1,6 @@
 import fastify, { FastifyInstance } from "fastify";
 import fastifyStatic from "@fastify/static";
+import fastifyMultipart from "@fastify/multipart";
 import path from "path";
 import { fileURLToPath } from "url";
 import { healthRoutes } from "./routes/health.js";
@@ -9,6 +10,7 @@ import { apiRoutes } from "./routes/api.js";
 import { complianceRoutes } from "./routes/compliance.js";
 import { dispatchRoutes } from "./routes/dispatch.js";
 import { authRoutes } from "./routes/auth.js";
+import { documentRoutes } from "./routes/documents.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,6 +29,13 @@ export async function buildServer(): Promise<FastifyInstance> {
     },
   });
 
+  // Register multipart support for document uploads (25MB limit for high-res scans & PDFs)
+  await app.register(fastifyMultipart, {
+    limits: {
+      fileSize: 25 * 1024 * 1024,
+    },
+  });
+
   // Serve static UI assets (CSS, JS, branding)
   const publicPath = path.join(__dirname, "public");
   await app.register(fastifyStatic, {
@@ -39,6 +48,7 @@ export async function buildServer(): Promise<FastifyInstance> {
   await app.register(portalRoutes);
   await app.register(webhookRoutes);
   await app.register(apiRoutes);
+  await app.register(documentRoutes);
   await app.register(complianceRoutes);
   await app.register(dispatchRoutes);
   await app.register(authRoutes);

@@ -48,12 +48,16 @@ It ingests and standardizes heterogeneous telematics webhooks from carriers (DHL
 3. **Query-Layer Tenant Partitioning (D-003):**
    * *Rejected:* Direct carrier proxying (freezes UI during carrier downtime) and browser-side filtering (critical IDOR leak).
    * *Why Chosen:* Enforces database-level isolation so Customer A can never view Customer B's cargo or bills.
+4. **Embedded SQLite 3 Compliance Ledger & Dual-Mode Extractor (D-017):**
+   * *Rejected:* Static frontend mock values/timers (mockup theater) and external cloud OCR SaaS (violates data sovereignty).
+   * *Why Chosen:* Embedded high-throughput ACID database (`data/sgroup_gateway.db`) with WAL mode, real SHA-256 calculation, ISO 6346 Modulo-11 container check digit math, and multimodal Gemini/Deterministic extraction.
 
 ---
 
 ### 4. How Information Is Kept (Data Records)
 * **Shipment Model:** UUID/Reference, `tenantId` (partition key), Carrier, Origin, Destination, Weight, Status, Customs Documents.
 * **Milestone Events:** Append-only log of verified carrier signals (`eventId`, `milestone`, `timestamp`, `location`, `source`).
+* **Compliance Ledger (`processed_shipments`):** Embedded SQLite ACID table storing cryptographic SHA-256 hashes, extracted B/L and invoice metadata, ISO 6346 check digits, ADSp 2017 tare weight deltas, quarantine holds, and supervisor overrides.
 * **DSGVO Data Retention:** High-frequency telematics GPS coordinates are pruned after 90 days (Art. 5 DSGVO). Only macro-milestones remain in long-term archive.
 
 ---

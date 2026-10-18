@@ -277,7 +277,7 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
               <div class="align-row">
                 <span class="align-label">${isDe ? "Konnossement (B/L Nr.)" : "Bill of Lading No."}</span>
                 <span class="align-colon">:</span>
-                <span class="align-value">MSK-HAM-2026-9182</span>
+                <span class="align-value" id="extracted-bl-number">MSK-HAM-2026-9182</span>
               </div>
               <div class="align-row">
                 <span class="align-label">${isDe ? "Bruttomasse (VGM)" : "Declared Gross Weight"}</span>
@@ -287,17 +287,17 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
               <div class="align-row">
                 <span class="align-label">${isDe ? "Zolltarifnummer (HS)" : "HS Tariff Code"}</span>
                 <span class="align-colon">:</span>
-                <span class="align-value">8471.30.00 ${isDe ? "(Rechner / EDV)" : "(Computers / IT)"}</span>
+                <span class="align-value" id="extracted-hs-code">8471.30.00 ${isDe ? "(Rechner / EDV)" : "(Computers / IT)"}</span>
               </div>
               <div class="align-row">
                 <span class="align-label">${isDe ? "Ursprungsland" : "Country of Origin"}</span>
                 <span class="align-colon">:</span>
-                <span class="align-value">${isDe ? "DE (Deutschland)" : "DE (Germany)"}</span>
+                <span class="align-value" id="extracted-country-origin">${isDe ? "DE (Deutschland)" : "DE (Germany)"}</span>
               </div>
               <div class="align-row">
                 <span class="align-label">${isDe ? "Zollwert (CIF Hamburg)" : "Customs Value"}</span>
                 <span class="align-colon">:</span>
-                <span class="align-value">184.200,00 EUR</span>
+                <span class="align-value" id="extracted-customs-val">184.200,00 EUR</span>
               </div>
             </div>
           </div>
@@ -311,10 +311,10 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
               </div>
               <span class="stage-badge-pill pass" id="iso-checksum-badge">${isDe ? "GÜLTIG (Valid)" : "VALID"}</span>
             </div>
-            <p style="font-size:12px; color:var(--color-text-muted); margin:0;">
+            <p id="iso-checksum-details" style="font-size:12px; color:var(--color-text-muted); margin:0;">
               ${isDe 
-                ? "Eigentümercode 'MSK', Ausrüstungstyp 'U', Seriennummer '782910', Prüfziffer '4'. Modulo-11 Übereinstimmung mathematisch verifiziert."
-                : "Owner code 'MSK', equipment type 'U', serial '782910', check digit '4'. Modulo-11 algorithm mathematically verified."}
+                ? "Eigentümercode 'MSK', Ausrüstungstyp 'U', Seriennummer '782910', Prüfziffer '7'. Modulo-11 Übereinstimmung mathematisch verifiziert."
+                : "Owner code 'MSK', equipment type 'U', serial '782910', check digit '7'. Modulo-11 algorithm mathematically verified."}
             </p>
           </div>
 
@@ -327,23 +327,23 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
               </div>
               <span class="stage-badge-pill pass" id="tolerance-badge">DELTA 0 kg (&le; 50 kg)</span>
             </div>
-            <div style="display:flex; align-items:center; justify-content:space-between; font-size:12px; margin-top:2px;">
-              <span>${isDe ? "Tara:" : "Tare:"} <strong>3.750 kg</strong></span>
-              <span>${isDe ? "Netto:" : "Net:"} <strong>20.750 kg</strong></span>
+            <div id="tolerance-weights-container" style="display:flex; align-items:center; justify-content:space-between; font-size:12px; margin-top:2px;">
+              <span>${isDe ? "Tara:" : "Tare:"} <strong id="val-tare-wt">3.750 kg</strong></span>
+              <span>${isDe ? "Netto:" : "Net:"} <strong id="val-net-wt">20.750 kg</strong></span>
               <span>${isDe ? "Toleranzgrenze:" : "Allowed Delta:"} <strong style="color:#10B981;">&plusmn; 50 kg</strong></span>
             </div>
           </div>
 
           <!-- Stage 5: ATLAS Pre-Clearance Decision -->
-          <div class="audit-stage-card" style="border: 2px solid #059669; background: rgba(16, 185, 129, 0.05);">
+          <div class="audit-stage-card" id="atlas-decision-card" style="border: 2px solid #059669; background: rgba(16, 185, 129, 0.05);">
             <div class="stage-header-row">
               <div style="display:flex; align-items:center; gap:8px;">
                 <span style="font-weight:800; color:#10B981;">05</span>
                 <strong style="font-size:13px; color:#10B981;">${isDe ? "ATLAS Pre-Clearance Entscheidung (§ 147 AO)" : "ATLAS Pre-Clearance Decision (§ 147 AO)"}</strong>
               </div>
-              <span class="stage-badge-pill pass">${isDe ? "FREIGABE (CLEARED)" : "CLEARED"}</span>
+              <span class="stage-badge-pill pass" id="atlas-decision-badge">${isDe ? "FREIGABE (CLEARED)" : "CLEARED"}</span>
             </div>
-            <p style="font-size:12px; margin:4px 0 10px 0; color:var(--color-text-primary);">
+            <p id="atlas-decision-text" style="font-size:12px; margin:4px 0 10px 0; color:var(--color-text-primary);">
               ${isDe 
                 ? "Dossier erfüllt alle Anforderungen nach § 147 AO und ATLAS 9.1. Keine Quarantäne erforderlich. Bereit für den 3-Wege-Abgleich."
                 : "Dossier satisfies all criteria under § 147 AO and ATLAS 9.1. No quarantine required. Ready for 3-way reconciliation."}
