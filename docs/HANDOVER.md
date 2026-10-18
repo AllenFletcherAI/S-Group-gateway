@@ -118,9 +118,21 @@ Done:
 - Replaced frontend mock scripts in `navigation.js` with live FormData uploads, dynamic stage card rendering, real-time modal supervisor overrides with table updates, live DB latency ping probes, and streaming CSV downloads.
 - Expanded automated test suite to **78/78 tests passing** across 15 test suites with 0 failures, 0 regressions, and 0 npm vulnerabilities.
 - Verified live running daemon on `http://localhost:3000` with all endpoints responding with HTTP 200 OK.
+- Recorded Decision D-018 in `docs/DECISIONS.md`.
+- Implemented and verified Slice 18: Surface Mockup Purge, Default Idle Onboarding, Dedicated Modal Overrides & Fake ERP Stats Elimination (`src/views/documentAudit.ts`, `src/views/ledger.ts`, `src/views/quarantine.ts`, `src/views/reconciliation.ts`, `src/public/js/navigation.js`).
+- Resolved Tab 1 initial render contradiction: default state renders empty dropzone on the left and `#audit-idle-guide` on the right; pre-baked `MSKU7829104` results are hidden until a document is loaded or sample clicked.
+- Eliminated fake ERP throughput numbers ("1.200 Segmente/Sek.", "5/20 Verbindungen") from Tab 5 IT console, replacing with real SQLite ACID engine status, verified schema standards, and live connection ping test.
+- Replaced browser `prompt()` alert for supervisor overrides in Tab 3 with a dedicated, accessible `#modal-supervisor-override` dialog featuring GoBD-compliant justification fields.
+- Bound Tab 2 reconciliation savings footnote directly to `ComplianceLedgerService.getKpiMetrics().demurrageSavedEur`.
+- Recorded Decision D-019 in `docs/DECISIONS.md`.
+- Implemented and verified Slice 19: Total Mockup Elimination, Tab 2 Multi-Bay File Ingestion & Real-Time ERP IDoc Export (`src/views/documentAudit.ts`, `src/views/reconciliation.ts`, `src/views/ledger.ts`, `src/public/js/navigation.js`).
+- Completely eradicated all pre-baked hardcoded values (`MSK-HAM-...`, `184.200,00 EUR`, etc.) from Tab 1 stages, replacing with clean `—` placeholders that dynamically populate upon authentic OCR extraction.
+- Turned Tab 2 into a working operational intake: added individual file dropzones and upload triggers to all 3 intake bays (B/L, Invoice, Packing List) with real-time 3-way matrix cross-evaluation.
+- Added live SAP IDoc XML export download capability in Tab 5 IT Console, dynamically generating valid DESADV payloads for verified shipments.
+- Automated test suite remains **78/78 tests passing** with 0 regressions, clean compilation, and active server daemon running.
 
 In progress:
-- All 17 operational slices complete, verified, and running live.
+- All 19 operational slices complete, verified, and running live.
 
 Broken or risky:
 - None. All 78 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.

@@ -246,6 +246,61 @@ export function renderQuarantineView(options: QuarantineViewOptions = {}): strin
         </div>
       </div>
 
+      <!-- Dedicated Supervisor Override Modal Dialog (Replaces browser prompt) -->
+      <div id="modal-supervisor-override" class="modal-backdrop hidden" onclick="if(event.target === this) closeSupervisorOverrideModal()">
+        <div class="cert-modal-dialog" style="max-width:550px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #1E293B; padding-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <i class="fa-solid fa-lock-open" style="font-size:18px; color:#10B981;"></i>
+              <strong style="font-size:15px; color:#FFFFFF;">
+                ${isDe ? "Supervisor-Freigabe erteilen (§ 147 AO / GoBD)" : "Grant Supervisor Override (§ 147 AO / GoBD)"}
+              </strong>
+            </div>
+            <button type="button" onclick="closeSupervisorOverrideModal()" class="zoom-btn" style="padding:4px 8px;">✕</button>
+          </div>
+
+          <div style="padding:16px 0; font-size:13px; color:#E2E8F0;">
+            <div style="margin-bottom:12px;">
+              <span style="font-size:11px; text-transform:uppercase; color:#94A3B8; font-weight:700;">${isDe ? "Sendungsreferenz" : "Shipment Reference"}:</span>
+              <div id="override-modal-ref" style="font-size:15px; font-weight:700; color:#38BDF8; font-family:monospace; margin-top:2px;">-</div>
+            </div>
+
+            <div style="margin-bottom:12px;">
+              <label for="override-reason-input" style="display:block; font-size:12px; font-weight:600; color:#F1F5F9; margin-bottom:4px;">
+                ${isDe ? "Revisionsbegründung (Pflichtfeld nach GoBD):" : "Audit Justification (Mandatory per GoBD):"}
+              </label>
+              <textarea
+                id="override-reason-input"
+                rows="3"
+                style="width:100%; box-sizing:border-box; background:#0B1320; border:1px solid #2A3B55; border-radius:6px; color:#F1F5F9; padding:8px 10px; font-size:12.5px; font-family:inherit; resize:vertical;"
+                placeholder="${isDe ? "z.B. Wiegenote korrigiert, Reeder bestätigt Sonderfreigabe..." : "e.g. Weight ticket revised, carrier confirmed special release..."}"
+              ></textarea>
+            </div>
+
+            <div>
+              <label for="override-operator-input" style="display:block; font-size:12px; font-weight:600; color:#F1F5F9; margin-bottom:4px;">
+                ${isDe ? "Autorisierter Disponent / Supervisor:" : "Authorized Supervisor / Operator:"}
+              </label>
+              <input
+                type="text"
+                id="override-operator-input"
+                value="Leitstand-Supervisor"
+                style="width:100%; box-sizing:border-box; background:#0B1320; border:1px solid #2A3B55; border-radius:6px; color:#F1F5F9; padding:6px 10px; font-size:12.5px;"
+              >
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:flex-end; gap:8px; border-top:1px solid #1E293B; padding-top:12px;">
+            <button type="button" class="zoom-btn" onclick="submitSupervisorOverride()" style="background:#059669; color:#FFFFFF; border-color:#10B981; padding:8px 16px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+              <i class="fa-solid fa-check"></i> ${isDe ? "Freigabe verbindlich sichern" : "Confirm & Commit Override"}
+            </button>
+            <button type="button" class="zoom-btn" onclick="closeSupervisorOverrideModal()" style="padding:8px 14px;">
+              ${isDe ? "Abbrechen" : "Cancel"}
+            </button>
+          </div>
+        </div>
+      </div>
+
       </div>
     </div>
   `;

@@ -7,6 +7,7 @@
  */
 
 import { ThreeWayAuditResult, CustomsAuditorService } from "../services/customsAuditor.js";
+import { ComplianceLedgerService } from "../services/complianceLedger.js";
 
 export interface ReconciliationViewOptions {
   lang?: "de" | "en";
@@ -17,6 +18,7 @@ export interface ReconciliationViewOptions {
 export function renderReconciliationView(options: ReconciliationViewOptions = {}): string {
   const { lang = "de", selectedScenario = "clean" } = options;
   const isDe = lang === "de";
+  const metrics = ComplianceLedgerService.getKpiMetrics();
 
   const samples = CustomsAuditorService.getSampleDossiers();
   const dossier = selectedScenario === "discrepancy" ? samples.discrepancy : samples.clean;
@@ -103,59 +105,73 @@ export function renderReconciliationView(options: ReconciliationViewOptions = {}
         </div>
       </div>
 
+      <!-- Hidden File Inputs for 3 Bays -->
+      <input type="file" id="reconcile-file-bol" class="hidden" style="display:none;" accept=".png,.jpg,.jpeg,.pdf" onchange="handleReconcileBayUpload(event, 'bol')">
+      <input type="file" id="reconcile-file-invoice" class="hidden" style="display:none;" accept=".png,.jpg,.jpeg,.pdf" onchange="handleReconcileBayUpload(event, 'invoice')">
+      <input type="file" id="reconcile-file-packing" class="hidden" style="display:none;" accept=".png,.jpg,.jpeg,.pdf" onchange="handleReconcileBayUpload(event, 'packing_list')">
+
       <!-- 3 Intake Document Loading Bays with Completeness Dots -->
       <div class="dossier-slots-container">
         <!-- Slot 1: Bill of Lading -->
-        <div class="dossier-slot-bay loaded">
+        <div class="dossier-slot-bay loaded" id="bay-slot-bol">
           <div style="display:flex; align-items:center; justify-content:space-between;">
             <div style="display:flex; align-items:center; gap:8px;">
-              <span class="slot-dot active"></span>
+              <span class="slot-dot active" id="dot-bay-bol"></span>
               <strong style="font-size:13px; color:#F1F5F9;">${isDe ? "1. Frachturkunde (B/L)" : "1. Bill of Lading (B/L)"}</strong>
             </div>
-            <span class="stage-badge-pill pass">${isDe ? "GELADEN" : "LOADED"}</span>
+            <span class="stage-badge-pill pass" id="badge-bay-bol">${isDe ? "GELADEN" : "LOADED"}</span>
           </div>
           <div style="font-size:11.5px; color:#94A3B8; margin-top:4px;">
             ${isDe ? "Frachtvertrag & SOLAS VGM Verwiegung" : "Contract of carriage & SOLAS VGM weight"}
           </div>
-          <div style="font-size:12px; font-family:monospace; color:#38BDF8; margin-top:2px;">
+          <div style="font-size:12px; font-family:monospace; color:#38BDF8; margin-top:2px;" id="val-bay-bol">
             ${dossier.bol.containerNumber} • ${dossier.bol.grossWeightKg.toLocaleString()} kg
           </div>
+          <button type="button" class="zoom-btn" onclick="document.getElementById('reconcile-file-bol').click()" style="margin-top:8px; font-size:11px; padding:3px 8px; display:inline-flex; align-items:center; gap:4px; border-color:#38BDF8; color:#38BDF8;">
+            <i class="fa-solid fa-arrow-up-from-bracket"></i> ${isDe ? "Beleg ersetzen" : "Replace File"}
+          </button>
         </div>
 
         <!-- Slot 2: Commercial Invoice -->
-        <div class="dossier-slot-bay loaded">
+        <div class="dossier-slot-bay loaded" id="bay-slot-invoice">
           <div style="display:flex; align-items:center; justify-content:space-between;">
             <div style="display:flex; align-items:center; gap:8px;">
-              <span class="slot-dot active"></span>
+              <span class="slot-dot active" id="dot-bay-invoice"></span>
               <strong style="font-size:13px; color:#F1F5F9;">${isDe ? "2. Handelsrechnung" : "2. Commercial Invoice"}</strong>
             </div>
-            <span class="stage-badge-pill pass">${isDe ? "GELADEN" : "LOADED"}</span>
+            <span class="stage-badge-pill pass" id="badge-bay-invoice">${isDe ? "GELADEN" : "LOADED"}</span>
           </div>
           <div style="font-size:11.5px; color:#94A3B8; margin-top:4px;">
             ${isDe ? "Zollwert, Währung & Incoterms" : "Customs value, currency & Incoterms"}
           </div>
-          <div style="font-size:12px; font-family:monospace; color:#38BDF8; margin-top:2px;">
+          <div style="font-size:12px; font-family:monospace; color:#38BDF8; margin-top:2px;" id="val-bay-invoice">
             ${dossier.invoice.currency} ${dossier.invoice.totalAmount.toLocaleString()} • ${dossier.invoice.incoterm}
           </div>
+          <button type="button" class="zoom-btn" onclick="document.getElementById('reconcile-file-invoice').click()" style="margin-top:8px; font-size:11px; padding:3px 8px; display:inline-flex; align-items:center; gap:4px; border-color:#38BDF8; color:#38BDF8;">
+            <i class="fa-solid fa-arrow-up-from-bracket"></i> ${isDe ? "Beleg ersetzen" : "Replace File"}
+          </button>
         </div>
 
         <!-- Slot 3: Packing List / ATLAS -->
-        <div class="dossier-slot-bay loaded" style="${isDiscrepancy ? "border-color:#DC2626; background:rgba(239,68,68,0.08);" : ""}">
+        <div class="dossier-slot-bay loaded" id="bay-slot-packing" style="${isDiscrepancy ? "border-color:#DC2626; background:rgba(239,68,68,0.08);" : ""}">
           <div style="display:flex; align-items:center; justify-content:space-between;">
             <div style="display:flex; align-items:center; gap:8px;">
-              <span class="slot-dot active" style="${isDiscrepancy ? "background:#EF4444;" : ""}"></span>
+              <span class="slot-dot active" id="dot-bay-packing" style="${isDiscrepancy ? "background:#EF4444;" : ""}"></span>
               <strong style="font-size:13px; color:#F1F5F9;">${isDe ? "3. Packliste / ATLAS" : "3. Packing List / ATLAS"}</strong>
             </div>
-            <span class="stage-badge-pill ${isDiscrepancy ? "hold" : "pass"}">
+            <span class="stage-badge-pill ${isDiscrepancy ? "hold" : "pass"}" id="badge-bay-packing">
               ${isDiscrepancy ? (isDe ? "WARNUNG" : "WARNING") : (isDe ? "GELADEN" : "LOADED")}
             </span>
           </div>
           <div style="font-size:11.5px; color:#94A3B8; margin-top:4px;">
             ${isDe ? "Physisches Tara & Colli-Manifest" : "Physical tare & packages manifest"}
           </div>
-          <div style="font-size:12px; font-family:monospace; color:${isDiscrepancy ? "#EF4444" : "#38BDF8"}; margin-top:2px;">
+          <div style="font-size:12px; font-family:monospace; color:${isDiscrepancy ? "#EF4444" : "#38BDF8"}; margin-top:2px;" id="val-bay-packing">
             ${dossier.atlas.containerNumber} • ${dossier.atlas.grossWeightKg.toLocaleString()} kg ${isDiscrepancy ? "(!)" : ""}
           </div>
+          <button type="button" class="zoom-btn" onclick="document.getElementById('reconcile-file-packing').click()" style="margin-top:8px; font-size:11px; padding:3px 8px; display:inline-flex; align-items:center; gap:4px; border-color:#38BDF8; color:#38BDF8;">
+            <i class="fa-solid fa-arrow-up-from-bracket"></i> ${isDe ? "Beleg ersetzen" : "Replace File"}
+          </button>
         </div>
       </div>
 
@@ -230,7 +246,7 @@ export function renderReconciliationView(options: ReconciliationViewOptions = {}
           </span>
         </div>
         <span style="font-weight:700; color:#10B981;">
-          ${isDe ? "Ersparnis heute: 3.850 €" : "Saved today: 3,850 €"}
+          ${isDe ? `Ersparnis: ${metrics.demurrageSavedEur.toLocaleString()} €` : `Saved: ${metrics.demurrageSavedEur.toLocaleString()} €`}
         </span>
       </div>
 

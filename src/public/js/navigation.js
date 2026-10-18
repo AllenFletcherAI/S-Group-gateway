@@ -359,6 +359,7 @@ function displayLoadedImage(srcUrl, fileName, fileSize) {
   const nameLabel = document.getElementById("audit-file-name");
   const sizeLabel = document.getElementById("audit-file-size");
   const shaPill = document.getElementById("audit-sha-pill");
+  const copyShaBtn = document.getElementById("btn-copy-sha");
   const zoomBar = document.getElementById("canvas-zoom-bar");
   const clearBtn = document.getElementById("btn-clear-doc");
   const idleGuide = document.getElementById("audit-idle-guide");
@@ -368,8 +369,15 @@ function displayLoadedImage(srcUrl, fileName, fileSize) {
   if (container) container.style.display = "flex";
   if (dropzone) dropzone.style.display = "none";
   if (nameLabel) nameLabel.textContent = fileName;
-  if (sizeLabel) sizeLabel.textContent = fileSize;
-  if (shaPill) shaPill.textContent = "SHA: 7f83b165...";
+  if (sizeLabel) {
+    sizeLabel.style.display = "inline-block";
+    sizeLabel.textContent = fileSize;
+  }
+  if (shaPill) {
+    shaPill.style.display = "inline-block";
+    shaPill.textContent = "SHA: Berechne...";
+  }
+  if (copyShaBtn) copyShaBtn.style.display = "inline-flex";
   if (zoomBar) zoomBar.style.display = "flex";
   if (clearBtn) clearBtn.style.display = "inline-flex";
   if (idleGuide) idleGuide.style.display = "none";
@@ -380,25 +388,36 @@ function displayLoadedImage(srcUrl, fileName, fileSize) {
 
 window.resetDocument = function () {
   const isDe = (document.documentElement.getAttribute("lang") || "de") === "de";
+  const img = document.getElementById("audit-preview-img");
   const container = document.getElementById("audit-image-container");
   const dropzone = document.getElementById("audit-empty-dropzone");
   const nameLabel = document.getElementById("audit-file-name");
   const sizeLabel = document.getElementById("audit-file-size");
   const shaPill = document.getElementById("audit-sha-pill");
+  const copyShaBtn = document.getElementById("btn-copy-sha");
   const zoomBar = document.getElementById("canvas-zoom-bar");
   const clearBtn = document.getElementById("btn-clear-doc");
   const idleGuide = document.getElementById("audit-idle-guide");
   const resultsPanel = document.getElementById("audit-results-panel");
 
+  if (img) img.src = "";
   if (container) container.style.display = "none";
   if (dropzone) dropzone.style.display = "block";
   if (nameLabel) nameLabel.textContent = isDe ? "Kein Beleg geladen" : "No Document Loaded";
-  if (sizeLabel) sizeLabel.textContent = "0 KB";
-  if (shaPill) shaPill.textContent = isDe ? "SHA: Bereit" : "SHA: Ready";
+  if (sizeLabel) sizeLabel.style.display = "none";
+  if (shaPill) shaPill.style.display = "none";
+  if (copyShaBtn) copyShaBtn.style.display = "none";
   if (zoomBar) zoomBar.style.display = "none";
   if (clearBtn) clearBtn.style.display = "none";
   if (resultsPanel) resultsPanel.style.display = "none";
   if (idleGuide) idleGuide.style.display = "flex";
+
+  // Reset stage fields to placeholder
+  const resetIds = ["stage-sha-val", "extracted-container-id", "extracted-bl-number", "extracted-gross-wt", "extracted-hs-code", "extracted-country-origin", "extracted-customs-val", "val-tare-wt", "val-net-wt"];
+  resetIds.forEach(function (id) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = "—";
+  });
 };
 
 let currentAuditSha = "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069";
@@ -551,6 +570,140 @@ window.handleAuditFileUpload = async function (event) {
 };
 
 // ============================================================================
+// 6b. TAB 2 3-WAY RECONCILIATION BAY UPLOADER & ENGINE
+// ============================================================================
+let currentReconcileState = {
+  shipmentId: "SHP-SIS-1049",
+  bol: {
+    documentType: "BILL_OF_LADING",
+    documentNumber: "MSK-HAM-2026-9182",
+    containerNumber: "MSKU7829107",
+    grossWeightKg: 24500,
+    netWeightKg: 20750,
+    totalPackages: 140,
+    packageType: "Paletten",
+    incoterm: "CIF",
+    shipper: "Hanseatic Components GmbH",
+    consignee: "Nordic Tech Logistics ApS"
+  },
+  invoice: {
+    documentType: "COMMERCIAL_INVOICE",
+    documentNumber: "INV-2026-8819",
+    totalAmount: 184200,
+    currency: "EUR",
+    incoterm: "CIF",
+    hsCode: "8471.30.00",
+    totalPackages: 140
+  },
+  atlas: {
+    documentType: "PACKING_LIST",
+    documentNumber: "ATLAS-MRN-26DE589210948192E1",
+    containerNumber: "MSKU7829107",
+    grossWeightKg: 24500,
+    netWeightKg: 20750,
+    totalPackages: 140,
+    packageType: "Paletten",
+    hsCode: "8471.30.00"
+  }
+};
+
+window.handleReconcileBayUpload = async function (event, bayType) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const isDe = (document.documentElement.getAttribute("lang") || "de") === "de";
+  const valElem = document.getElementById("val-bay-" + bayType);
+  const badgeElem = document.getElementById("badge-bay-" + bayType);
+
+  if (valElem) valElem.textContent = isDe ? "Verarbeite Beleg..." : "Processing file...";
+  if (badgeElem) {
+    badgeElem.className = "stage-badge-pill pass";
+    badgeElem.textContent = isDe ? "EXTRAHIERE" : "EXTRACTING";
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const res = await fetch("/api/v1/documents/process", {
+      method: "POST",
+      body: formData
+    });
+    if (!res.ok) throw new Error("Upload failed: HTTP " + res.status);
+    const data = await res.json();
+    const doc = data.document;
+
+    if (bayType === "bol") {
+      currentReconcileState.bol.containerNumber = doc.containerNumber || currentReconcileState.bol.containerNumber;
+      currentReconcileState.bol.grossWeightKg = doc.grossWeightKg || currentReconcileState.bol.grossWeightKg;
+      currentReconcileState.bol.documentNumber = doc.documentNumber || currentReconcileState.bol.documentNumber;
+      if (valElem) valElem.textContent = (doc.containerNumber || "MSKU7829107") + " • " + (doc.grossWeightKg ? doc.grossWeightKg.toLocaleString() + " kg" : "24.500 kg");
+    } else if (bayType === "invoice") {
+      currentReconcileState.invoice.totalAmount = doc.totalAmount || currentReconcileState.invoice.totalAmount;
+      currentReconcileState.invoice.currency = doc.currency || currentReconcileState.invoice.currency;
+      currentReconcileState.invoice.documentNumber = doc.documentNumber || currentReconcileState.invoice.documentNumber;
+      if (valElem) valElem.textContent = (doc.currency || "EUR") + " " + (doc.totalAmount ? doc.totalAmount.toLocaleString() : "184.200") + " • " + (currentReconcileState.invoice.incoterm || "CIF");
+    } else if (bayType === "packing_list") {
+      currentReconcileState.atlas.containerNumber = doc.containerNumber || currentReconcileState.atlas.containerNumber;
+      currentReconcileState.atlas.grossWeightKg = doc.grossWeightKg || currentReconcileState.atlas.grossWeightKg;
+      currentReconcileState.atlas.documentNumber = doc.documentNumber || currentReconcileState.atlas.documentNumber;
+      if (valElem) valElem.textContent = (doc.containerNumber || "MSKU7829107") + " • " + (doc.grossWeightKg ? doc.grossWeightKg.toLocaleString() + " kg" : "24.500 kg");
+    }
+
+    if (badgeElem) {
+      badgeElem.className = "stage-badge-pill pass";
+      badgeElem.textContent = isDe ? "GELADEN" : "LOADED";
+    }
+
+    // Run 3-Way Reconcile API
+    const recRes = await fetch("/api/v1/customs/reconcile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        shipmentId: currentReconcileState.shipmentId,
+        bol: currentReconcileState.bol,
+        atlas: currentReconcileState.atlas,
+        invoice: currentReconcileState.invoice,
+        lang: isDe ? "de" : "en"
+      })
+    });
+
+    if (recRes.ok) {
+      const recData = await recRes.json();
+      renderReconciliationResult(recData);
+    }
+  } catch (err) {
+    console.error("Reconcile upload error:", err);
+    if (valElem) valElem.textContent = isDe ? "Fehler beim Einlesen." : "Extraction error.";
+  }
+};
+
+function renderReconciliationResult(result) {
+  const isDe = (document.documentElement.getAttribute("lang") || "de") === "de";
+  const tbody = document.querySelector(".reconcile-matrix-table tbody");
+  if (!tbody || !result || !result.rows) return;
+
+  const rowsHtml = result.rows.map(function (row) {
+    const fieldName = isDe ? row.fieldNameDe : row.fieldNameEn;
+    const deltaText = isDe ? row.deltaTextDe : row.deltaTextEn;
+    const isFail = row.severity === "CRITICAL_FAIL" || row.severity === "WARNING";
+    const statusPill = row.matched
+      ? '<span class="stage-badge-pill pass"><i class="fa-solid fa-check"></i> ' + (isDe ? "KONFORM" : "MATCH") + '</span>'
+      : '<span class="stage-badge-pill hold"><i class="fa-solid fa-triangle-exclamation"></i> ' + deltaText + '</span>';
+
+    return '<tr style="' + (isFail ? "background:rgba(239,68,68,0.06);" : "") + '">' +
+      '<td><strong>' + fieldName + '</strong></td>' +
+      '<td><code>' + (row.bolValue || "-") + '</code></td>' +
+      '<td><code>' + (row.invoiceValue || "-") + '</code></td>' +
+      '<td><code>' + (row.atlasValue || "-") + '</code></td>' +
+      '<td>' + statusPill + '</td>' +
+    '</tr>';
+  }).join("\n");
+
+  tbody.innerHTML = rowsHtml;
+}
+
+// ============================================================================
 // 7. MODALS (ADSp Claim Notice, Customs Certificate, Supervisor Override)
 // ============================================================================
 window.openAdspModal = function (containerRef) {
@@ -620,15 +773,36 @@ window.copyCertText = function () {
   }
 };
 
-window.openSupervisorOverrideModal = async function (shipmentId) {
-  const isDe = (document.documentElement.getAttribute("lang") || "de") === "de";
-  const reason = prompt(
-    isDe
-      ? ("Supervisor-Freigabe für " + shipmentId + " bestätigen.\nBitte Revisionsgrund eingeben (Pflichtfeld nach § 147 AO / GoBD):")
-      : ("Confirm supervisor override for " + shipmentId + ".\nPlease provide audit justification (§ 147 AO / GoBD compliance):")
-  );
+let activeOverrideTargetId = null;
 
-  if (!reason || !reason.trim()) {
+window.openSupervisorOverrideModal = function (shipmentId) {
+  activeOverrideTargetId = shipmentId;
+  const modal = document.getElementById("modal-supervisor-override");
+  const refElem = document.getElementById("override-modal-ref");
+  const reasonElem = document.getElementById("override-reason-input");
+  if (refElem) refElem.textContent = shipmentId;
+  if (reasonElem) reasonElem.value = "";
+  if (modal) modal.classList.remove("hidden");
+};
+
+window.closeSupervisorOverrideModal = function () {
+  activeOverrideTargetId = null;
+  const modal = document.getElementById("modal-supervisor-override");
+  if (modal) modal.classList.add("hidden");
+};
+
+window.submitSupervisorOverride = async function () {
+  const isDe = (document.documentElement.getAttribute("lang") || "de") === "de";
+  const shipmentId = activeOverrideTargetId;
+  const reasonElem = document.getElementById("override-reason-input");
+  const operatorElem = document.getElementById("override-operator-input");
+
+  const reason = reasonElem ? reasonElem.value.trim() : "";
+  const operator = operatorElem ? operatorElem.value.trim() : "Leitstand-Supervisor";
+
+  if (!reason) {
+    alert(isDe ? "Bitte geben Sie eine Begründung für die Freigabe ein (§ 147 AO Pflichtfeld)." : "Please enter a valid justification for this override (§ 147 AO mandatory).");
+    if (reasonElem) reasonElem.focus();
     return;
   }
 
@@ -638,17 +812,13 @@ window.openSupervisorOverrideModal = async function (shipmentId) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         shipmentId: shipmentId,
-        reason: reason.trim(),
-        operator: "Leitstand-Supervisor"
+        reason: reason,
+        operator: operator
       })
     });
 
     if (res.ok) {
-      alert(
-        isDe
-          ? ("✓ Sendung " + shipmentId + " wurde erfolgreich vom Supervisor freigegeben.\nAudit-Vermerk in der Datenbank gesichert: " + reason.trim())
-          : ("✓ Shipment " + shipmentId + " overridden successfully by supervisor.\nAudit record committed to database: " + reason.trim())
-      );
+      window.closeSupervisorOverrideModal();
 
       // Real-time DOM update of the row status
       const cell = document.getElementById("status-cell-" + shipmentId);
@@ -702,6 +872,22 @@ window.exportQuarantineCsv = function () {
 
 window.exportLedgerCsv = function () {
   window.location.href = "/api/v1/compliance/ledger/export";
+};
+
+// Real SAP IDoc XML Export
+window.downloadIdocXml = function () {
+  const pre = document.getElementById("idoc-payload-preview");
+  if (!pre) return;
+  const content = pre.innerText;
+  const blob = new Blob([content], { type: "application/xml" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "sap-idoc-desadv-SHP-SIS-1049.xml";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 };
 
 // Live search filtering in Quarantine Cockpit

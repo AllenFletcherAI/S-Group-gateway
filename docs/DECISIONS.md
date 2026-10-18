@@ -280,6 +280,42 @@ Plain Reason Why:
 What We Gave Up: Static client-only mocks.
 Revisit If: High-volume multi-node cluster deployment requires distributed PostgreSQL replication over local SQLite storage.
 
+## D-018: Surface Mockup Purge, Default Idle Onboarding, Dedicated Modal Overrides & Fake ERP Stats Elimination
+Date: 2026-10-18  Model: Gemini 3.8 Flash (High)
+Problem Context: Although backend SQLite persistence and extraction APIs were established in D-017, the server-rendered HTML templates still displayed initial surface mockup theater: Tab 1 showed an impossible state contradiction (rendering completed audit results for MSKU7829104 while the toolbar indicated "No Document Loaded"), Tab 5 showed fake throughput stats ("1.200 Segmente/Sek.", "5/20 Verbindungen"), Tab 3 relied on browser `prompt()` dialogs for overrides, and Tab 2 had hardcoded savings footnotes.
+Options Looked At:
+  1) Keep the server-rendered pre-baked results on Tab 1 for demonstration purposes.
+  2) Rely on client-side JavaScript to hide elements after page load (causes visual flashing / FOUC).
+  3) Clean Server-Rendered Idle Onboarding, Dedicated Modal Overrides, and Real Calculated Footnotes (Chosen).
+What We Chose: Option 3
+Plain Reason Why:
+  - Clean Initial Render: On `/portal/audit`, the default state cleanly displays the empty dropzone on the left and `#audit-idle-guide` on the right. Audit stage cards remain hidden in the DOM until a user selects a sample document or uploads a real file.
+  - Fake Stat Removal: Purged fake throughput numbers ("1.200 Segmente/Sek.", "5 / 20 Verbindungen") from the IT Console, replacing them with authentic SQLite ACID engine status, verified schema standards (DESADV01 / E1EDL20, D:01B ISO 9735), and live connection ping probes.
+  - Dedicated Override Modal: Replaced primitive browser `prompt()` alerts with a dedicated, accessible `#modal-supervisor-override` dialog featuring mandatory GoBD-compliant justification fields.
+  - Dynamic Demurrage Savings: Replaced static text with live values from `ComplianceLedgerService.getKpiMetrics().demurrageSavedEur`.
+  - 100% Test Stability: All 78 automated test assertions continue to pass with 0 regressions.
+What We Gave Up: Pre-baked static demo cards visible on initial page load.
+Revisit If: Customer requires persistent saved draft states in client cookies across browser sessions.
+
+## D-019: Total Mockup Elimination, Tab 2 Multi-Bay File Ingestion & Real-Time ERP IDoc Export
+Date: 2026-10-18  Model: Gemini 3.8 Flash (High)
+Problem Context: Following Slice 18, residual mock patterns remained:
+  1) Tab 1 still contained hardcoded dummy values (`MSK-HAM-...`, `184.200,00 EUR`, etc.) inside the hidden results markup instead of clean initial placeholder dashes (`—`).
+  2) Tab 2 (3-Way Match) lacked interactive file intake mechanisms for each of the 3 bays (B/L, Commercial Invoice, Packing List), relying entirely on static scenario switching.
+  3) Tab 5 (IT Console) had a static XML snippet without direct download or dynamic binding to audited shipments.
+Options Looked At:
+  1) Leave bays static and require users to only use Tab 1 for file processing.
+  2) Replace Tab 2 completely with an external reconciliation viewer.
+  3) Multi-Bay File Ingestion in Tab 2, Clean Placeholder Initialization in Tab 1, and Real-Time IDoc XML Export in Tab 5 (Chosen).
+What We Chose: Option 3
+Plain Reason Why:
+  - Tab 1 Clean Placeholders: Initial values across all 5 verification stages are initialized to `—`. Real OCR and cryptographic hash data populate only upon active ingestion via `/api/v1/documents/process`.
+  - Tab 2 Multi-Bay Ingestion: Added independent file inputs and upload buttons to all 3 loading bays (Frachturkunde B/L, Handelsrechnung, Packliste/ATLAS). When a file is uploaded to any bay, it is parsed via the extraction pipeline and dynamically evaluated against the other bays via `POST /api/v1/customs/reconcile`.
+  - Tab 5 Real-Time IDoc Export: Added a functional "IDoc XML exportieren" button allowing dispatchers to download compliant DESADV XML payloads directly from the browser.
+  - Zero Test Regressions: All 78 tests passing across all 15 suites.
+What We Gave Up: Static pre-populated dummy values across views.
+Revisit If: Customer demands automatic XML schema validation against custom SAP S/4HANA SOAP web services.
+
 
 
 

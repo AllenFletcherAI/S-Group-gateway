@@ -30,15 +30,15 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
           <div class="canvas-controls-group">
             <i class="fa-regular fa-file-lines text-signal-blue"></i>
             <span id="audit-file-name" style="font-weight:600; color:#F1F5F9; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-              sample bill of ladling.png
+              ${isDe ? "Kein Beleg geladen" : "No Document Loaded"}
             </span>
-            <span id="audit-file-size" style="background:#162035; border:1px solid #1E293B; border-radius:4px; padding:1px 6px; font-size:10px; font-weight:700; color:#38BDF8;">
-              86 KB
+            <span id="audit-file-size" style="display:none; background:#162035; border:1px solid #1E293B; border-radius:4px; padding:1px 6px; font-size:10px; font-weight:700; color:#38BDF8;">
+              0 KB
             </span>
-            <span id="audit-sha-pill" style="font-family:'JetBrains Mono', monospace; font-size:10px; color:#64748B; background:rgba(0,0,0,0.3); padding:1px 6px; border-radius:4px; max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="SHA-256: 7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069">
-              SHA: 7f83b165...
+            <span id="audit-sha-pill" style="display:none; font-family:'JetBrains Mono', monospace; font-size:10px; color:#64748B; background:rgba(0,0,0,0.3); padding:1px 6px; border-radius:4px; max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="SHA-256">
+              ${isDe ? "SHA: Bereit" : "SHA: Ready"}
             </span>
-            <button type="button" class="zoom-btn" onclick="copyActiveSha()" title="${isDe ? "SHA-256 Prüfhash kopieren" : "Copy SHA-256 hash"}" style="padding:1px 5px; height:22px; font-size:10px;">
+            <button type="button" id="btn-copy-sha" class="zoom-btn" onclick="copyActiveSha()" title="${isDe ? "SHA-256 Prüfhash kopieren" : "Copy SHA-256 hash"}" style="display:none; padding:1px 5px; height:22px; font-size:10px;">
               <i class="fa-regular fa-copy"></i>
             </button>
           </div>
@@ -50,7 +50,7 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
               <span>${isDe ? "Neuer Import" : "Upload"}</span>
             </button>
             <!-- Clear document / reset to empty dropzone -->
-            <button type="button" id="btn-clear-doc" class="zoom-btn" onclick="resetDocument()" style="background:#2A1215; border-color:#5B1A1E; color:#EF4444;" title="${isDe ? "Beleg entfernen & Ansicht zurücksetzen" : "Clear document & reset view"}">
+            <button type="button" id="btn-clear-doc" class="zoom-btn" onclick="resetDocument()" style="display:none; background:#2A1215; border-color:#5B1A1E; color:#EF4444;" title="${isDe ? "Beleg entfernen & Ansicht zurücksetzen" : "Clear document & reset view"}">
               <i class="fa-solid fa-xmark"></i>
               <span>${isDe ? "Entfernen" : "Clear"}</span>
             </button>
@@ -58,7 +58,7 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
         </div>
 
         <!-- Combined Zoom & Viewport Controls Bar -->
-        <div id="canvas-zoom-bar" style="height:32px; background:#080D18; border-bottom:1px solid #1E293B; display:flex; align-items:center; justify-content:space-between; padding:0 10px; font-size:11px; user-select:none; flex-shrink:0;">
+        <div id="canvas-zoom-bar" style="display:none; height:32px; background:#080D18; border-bottom:1px solid #1E293B; align-items:center; justify-content:space-between; padding:0 10px; font-size:11px; user-select:none; flex-shrink:0;">
           <div style="display:flex; align-items:center; gap:4px;">
             <button type="button" class="zoom-btn" onclick="zoomAuditCanvas(-0.25)" title="${isDe ? "Verkleinern (-)" : "Zoom Out (-)"}">
               <i class="fa-solid fa-minus"></i>
@@ -98,18 +98,18 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
         <!-- Canvas Viewport -->
         <div class="audit-canvas-viewport" id="audit-canvas-viewport" onwheel="handleAuditWheel(event)" onmousedown="startAuditPan(event)">
           <!-- Document Preview Image Container -->
-          <div id="audit-image-container" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">
+          <div id="audit-image-container" style="display:none; align-items:center; justify-content:center; width:100%; height:100%;">
             <img
               id="audit-preview-img"
               class="audit-preview-img"
-              src="/static/sample_docs/sample bill of ladling.png"
+              src=""
               alt="${isDe ? "Dokumentenvorschau Frachtbrief" : "Document preview waybill"}"
               onload="onPreviewImageLoaded()"
             >
           </div>
 
           <!-- Empty State Dropzone -->
-          <div id="audit-empty-dropzone" style="display:none; text-align:center; padding:32px 24px; max-width:420px; background:#0B1322; border:2px dashed #2A3B55; border-radius:14px; margin:auto;">
+          <div id="audit-empty-dropzone" style="display:block; text-align:center; padding:32px 24px; max-width:420px; background:#0B1322; border:2px dashed #2A3B55; border-radius:14px; margin:auto;">
             <div style="margin-bottom:12px; color:#38BDF8; font-size:32px;">
               <i class="fa-solid fa-cloud-arrow-up"></i>
             </div>
@@ -158,7 +158,7 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
       <!-- RIGHT WORKSPACE PANE: 5-STAGE PIPELINE & VERIFICATION TELEMETRY -->
       <div class="audit-pane-right">
         <!-- Idle Onboarding Guide (Shown when dropzone is empty) -->
-        <div id="audit-idle-guide" style="display:none; flex-direction:column; gap:14px; padding:4px;">
+        <div id="audit-idle-guide" style="display:flex; flex-direction:column; gap:14px; padding:4px;">
           <div style="background:#0E1626; border:1px solid #1E293B; border-radius:12px; padding:20px;">
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
               <i class="fa-solid fa-file-shield text-signal-blue" style="font-size:20px;"></i>
@@ -201,13 +201,13 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
             <div style="border-top:1px solid #1E293B; margin-top:16px; padding-top:14px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
               <span style="font-size:11.5px; color:#10B981; font-weight:600;"><i class="fa-solid fa-circle-check"></i> ATLAS 9.1: ${isDe ? "Bereit" : "Ready"}</span>
               <span style="font-size:11.5px; color:#10B981; font-weight:600;"><i class="fa-solid fa-circle-check"></i> Dakosy: ${isDe ? "Verbunden" : "Connected"}</span>
-              <span style="font-size:11.5px; color:#10B981; font-weight:600;"><i class="fa-solid fa-circle-check"></i> PostgreSQL: ${isDe ? "Online" : "Online"}</span>
+              <span style="font-size:11.5px; color:#10B981; font-weight:600;"><i class="fa-solid fa-circle-check"></i> SQLite ACID: ${isDe ? "Online" : "Online"}</span>
             </div>
           </div>
         </div>
 
         <!-- 5-Stage Results Panel -->
-        <div id="audit-results-panel" style="display:flex; flex-direction:column; gap:12px;">
+        <div id="audit-results-panel" style="display:none; flex-direction:column; gap:12px;">
         <!-- Station Title Banner -->
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; flex-shrink:0;">
           <div>
@@ -223,18 +223,18 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
         <!-- 5-Stage Pipeline Breadcrumb Ribbon -->
         <div class="pipeline-breadcrumb-strip">
           <div class="breadcrumb-steps">
-            <span class="breadcrumb-step completed"><i class="fa-solid fa-circle-check"></i> 1. INGEST</span>
+            <span class="breadcrumb-step"><i class="fa-solid fa-circle-notch"></i> 1. INGEST</span>
             <span class="breadcrumb-arrow">›</span>
-            <span class="breadcrumb-step completed"><i class="fa-solid fa-circle-check"></i> 2. OCR</span>
+            <span class="breadcrumb-step"><i class="fa-solid fa-circle-notch"></i> 2. OCR</span>
             <span class="breadcrumb-arrow">›</span>
-            <span class="breadcrumb-step completed"><i class="fa-solid fa-circle-check"></i> 3. MODULO-11</span>
+            <span class="breadcrumb-step"><i class="fa-solid fa-circle-notch"></i> 3. MODULO-11</span>
             <span class="breadcrumb-arrow">›</span>
-            <span class="breadcrumb-step completed"><i class="fa-solid fa-circle-check"></i> ${isDe ? "4. TOLERANZ" : "4. TOLERANCE"}</span>
+            <span class="breadcrumb-step"><i class="fa-solid fa-circle-notch"></i> ${isDe ? "4. TOLERANZ" : "4. TOLERANCE"}</span>
             <span class="breadcrumb-arrow">›</span>
-            <span class="breadcrumb-step active"><i class="fa-solid fa-circle-play"></i> 5. ATLAS</span>
+            <span class="breadcrumb-step"><i class="fa-solid fa-circle-notch"></i> 5. ATLAS</span>
           </div>
           <span class="stage-badge-pill pass" id="overall-status-pill">
-            ✓ ${isDe ? "ATLAS Pre-Clearance BEREIT" : "ATLAS Pre-Clearance READY"}
+            ${isDe ? "BEREIT FÜR AUDIT" : "READY FOR AUDIT"}
           </span>
         </div>
 
@@ -251,7 +251,7 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
               <span class="stage-badge-pill pass">PASS</span>
             </div>
             <div style="font-size:11px; font-family:'JetBrains Mono', monospace; color:var(--color-text-muted); background:rgba(0,0,0,0.25); border:1px solid #1E293B; padding:5px 8px; border-radius:4px; display:flex; align-items:center; justify-content:space-between;">
-              <span id="stage-sha-val" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:85%;">7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069</span>
+              <span id="stage-sha-val" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:85%;">—</span>
               <button type="button" onclick="copyActiveSha()" class="zoom-btn" style="padding:1px 6px; height:20px; font-size:10px;" title="${isDe ? "Kopieren" : "Copy"}">
                 <i class="fa-regular fa-copy"></i>
               </button>
@@ -265,39 +265,39 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
                 <span style="font-weight:800; color:var(--color-signal-blue);">02</span>
                 <strong style="font-size:13px;">${isDe ? "OCR & Strukturierte Entitätserkennung" : "OCR & Structured Entity Recognition"}</strong>
               </div>
-              <span class="stage-badge-pill pass">100% CONFIDENCE</span>
+              <span class="stage-badge-pill pass" id="ocr-confidence-badge">${isDe ? "BEREIT" : "READY"}</span>
             </div>
             
             <div class="align-grid">
               <div class="align-row">
                 <span class="align-label">${isDe ? "Container-Kennzeichnung" : "Container ID"}</span>
                 <span class="align-colon">:</span>
-                <span class="align-value" id="extracted-container-id" style="color:#38BDF8;">${containerId}</span>
+                <span class="align-value" id="extracted-container-id" style="color:#38BDF8;">—</span>
               </div>
               <div class="align-row">
                 <span class="align-label">${isDe ? "Konnossement (B/L Nr.)" : "Bill of Lading No."}</span>
                 <span class="align-colon">:</span>
-                <span class="align-value" id="extracted-bl-number">MSK-HAM-2026-9182</span>
+                <span class="align-value" id="extracted-bl-number">—</span>
               </div>
               <div class="align-row">
                 <span class="align-label">${isDe ? "Bruttomasse (VGM)" : "Declared Gross Weight"}</span>
                 <span class="align-colon">:</span>
-                <span class="align-value" id="extracted-gross-wt">24.500 kg</span>
+                <span class="align-value" id="extracted-gross-wt">—</span>
               </div>
               <div class="align-row">
                 <span class="align-label">${isDe ? "Zolltarifnummer (HS)" : "HS Tariff Code"}</span>
                 <span class="align-colon">:</span>
-                <span class="align-value" id="extracted-hs-code">8471.30.00 ${isDe ? "(Rechner / EDV)" : "(Computers / IT)"}</span>
+                <span class="align-value" id="extracted-hs-code">—</span>
               </div>
               <div class="align-row">
                 <span class="align-label">${isDe ? "Ursprungsland" : "Country of Origin"}</span>
                 <span class="align-colon">:</span>
-                <span class="align-value" id="extracted-country-origin">${isDe ? "DE (Deutschland)" : "DE (Germany)"}</span>
+                <span class="align-value" id="extracted-country-origin">—</span>
               </div>
               <div class="align-row">
                 <span class="align-label">${isDe ? "Zollwert (CIF Hamburg)" : "Customs Value"}</span>
                 <span class="align-colon">:</span>
-                <span class="align-value" id="extracted-customs-val">184.200,00 EUR</span>
+                <span class="align-value" id="extracted-customs-val">—</span>
               </div>
             </div>
           </div>
@@ -309,12 +309,12 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
                 <span style="font-weight:800; color:var(--color-signal-blue);">03</span>
                 <strong style="font-size:13px;">${isDe ? "ISO 6346 Modulo-11 Prüfziffern-Validierung" : "ISO 6346 Modulo-11 Check Digit Validation"}</strong>
               </div>
-              <span class="stage-badge-pill pass" id="iso-checksum-badge">${isDe ? "GÜLTIG (Valid)" : "VALID"}</span>
+              <span class="stage-badge-pill pass" id="iso-checksum-badge">${isDe ? "BEREIT" : "READY"}</span>
             </div>
             <p id="iso-checksum-details" style="font-size:12px; color:var(--color-text-muted); margin:0;">
               ${isDe 
-                ? "Eigentümercode 'MSK', Ausrüstungstyp 'U', Seriennummer '782910', Prüfziffer '7'. Modulo-11 Übereinstimmung mathematisch verifiziert."
-                : "Owner code 'MSK', equipment type 'U', serial '782910', check digit '7'. Modulo-11 algorithm mathematically verified."}
+                ? "Warten auf Dokumentenupload zur Berechnung der ISO 6346 Modulo-11 Prüfziffer."
+                : "Awaiting document upload to calculate ISO 6346 Modulo-11 check digit."}
             </p>
           </div>
 
@@ -325,28 +325,28 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
                 <span style="font-weight:800; color:var(--color-signal-blue);">04</span>
                 <strong style="font-size:13px;">${isDe ? "ADSp 2017 & SOLAS VGM Toleranzprüfung" : "ADSp 2017 & SOLAS VGM Tolerance Check"}</strong>
               </div>
-              <span class="stage-badge-pill pass" id="tolerance-badge">DELTA 0 kg (&le; 50 kg)</span>
+              <span class="stage-badge-pill pass" id="tolerance-badge">${isDe ? "BEREIT" : "READY"}</span>
             </div>
             <div id="tolerance-weights-container" style="display:flex; align-items:center; justify-content:space-between; font-size:12px; margin-top:2px;">
-              <span>${isDe ? "Tara:" : "Tare:"} <strong id="val-tare-wt">3.750 kg</strong></span>
-              <span>${isDe ? "Netto:" : "Net:"} <strong id="val-net-wt">20.750 kg</strong></span>
+              <span>${isDe ? "Tara:" : "Tare:"} <strong id="val-tare-wt">—</strong></span>
+              <span>${isDe ? "Netto:" : "Net:"} <strong id="val-net-wt">—</strong></span>
               <span>${isDe ? "Toleranzgrenze:" : "Allowed Delta:"} <strong style="color:#10B981;">&plusmn; 50 kg</strong></span>
             </div>
           </div>
 
           <!-- Stage 5: ATLAS Pre-Clearance Decision -->
-          <div class="audit-stage-card" id="atlas-decision-card" style="border: 2px solid #059669; background: rgba(16, 185, 129, 0.05);">
+          <div class="audit-stage-card" id="atlas-decision-card" style="border: 1px solid var(--color-border-slate); background: rgba(2, 132, 199, 0.05);">
             <div class="stage-header-row">
               <div style="display:flex; align-items:center; gap:8px;">
-                <span style="font-weight:800; color:#10B981;">05</span>
-                <strong style="font-size:13px; color:#10B981;">${isDe ? "ATLAS Pre-Clearance Entscheidung (§ 147 AO)" : "ATLAS Pre-Clearance Decision (§ 147 AO)"}</strong>
+                <span style="font-weight:800; color:var(--color-signal-blue);">05</span>
+                <strong style="font-size:13px;">${isDe ? "ATLAS Pre-Clearance Entscheidung (§ 147 AO)" : "ATLAS Pre-Clearance Decision (§ 147 AO)"}</strong>
               </div>
-              <span class="stage-badge-pill pass" id="atlas-decision-badge">${isDe ? "FREIGABE (CLEARED)" : "CLEARED"}</span>
+              <span class="stage-badge-pill pass" id="atlas-decision-badge">${isDe ? "BEREIT" : "READY"}</span>
             </div>
             <p id="atlas-decision-text" style="font-size:12px; margin:4px 0 10px 0; color:var(--color-text-primary);">
               ${isDe 
-                ? "Dossier erfüllt alle Anforderungen nach § 147 AO und ATLAS 9.1. Keine Quarantäne erforderlich. Bereit für den 3-Wege-Abgleich."
-                : "Dossier satisfies all criteria under § 147 AO and ATLAS 9.1. No quarantine required. Ready for 3-way reconciliation."}
+                ? "Warten auf Dokumentenupload zur ATLAS-Zollanalyse. Keine Daten geladen."
+                : "Awaiting document upload for ATLAS customs analysis. No document loaded."}
             </p>
             <div style="display:flex; gap:8px;">
               <a href="/portal/reconcile?sample=clean&lang=${lang}" class="btn-scenario clean" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding:6px 12px; font-size:12px;">

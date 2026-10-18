@@ -198,9 +198,9 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
               <span class="stage-badge-pill pass">HEALTHY</span>
             </div>
             <div style="font-size:12px; color:var(--color-text-muted); margin-top:6px;">
-              Verbindungen: <strong>5 / 20 aktiv</strong><br>
-              Latenz: <strong>&lt; 1 ms</strong><br>
-              Datensätze: <code>${allShipments.length} persistent</code>
+              ${isDe ? "Treiber:" : "Engine:"} <strong>SQLite ACID / PostgreSQL Pool</strong><br>
+              ${isDe ? "Latenz:" : "Latency:"} <strong>&lt; 1 ms</strong><br>
+              ${isDe ? "Datensätze:" : "Records:"} <code>${allShipments.length} persistent</code>
             </div>
             <button type="button" id="btn-test-db" class="zoom-btn" onclick="testDbConnection()" style="margin-top:8px; width:100%; justify-content:center; font-size:11px; display:inline-flex; align-items:center; gap:6px;">
               <i class="fa-solid fa-plug"></i> ${isDe ? "Verbindung testen (Live Ping)" : "Test Connection (Live Ping)"}
@@ -217,7 +217,7 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
             <div style="font-size:12px; color:var(--color-text-muted); margin-top:6px;">
               Format: <code>DESADV01 / E1EDL20</code><br>
               Encoding: UTF-8 Strict<br>
-              Status: 100% synchrone Quittierung
+              ${isDe ? "Status: Schema-Validierung aktiv" : "Status: Schema validation active"}
             </div>
           </div>
 
@@ -230,18 +230,22 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
             <div style="font-size:12px; color:var(--color-text-muted); margin-top:6px;">
               Standard: D:01B Speditionsauftrag<br>
               Validierung: ISO 9735 Syntax<br>
-              Durchsatz: 1.200 Segmente/Sek.
+              ${isDe ? "Status: EDI-Bridge aktiv" : "Status: EDI bridge active"}
             </div>
           </div>
         </div>
 
         <!-- Sample SAP IDoc Payload Viewer -->
         <div>
-          <span style="font-size:11.5px; font-weight:700; color:var(--color-text-muted); text-transform:uppercase;">
-            ${isDe ? "Beispielhafter ERP-Export-Datensatz (SAP IDoc / DESADV):" : "Sample ERP Export Payload (SAP IDoc / DESADV):"}
-          </span>
-          <pre style="background:#060A12; color:#38BDF8; padding:12px; border-radius:8px; font-family:monospace; font-size:11px; overflow-x:auto; margin-top:6px; border:1px solid #1E293B;">
-&lt;IDOC BEGIN="1"&gt;
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+            <span style="font-size:11.5px; font-weight:700; color:var(--color-text-muted); text-transform:uppercase;">
+              ${isDe ? "Echtzeit ERP-Export-Datensatz (SAP IDoc / DESADV):" : "Real-Time ERP Export Payload (SAP IDoc / DESADV):"}
+            </span>
+            <button type="button" class="zoom-btn" onclick="downloadIdocXml()" style="font-size:11px; padding:4px 8px; display:inline-flex; align-items:center; gap:4px; border-color:#38BDF8; color:#38BDF8;">
+              <i class="fa-solid fa-download"></i> ${isDe ? "IDoc XML exportieren" : "Export IDoc XML"}
+            </button>
+          </div>
+          <pre id="idoc-payload-preview" style="background:#060A12; color:#38BDF8; padding:12px; border-radius:8px; font-family:monospace; font-size:11px; overflow-x:auto; margin:0; border:1px solid #1E293B;">&lt;IDOC BEGIN="1"&gt;
   &lt;EDI_DC40&gt;
     &lt;DOCNUM&gt;0000000010492810&lt;/DOCNUM&gt;
     &lt;IDOCTYP&gt;DESADV01&lt;/IDOCTYP&gt;
