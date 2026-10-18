@@ -127,13 +127,13 @@ export function renderLayout(options: LayoutOptions): string {
           aria-label="${isDe ? "Erscheinungsbild umschalten (Hell/Dunkel)" : "Toggle display theme (Light/Dark)"}"
           title="${isDe ? "Erscheinungsbild umschalten (Hell/Dunkel)" : "Toggle display theme (Light/Dark)"}"
         >
-          <span id="theme-toggle-icon" class="theme-toggle-icon">🌙</span>
+          <span id="theme-toggle-icon" class="theme-toggle-icon"><i class="fa-solid fa-moon"></i></span>
           <span id="theme-toggle-text" class="theme-toggle-text">${isDe ? "Modus: Dunkel" : "Mode: Dark"}</span>
         </button>
 
         <!-- Dropdown Theme Toggle Component (Slice 12) -->
         <button id="dropdown-theme-toggle" class="sr-only" type="button" aria-hidden="true" tabindex="-1">
-          <span id="dropdown-theme-icon">🌙</span>
+          <span id="dropdown-theme-icon"><i class="fa-solid fa-moon"></i></span>
           <span id="dropdown-theme-text">${isDe ? "Dunkelmodus aktivieren" : "Switch to Dark Mode"}</span>
         </button>
 
@@ -146,7 +146,7 @@ export function renderLayout(options: LayoutOptions): string {
           title="${isDe ? "Sprache wechseln (DE / EN)" : "Switch Language (DE / EN)"}"
         >
           <i class="fa-solid fa-globe text-signal-blue"></i>
-          <span id="lang-indicator">${isDe ? "🇩🇪 Deutsch" : "🇬🇧 English"}</span>
+          <span id="lang-indicator">${isDe ? "DE (Deutsch)" : "EN (English)"}</span>
         </button>
 
         <!-- Compact Operator Badge -->

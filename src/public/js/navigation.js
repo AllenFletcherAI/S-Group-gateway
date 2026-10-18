@@ -52,10 +52,18 @@
     const themeToggleBtn = document.getElementById("theme-toggle-btn");
 
     if (themeToggleIcon) {
-      themeToggleIcon.textContent = isDark ? "☀️" : "🌙";
+      themeToggleIcon.innerHTML = isDark ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
     }
     if (themeToggleText) {
-      themeToggleText.textContent = isDark ? (isDe ? "Modus: Hell" : "Mode: Light") : (isDe ? "Modus: Dunkel" : "Mode: Dark");
+      themeToggleText.textContent = isDark ? (isDe ? "Modus: Dunkel" : "Mode: Dark") : (isDe ? "Modus: Hell" : "Mode: Light");
+    }
+    if (themeToggleBtn) {
+      const tooltip = isDark
+        ? (isDe ? "Zu hellem Modus wechseln" : "Switch to Light Mode")
+        : (isDe ? "Zu dunklem Modus wechseln" : "Switch to Dark Mode");
+      themeToggleBtn.setAttribute("title", tooltip);
+      themeToggleBtn.setAttribute("aria-label", tooltip);
+      themeToggleBtn.setAttribute("aria-pressed", String(isDark));
     }
     const dropdownThemeText = document.getElementById("dropdown-theme-text");
     if (dropdownThemeText) {
@@ -344,39 +352,60 @@ window.openFullscreenModal = function () {
 // 6. DISMISSIBLE DOCUMENT STATE & SAMPLES
 // ============================================================================
 function displayLoadedImage(srcUrl, fileName, fileSize) {
+  const isDe = (document.documentElement.getAttribute("lang") || "de") === "de";
   const img = document.getElementById("audit-preview-img");
   const container = document.getElementById("audit-image-container");
   const dropzone = document.getElementById("audit-empty-dropzone");
   const nameLabel = document.getElementById("audit-file-name");
   const sizeLabel = document.getElementById("audit-file-size");
+  const shaPill = document.getElementById("audit-sha-pill");
+  const zoomBar = document.getElementById("canvas-zoom-bar");
+  const clearBtn = document.getElementById("btn-clear-doc");
+  const idleGuide = document.getElementById("audit-idle-guide");
+  const resultsPanel = document.getElementById("audit-results-panel");
 
   if (img) img.src = srcUrl;
   if (container) container.style.display = "flex";
   if (dropzone) dropzone.style.display = "none";
   if (nameLabel) nameLabel.textContent = fileName;
   if (sizeLabel) sizeLabel.textContent = fileSize;
+  if (shaPill) shaPill.textContent = "SHA: 7f83b165...";
+  if (zoomBar) zoomBar.style.display = "flex";
+  if (clearBtn) clearBtn.style.display = "inline-flex";
+  if (idleGuide) idleGuide.style.display = "none";
+  if (resultsPanel) resultsPanel.style.display = "flex";
 
   window.resetAuditZoom();
 }
 
 window.resetDocument = function () {
+  const isDe = (document.documentElement.getAttribute("lang") || "de") === "de";
   const container = document.getElementById("audit-image-container");
   const dropzone = document.getElementById("audit-empty-dropzone");
   const nameLabel = document.getElementById("audit-file-name");
   const sizeLabel = document.getElementById("audit-file-size");
   const shaPill = document.getElementById("audit-sha-pill");
+  const zoomBar = document.getElementById("canvas-zoom-bar");
+  const clearBtn = document.getElementById("btn-clear-doc");
+  const idleGuide = document.getElementById("audit-idle-guide");
+  const resultsPanel = document.getElementById("audit-results-panel");
 
   if (container) container.style.display = "none";
   if (dropzone) dropzone.style.display = "block";
-  if (nameLabel) nameLabel.textContent = "Kein Beleg geladen";
+  if (nameLabel) nameLabel.textContent = isDe ? "Kein Beleg geladen" : "No Document Loaded";
   if (sizeLabel) sizeLabel.textContent = "0 KB";
-  if (shaPill) shaPill.textContent = "SHA: Bereit";
+  if (shaPill) shaPill.textContent = isDe ? "SHA: Bereit" : "SHA: Ready";
+  if (zoomBar) zoomBar.style.display = "none";
+  if (clearBtn) clearBtn.style.display = "none";
+  if (resultsPanel) resultsPanel.style.display = "none";
+  if (idleGuide) idleGuide.style.display = "flex";
 };
 
 window.copyActiveSha = function () {
+  const isDe = (document.documentElement.getAttribute("lang") || "de") === "de";
   const sha = "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069";
   navigator.clipboard.writeText(sha).then(function () {
-    alert("Kryptographischer SHA-256 Prüfhash in die Zwischenablage kopiert:\n" + sha);
+    alert(isDe ? ("Kryptographischer SHA-256 Prüfhash in die Zwischenablage kopiert:\n" + sha) : ("Cryptographic SHA-256 hash copied to clipboard:\n" + sha));
   });
 };
 
@@ -448,10 +477,11 @@ window.closeAdspModal = function () {
 };
 
 window.copyAdspClaimText = function () {
+  const isDe = (document.documentElement.getAttribute("lang") || "de") === "de";
   const textElem = document.getElementById("adsp-claim-text");
   if (textElem) {
     navigator.clipboard.writeText(textElem.innerText).then(function () {
-      alert("Haftungsanzeige nach ADSp 2017 & § 412 HGB in die Zwischenablage kopiert.");
+      alert(isDe ? "Haftungsanzeige nach ADSp 2017 & § 412 HGB in die Zwischenablage kopiert." : "ADSp 2017 & § 412 HGB claim copied to clipboard.");
     });
   }
 };
@@ -467,29 +497,38 @@ window.closeCustomsCertModal = function () {
 };
 
 window.copyCertText = function () {
+  const isDe = (document.documentElement.getAttribute("lang") || "de") === "de";
   const paper = document.getElementById("customs-cert-paper");
   if (paper) {
     navigator.clipboard.writeText(paper.innerText).then(function () {
-      alert("Offizieller Zertifikatstext in die Zwischenablage kopiert.");
+      alert(isDe ? "Offizieller Zertifikatstext in die Zwischenablage kopiert." : "Official certificate text copied to clipboard.");
     });
   }
 };
 
 window.openSupervisorOverrideModal = function (shipmentId) {
+  const isDe = (document.documentElement.getAttribute("lang") || "de") === "de";
   const reason = prompt(
-    "Supervisor-Freigabe für " + shipmentId + " bestätigen.\nBitte Revisionsgrund eingeben (Pflichtfeld nach § 147 AO / GoBD):"
+    isDe
+      ? ("Supervisor-Freigabe für " + shipmentId + " bestätigen.\nBitte Revisionsgrund eingeben (Pflichtfeld nach § 147 AO / GoBD):")
+      : ("Confirm supervisor override for " + shipmentId + ".\nPlease provide audit justification (§ 147 AO / GoBD compliance):")
   );
   if (reason && reason.trim()) {
-    alert("Sendung " + shipmentId + " wurde vom Supervisor freigegeben.\nAudit-Vermerk gespeichert: " + reason.trim());
+    alert(
+      isDe
+        ? ("Sendung " + shipmentId + " wurde vom Supervisor freigegeben.\nAudit-Vermerk gespeichert: " + reason.trim())
+        : ("Shipment " + shipmentId + " was overridden by supervisor.\nAudit record stored: " + reason.trim())
+    );
   }
 };
 
 window.testDbConnection = function () {
+  const isDe = (document.documentElement.getAttribute("lang") || "de") === "de";
   const btn = document.getElementById("btn-test-db");
   const stat = document.getElementById("db-ping-result");
-  if (btn) btn.textContent = "⏳ Prüfe Verbindung...";
+  if (btn) btn.textContent = isDe ? "Prüfe Verbindung..." : "Checking connection...";
   setTimeout(function () {
-    if (btn) btn.textContent = "✓ Verbunden (< 2 ms)";
-    if (stat) stat.textContent = "PostgreSQL Pool: 5/20 Verbindungen aktiv • Latenz: 1.4 ms";
+    if (btn) btn.textContent = isDe ? "✓ Verbunden (< 2 ms)" : "✓ Connected (< 2 ms)";
+    if (stat) stat.textContent = isDe ? "PostgreSQL Pool: 5/20 Verbindungen aktiv • Latenz: 1.4 ms" : "PostgreSQL Pool: 5/20 connections active • Latency: 1.4 ms";
   }, 400);
 };

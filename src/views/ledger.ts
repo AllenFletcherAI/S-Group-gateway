@@ -18,13 +18,14 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
   const isDe = lang === "de";
 
   return `
-    <div class="portal-details-card" id="ledger-workspace">
+    <div class="ledger-workspace-container" id="ledger-workspace">
+      <div class="portal-details-card" style="width:100%; max-width:100%; box-sizing:border-box;">
       
       <!-- Top Header & Export Cockpit -->
       <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px; border-bottom:1px solid var(--color-border-slate); padding-bottom:16px;">
         <div>
           <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:22px;">📜</span>
+            <i class="fa-solid fa-file-contract" style="font-size:22px; color:var(--color-signal-blue);"></i>
             <h1 class="section-title" style="margin:0;">
               ${isDe ? "Revisionssicheres Audit-Ledger & IT-Konsole (§ 147 AO / GoBD / ATLAS 9.1)" : "Audit Ledger & IT Console (§ 147 AO / GoBD / ATLAS 9.1)"}
             </h1>
@@ -37,11 +38,11 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
         </div>
 
         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-          <button type="button" class="zoom-btn" onclick="openCustomsCertModal('SHP-SIS-1049')" style="background:#059669; color:#FFFFFF; border-color:#10B981; padding:8px 12px; font-weight:700;">
-            🏛️ ${isDe ? "Offizielles Zoll-Zertifikat (A4)" : "Customs Certificate (A4)"}
+          <button type="button" class="zoom-btn" onclick="openCustomsCertModal('SHP-SIS-1049')" style="background:#059669; color:#FFFFFF; border-color:#10B981; padding:8px 12px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+            <i class="fa-solid fa-building-columns"></i> ${isDe ? "Offizielles Zoll-Zertifikat (A4)" : "Customs Certificate (A4)"}
           </button>
-          <button type="button" class="zoom-btn" onclick="exportLedgerCsv()" style="padding:8px 12px;">
-            📥 ${isDe ? "GoBD CSV-Export" : "GoBD CSV Export"}
+          <button type="button" class="zoom-btn" onclick="exportLedgerCsv()" style="padding:8px 12px; display:inline-flex; align-items:center; gap:6px;">
+            <i class="fa-solid fa-file-arrow-down"></i> ${isDe ? "GoBD CSV-Export" : "GoBD CSV Export"}
           </button>
         </div>
       </div>
@@ -139,10 +140,10 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
               <td>24.500 kg</td>
               <td><code>8471.30.00</code></td>
               <td><code style="font-size:11px; color:var(--color-text-muted);">7f83b165...26d9069</code></td>
-              <td style="text-align:center;"><span class="stage-badge-pill pass">FREIGEGEBEN</span></td>
+              <td style="text-align:center;"><span class="stage-badge-pill pass">${isDe ? "FREIGEGEBEN" : "CLEARED"}</span></td>
               <td style="text-align:right;">
-                <button type="button" class="zoom-btn" onclick="openCustomsCertModal('SHP-SIS-1049')" style="color:#059669; border-color:#059669;">
-                  🏛️ ${isDe ? "Zertifikat" : "Certificate"}
+                <button type="button" class="zoom-btn" onclick="openCustomsCertModal('SHP-SIS-1049')" style="color:#059669; border-color:#059669; display:inline-flex; align-items:center; gap:4px;">
+                  <i class="fa-solid fa-building-columns"></i> ${isDe ? "Zertifikat" : "Certificate"}
                 </button>
               </td>
             </tr>
@@ -159,10 +160,10 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
               <td>21.800 kg</td>
               <td><code>8708.29.90</code></td>
               <td><code style="font-size:11px; color:var(--color-text-muted);">4e92a81b...c9103fa</code></td>
-              <td style="text-align:center;"><span class="stage-badge-pill pass">FREIGEGEBEN</span></td>
+              <td style="text-align:center;"><span class="stage-badge-pill pass">${isDe ? "FREIGEGEBEN" : "CLEARED"}</span></td>
               <td style="text-align:right;">
-                <button type="button" class="zoom-btn" onclick="openCustomsCertModal('SHP-SIS-1050')" style="color:#059669; border-color:#059669;">
-                  🏛️ ${isDe ? "Zertifikat" : "Certificate"}
+                <button type="button" class="zoom-btn" onclick="openCustomsCertModal('SHP-SIS-1050')" style="color:#059669; border-color:#059669; display:inline-flex; align-items:center; gap:4px;">
+                  <i class="fa-solid fa-building-columns"></i> ${isDe ? "Zertifikat" : "Certificate"}
                 </button>
               </td>
             </tr>
@@ -179,10 +180,10 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
               <td>26.200 kg</td>
               <td><code>8504.40.88</code></td>
               <td><code style="font-size:11px; color:var(--color-text-muted);">9a03bfa1...e82910c</code></td>
-              <td style="text-align:center;"><span class="stage-badge-pill hold">QUARANTÄNE</span></td>
+              <td style="text-align:center;"><span class="stage-badge-pill hold">${isDe ? "QUARANTÄNE" : "QUARANTINE"}</span></td>
               <td style="text-align:right;">
-                <a href="/portal/quarantine?lang=${lang}" class="zoom-btn" style="text-decoration:none; color:#EF4444; border-color:#DC2626;">
-                  ⚠️ ${isDe ? "Zur Quarantäne" : "View Hold"}
+                <a href="/portal/quarantine?lang=${lang}" class="zoom-btn" style="text-decoration:none; color:#EF4444; border-color:#DC2626; display:inline-flex; align-items:center; gap:4px;">
+                  <i class="fa-solid fa-triangle-exclamation"></i> ${isDe ? "Zur Quarantäne" : "View Hold"}
                 </a>
               </td>
             </tr>
@@ -194,7 +195,7 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
       <div style="background:var(--color-bg-neutral); border:1px solid var(--color-border-slate); border-radius:12px; padding:20px;">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
           <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:20px;">🔌</span>
+            <i class="fa-solid fa-plug" style="font-size:20px; color:var(--color-signal-blue);"></i>
             <h2 style="font-size:16px; font-weight:800; margin:0; color:var(--color-text-primary);">
               ${isDe ? "IT-Konsole & ERP-Schnittstellen (PostgreSQL, SAP IDoc, UN/EDIFACT)" : "IT Console & ERP Integration (PostgreSQL, SAP IDoc, EDIFACT)"}
             </h2>
@@ -206,7 +207,7 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
           <!-- Card 1: PostgreSQL Health -->
           <div style="background:var(--color-surface-white); border:1px solid var(--color-border-slate); border-radius:8px; padding:12px;">
             <div style="display:flex; align-items:center; justify-content:space-between;">
-              <strong style="font-size:12.5px;">🐘 PostgreSQL Pool</strong>
+              <strong style="font-size:12.5px;"><i class="fa-solid fa-database" style="color:#38BDF8; margin-right:4px;"></i> PostgreSQL Pool</strong>
               <span class="stage-badge-pill pass">HEALTHY</span>
             </div>
             <div style="font-size:12px; color:var(--color-text-muted); margin-top:6px;">
@@ -214,8 +215,8 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
               Latenz: <strong>&lt; 2 ms</strong><br>
               Migrationen: <code>V001</code> bis <code>V005</code> vollständig
             </div>
-            <button type="button" id="btn-test-db" class="zoom-btn" onclick="testDbConnection()" style="margin-top:8px; width:100%; justify-content:center; font-size:11px;">
-              🔌 ${isDe ? "Verbindung testen (Live Ping)" : "Test Connection (Live Ping)"}
+            <button type="button" id="btn-test-db" class="zoom-btn" onclick="testDbConnection()" style="margin-top:8px; width:100%; justify-content:center; font-size:11px; display:inline-flex; align-items:center; gap:6px;">
+              <i class="fa-solid fa-plug"></i> ${isDe ? "Verbindung testen (Live Ping)" : "Test Connection (Live Ping)"}
             </button>
             <div id="db-ping-result" style="font-size:11px; color:#10B981; margin-top:4px; font-weight:600;"></div>
           </div>
@@ -223,7 +224,7 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
           <!-- Card 2: SAP IDoc Connector -->
           <div style="background:var(--color-surface-white); border:1px solid var(--color-border-slate); border-radius:8px; padding:12px;">
             <div style="display:flex; align-items:center; justify-content:space-between;">
-              <strong style="font-size:12.5px;">🏢 SAP IDoc DESADV</strong>
+              <strong style="font-size:12.5px;"><i class="fa-solid fa-network-wired" style="color:#38BDF8; margin-right:4px;"></i> SAP IDoc DESADV</strong>
               <span class="stage-badge-pill pass">ACTIVE</span>
             </div>
             <div style="font-size:12px; color:var(--color-text-muted); margin-top:6px;">
@@ -236,7 +237,7 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
           <!-- Card 3: UN/EDIFACT IFTMIN -->
           <div style="background:var(--color-surface-white); border:1px solid var(--color-border-slate); border-radius:8px; padding:12px;">
             <div style="display:flex; align-items:center; justify-content:space-between;">
-              <strong style="font-size:12.5px;">🌐 UN/EDIFACT IFTMIN</strong>
+              <strong style="font-size:12.5px;"><i class="fa-solid fa-globe" style="color:#38BDF8; margin-right:4px;"></i> UN/EDIFACT IFTMIN</strong>
               <span class="stage-badge-pill pass">D:01B</span>
             </div>
             <div style="font-size:12px; color:var(--color-text-muted); margin-top:6px;">
@@ -276,7 +277,7 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
         <div class="cert-modal-dialog">
           <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #1E293B; padding-bottom:12px;">
             <div style="display:flex; align-items:center; gap:8px;">
-              <span style="font-size:20px;">🏛️</span>
+              <i class="fa-solid fa-building-columns" style="font-size:20px; color:#10B981;"></i>
               <strong style="font-size:15px; color:#FFFFFF;">
                 ${isDe ? "Offizielles Zoll-Konformitätszertifikat nach § 147 AO / ATLAS 9.1" : "Official Customs Compliance Certificate (§ 147 AO / ATLAS 9.1)"}
               </strong>
@@ -345,11 +346,11 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
           </div>
 
           <div style="display:flex; justify-content:flex-end; gap:8px;">
-            <button type="button" class="zoom-btn" onclick="window.print()" style="background:#059669; color:#FFFFFF; border-color:#10B981; padding:8px 14px; font-weight:700;">
-              🖨️ ${isDe ? "Als DIN A4 Dokument drucken" : "Print as DIN A4 Document"}
+            <button type="button" class="zoom-btn" onclick="window.print()" style="background:#059669; color:#FFFFFF; border-color:#10B981; padding:8px 14px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+              <i class="fa-solid fa-print"></i> ${isDe ? "Als DIN A4 Dokument drucken" : "Print as DIN A4 Document"}
             </button>
-            <button type="button" class="zoom-btn" onclick="copyCertText()" style="padding:8px 14px;">
-              📋 ${isDe ? "Text kopieren" : "Copy Text"}
+            <button type="button" class="zoom-btn" onclick="copyCertText()" style="padding:8px 14px; display:inline-flex; align-items:center; gap:6px;">
+              <i class="fa-regular fa-copy"></i> ${isDe ? "Text kopieren" : "Copy Text"}
             </button>
             <button type="button" class="zoom-btn" onclick="closeCustomsCertModal()" style="padding:8px 14px;">
               ${isDe ? "Schließen" : "Close"}
@@ -358,6 +359,7 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
         </div>
       </div>
 
+      </div>
     </div>
   `;
 }

@@ -203,12 +203,15 @@ export class CustomsAuditorService {
       demurrageRiskEur += 450.0;
     }
 
+    const atlasPkg = lang === "de" ? (atlas.packageType || "Colli") : (atlas.packageType === "Paletten" ? "Pallets" : (atlas.packageType || "Packages"));
+    const bolPkg = lang === "de" ? (bol.packageType || "Colli") : (bol.packageType === "Paletten" ? "Pallets" : (bol.packageType || "Packages"));
+
     rows.push({
       fieldId: "package_count",
       fieldNameDe: "Packstücke / Colli",
       fieldNameEn: "Package Count (Colli)",
-      atlasValue: `${pkgAtlas} ${atlas.packageType || "Colli"}`,
-      bolValue: `${pkgBol} ${bol.packageType || "Colli"}`,
+      atlasValue: `${pkgAtlas} ${atlasPkg}`,
+      bolValue: `${pkgBol} ${bolPkg}`,
       invoiceValue: "-",
       matched: pkgMatched,
       deltaTextDe: pkgMatched ? "✓ Exakt identisch (100% Match)" : `✕ Delta: ${pkgDiff} Packstücke`,
@@ -224,7 +227,7 @@ export class CustomsAuditorService {
       fieldNameDe: "Zollwert & Währung",
       fieldNameEn: "Customs Value & Currency",
       atlasValue: `€ ${(invAmount * 1.0).toLocaleString()} (EUR)`,
-      bolValue: "- (Unbewertet)",
+      bolValue: lang === "de" ? "- (Unbewertet)" : "- (Not evaluated)",
       invoiceValue: `${invAmount.toLocaleString()} ${invCur}`,
       matched: true,
       deltaTextDe: "✓ Für ATLAS-Zollanmeldung verifiziert",

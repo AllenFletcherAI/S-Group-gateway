@@ -29,7 +29,7 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
         <div class="canvas-toolbar" id="canvas-toolbar">
           <div class="canvas-controls-group">
             <i class="fa-regular fa-file-lines text-signal-blue"></i>
-            <span id="audit-file-name" style="font-weight:600; color:#F1F5F9; max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+            <span id="audit-file-name" style="font-weight:600; color:#F1F5F9; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
               sample bill of ladling.png
             </span>
             <span id="audit-file-size" style="background:#162035; border:1px solid #1E293B; border-radius:4px; padding:1px 6px; font-size:10px; font-weight:700; color:#38BDF8;">
@@ -58,7 +58,7 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
         </div>
 
         <!-- Combined Zoom & Viewport Controls Bar -->
-        <div style="height:32px; background:#080D18; border-bottom:1px solid #1E293B; display:flex; align-items:center; justify-content:space-between; padding:0 10px; font-size:11px; user-select:none; flex-shrink:0;">
+        <div id="canvas-zoom-bar" style="height:32px; background:#080D18; border-bottom:1px solid #1E293B; display:flex; align-items:center; justify-content:space-between; padding:0 10px; font-size:11px; user-select:none; flex-shrink:0;">
           <div style="display:flex; align-items:center; gap:4px;">
             <button type="button" class="zoom-btn" onclick="zoomAuditCanvas(-0.25)" title="${isDe ? "Verkleinern (-)" : "Zoom Out (-)"}">
               <i class="fa-solid fa-minus"></i>
@@ -97,7 +97,7 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
 
         <!-- Canvas Viewport -->
         <div class="audit-canvas-viewport" id="audit-canvas-viewport" onwheel="handleAuditWheel(event)" onmousedown="startAuditPan(event)">
-          <!-- Document Preview Image -->
+          <!-- Document Preview Image Container -->
           <div id="audit-image-container" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">
             <img
               id="audit-preview-img"
@@ -108,69 +108,106 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
             >
           </div>
 
-          <!-- Empty State Dropzone (Hidden while document is loaded) -->
-          <div id="audit-empty-dropzone" style="display:none; text-align:center; padding:32px 24px; max-width:420px; background:#0B1322; border:2px dashed #2A3B55; border-radius:14px;">
-            <div style="font-size:36px; margin-bottom:12px;">📥</div>
+          <!-- Empty State Dropzone -->
+          <div id="audit-empty-dropzone" style="display:none; text-align:center; padding:32px 24px; max-width:420px; background:#0B1322; border:2px dashed #2A3B55; border-radius:14px; margin:auto;">
+            <div style="margin-bottom:12px; color:#38BDF8; font-size:32px;">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+            </div>
             <h3 style="font-size:15px; font-weight:700; color:#FFFFFF; margin:0 0 6px 0;">
               ${isDe ? "Kein Beleg geladen" : "No Document Loaded"}
             </h3>
             <p style="font-size:12px; color:#94A3B8; margin:0 0 16px 0;">
               ${isDe ? "Frachtbrief, Handelsrechnung oder Packliste hierher ziehen oder auswählen." : "Drag and drop waybill, invoice, or packing list here."}
             </p>
-            <button type="button" class="btn-scenario clean" onclick="document.getElementById('audit-file-input').click()" style="margin-bottom:12px;">
-              📁 ${isDe ? "Dateien auswählen (PDF, PNG, JPG)" : "Choose Files (PDF, PNG, JPG)"}
+            <button type="button" class="btn-scenario clean" onclick="document.getElementById('audit-file-input').click()" style="margin-bottom:12px; display:inline-flex; align-items:center; gap:8px;">
+              <i class="fa-solid fa-folder-open"></i>
+              <span>${isDe ? "Dateien auswählen (PDF, PNG, JPG)" : "Choose Files (PDF, PNG, JPG)"}</span>
             </button>
             <div style="font-size:11.5px; color:#64748B; margin-bottom:16px;">
-              ${isDe ? "Oder Beleg direkt aus der Zwischenablage einfügen (" : "Or paste directly from clipboard ("}<kbd>Strg+V</kbd>)
+              ${isDe ? "Oder Beleg direkt aus der Zwischenablage einfügen (" : "Or paste directly from clipboard ("}<kbd>${isDe ? "Strg+V" : "Ctrl+V"}</kbd>)
             </div>
 
-            <!-- Supported Docs Popover Trigger -->
+            <!-- Sample Document Buttons -->
             <div style="border-top:1px solid #1E293B; padding-top:14px; text-align:left;">
               <span style="font-size:11px; font-weight:700; color:#38BDF8; text-transform:uppercase;">
                 ${isDe ? "Musterbelege laden:" : "Load Sample Document:"}
               </span>
               <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:6px; margin-top:8px;">
-                <button type="button" class="zoom-btn" onclick="loadSampleDoc('bol')" style="justify-content:center;">
-                  🚢 Ocean B/L
+                <button type="button" class="zoom-btn" onclick="loadSampleDoc('bol')" style="justify-content:center; gap:6px;">
+                  <i class="fa-solid fa-ship text-signal-blue"></i>
+                  <span>Ocean B/L</span>
                 </button>
-                <button type="button" class="zoom-btn" onclick="loadSampleDoc('invoice')" style="justify-content:center;">
-                  📄 Rechnung
+                <button type="button" class="zoom-btn" onclick="loadSampleDoc('invoice')" style="justify-content:center; gap:6px;">
+                  <i class="fa-solid fa-file-invoice text-signal-blue"></i>
+                  <span>${isDe ? "Handelsrechnung" : "Commercial Invoice"}</span>
                 </button>
-                <button type="button" class="zoom-btn" onclick="loadSampleDoc('packing_list')" style="justify-content:center;">
-                  📦 Packliste
+                <button type="button" class="zoom-btn" onclick="loadSampleDoc('packing_list')" style="justify-content:center; gap:6px;">
+                  <i class="fa-solid fa-boxes-stacked text-signal-blue"></i>
+                  <span>${isDe ? "Packliste" : "Packing List"}</span>
                 </button>
-                <button type="button" class="zoom-btn" onclick="loadSampleDoc('origin')" style="justify-content:center;">
-                  🏛️ Ursprung
+                <button type="button" class="zoom-btn" onclick="loadSampleDoc('origin')" style="justify-content:center; gap:6px;">
+                  <i class="fa-solid fa-certificate text-signal-blue"></i>
+                  <span>${isDe ? "Ursprungszeugnis" : "Certificate of Origin"}</span>
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Sample Doc Switcher Footer Bar -->
-        <div style="background:#080D18; border-top:1px solid #1E293B; padding:6px 12px; display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:11px; flex-shrink:0;">
-          <span style="color:#64748B; font-weight:600;">
-            ${isDe ? "Muster:" : "Samples:"}
-          </span>
-          <div style="display:flex; gap:6px; flex-wrap:wrap;">
-            <button type="button" class="zoom-btn" onclick="loadSampleDoc('bol')" style="color:#38BDF8; font-weight:700;">
-              🚢 Ocean B/L
-            </button>
-            <button type="button" class="zoom-btn" onclick="loadSampleDoc('invoice')">
-              📄 Handelsrechnung
-            </button>
-            <button type="button" class="zoom-btn" onclick="loadSampleDoc('packing_list')">
-              📦 Packliste
-            </button>
-            <button type="button" class="zoom-btn" onclick="loadSampleDoc('origin')">
-              🏛️ Ursprung
-            </button>
           </div>
         </div>
       </div>
 
       <!-- RIGHT WORKSPACE PANE: 5-STAGE PIPELINE & VERIFICATION TELEMETRY -->
       <div class="audit-pane-right">
+        <!-- Idle Onboarding Guide (Shown when dropzone is empty) -->
+        <div id="audit-idle-guide" style="display:none; flex-direction:column; gap:14px; padding:4px;">
+          <div style="background:#0E1626; border:1px solid #1E293B; border-radius:12px; padding:20px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+              <i class="fa-solid fa-file-shield text-signal-blue" style="font-size:20px;"></i>
+              <h3 style="font-size:16px; font-weight:800; color:#FFFFFF; margin:0;">
+                ${isDe ? "Warten auf Belegimport" : "Awaiting Document Ingestion"}
+              </h3>
+            </div>
+            <p style="font-size:13px; color:#94A3B8; margin:0 0 16px 0; line-height:1.5;">
+              ${isDe 
+                ? "Wählen Sie links einen Frachtbeleg aus (See, Luft, Land) oder laden Sie einen Musterbeleg, um die deterministische 5-Stufen-Zollprüfung auszuführen." 
+                : "Select or drop a freight document on the left, or test a sample document, to execute deterministic 5-stage customs validation."}
+            </p>
+
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <div style="display:flex; gap:12px; padding:12px; border-radius:8px; background:#080E1A; border:1px solid #1E293B;">
+                <div style="width:28px; height:28px; border-radius:6px; background:#0284C7; color:#FFFFFF; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:12px; flex-shrink:0;">1</div>
+                <div>
+                  <strong style="font-size:13px; color:#F1F5F9; display:block;">${isDe ? "1. Beleg-Ingestion & SHA-256 Signatur" : "1. Document Ingestion & SHA-256 Signature"}</strong>
+                  <span style="font-size:12px; color:#94A3B8;">${isDe ? "Kryptographischer GoBD-Prüfstempel zur Gewährleistung der Revisionssicherheit." : "Cryptographic GoBD audit seal ensuring tamper-evident record integrity."}</span>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:12px; padding:12px; border-radius:8px; background:#080E1A; border:1px solid #1E293B;">
+                <div style="width:28px; height:28px; border-radius:6px; background:#10B981; color:#FFFFFF; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:12px; flex-shrink:0;">2</div>
+                <div>
+                  <strong style="font-size:13px; color:#F1F5F9; display:block;">${isDe ? "2. OCR-Extraktion & ISO 6346 Modulo-11" : "2. OCR Extraction & ISO 6346 Modulo-11"}</strong>
+                  <span style="font-size:12px; color:#94A3B8;">${isDe ? "Mathematische Validierung der Prüfziffer und strukturierte Extraktion der Zolltarifdaten." : "Mathematical validation of container check digit and structured extraction of customs fields."}</span>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:12px; padding:12px; border-radius:8px; background:#080E1A; border:1px solid #1E293B;">
+                <div style="width:28px; height:28px; border-radius:6px; background:#8B5CF6; color:#FFFFFF; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:12px; flex-shrink:0;">3</div>
+                <div>
+                  <strong style="font-size:13px; color:#F1F5F9; display:block;">${isDe ? "3. Toleranzkontrolle & ATLAS-Freigabe" : "3. Tolerance Check & ATLAS Pre-Clearance"}</strong>
+                  <span style="font-size:12px; color:#94A3B8;">${isDe ? "Prüfung der SOLAS VGM Tara-Toleranz (≤ 50 kg) und Freigabe für ATLAS 9.1 Zollanmeldung." : "SOLAS VGM tare tolerance check (≤ 50 kg) and clearance for ATLAS 9.1 customs declaration."}</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="border-top:1px solid #1E293B; margin-top:16px; padding-top:14px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+              <span style="font-size:11.5px; color:#10B981; font-weight:600;"><i class="fa-solid fa-circle-check"></i> ATLAS 9.1: ${isDe ? "Bereit" : "Ready"}</span>
+              <span style="font-size:11.5px; color:#10B981; font-weight:600;"><i class="fa-solid fa-circle-check"></i> Dakosy: ${isDe ? "Verbunden" : "Connected"}</span>
+              <span style="font-size:11.5px; color:#10B981; font-weight:600;"><i class="fa-solid fa-circle-check"></i> PostgreSQL: ${isDe ? "Online" : "Online"}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5-Stage Results Panel -->
+        <div id="audit-results-panel" style="display:flex; flex-direction:column; gap:12px;">
         <!-- Station Title Banner -->
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; flex-shrink:0;">
           <div>
@@ -192,7 +229,7 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
             <span class="breadcrumb-arrow">›</span>
             <span class="breadcrumb-step completed"><i class="fa-solid fa-circle-check"></i> 3. MODULO-11</span>
             <span class="breadcrumb-arrow">›</span>
-            <span class="breadcrumb-step completed"><i class="fa-solid fa-circle-check"></i> 4. TOLERANZ</span>
+            <span class="breadcrumb-step completed"><i class="fa-solid fa-circle-check"></i> ${isDe ? "4. TOLERANZ" : "4. TOLERANCE"}</span>
             <span class="breadcrumb-arrow">›</span>
             <span class="breadcrumb-step active"><i class="fa-solid fa-circle-play"></i> 5. ATLAS</span>
           </div>
@@ -215,7 +252,7 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
             </div>
             <div style="font-size:11px; font-family:'JetBrains Mono', monospace; color:var(--color-text-muted); background:rgba(0,0,0,0.25); border:1px solid #1E293B; padding:5px 8px; border-radius:4px; display:flex; align-items:center; justify-content:space-between;">
               <span id="stage-sha-val" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:85%;">7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069</span>
-              <button type="button" onclick="copyActiveSha()" class="zoom-btn" style="padding:1px 6px; height:20px; font-size:10px;" title="Kopieren">
+              <button type="button" onclick="copyActiveSha()" class="zoom-btn" style="padding:1px 6px; height:20px; font-size:10px;" title="${isDe ? "Kopieren" : "Copy"}">
                 <i class="fa-regular fa-copy"></i>
               </button>
             </div>
@@ -250,12 +287,12 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
               <div class="align-row">
                 <span class="align-label">${isDe ? "Zolltarifnummer (HS)" : "HS Tariff Code"}</span>
                 <span class="align-colon">:</span>
-                <span class="align-value">8471.30.00 (Rechner / EDV)</span>
+                <span class="align-value">8471.30.00 ${isDe ? "(Rechner / EDV)" : "(Computers / IT)"}</span>
               </div>
               <div class="align-row">
                 <span class="align-label">${isDe ? "Ursprungsland" : "Country of Origin"}</span>
                 <span class="align-colon">:</span>
-                <span class="align-value">DE (Deutschland)</span>
+                <span class="align-value">${isDe ? "DE (Deutschland)" : "DE (Germany)"}</span>
               </div>
               <div class="align-row">
                 <span class="align-label">${isDe ? "Zollwert (CIF Hamburg)" : "Customs Value"}</span>
@@ -272,7 +309,7 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
                 <span style="font-weight:800; color:var(--color-signal-blue);">03</span>
                 <strong style="font-size:13px;">${isDe ? "ISO 6346 Modulo-11 Prüfziffern-Validierung" : "ISO 6346 Modulo-11 Check Digit Validation"}</strong>
               </div>
-              <span class="stage-badge-pill pass" id="iso-checksum-badge">GÜLTIG (Valid)</span>
+              <span class="stage-badge-pill pass" id="iso-checksum-badge">${isDe ? "GÜLTIG (Valid)" : "VALID"}</span>
             </div>
             <p style="font-size:12px; color:var(--color-text-muted); margin:0;">
               ${isDe 
@@ -304,7 +341,7 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
                 <span style="font-weight:800; color:#10B981;">05</span>
                 <strong style="font-size:13px; color:#10B981;">${isDe ? "ATLAS Pre-Clearance Entscheidung (§ 147 AO)" : "ATLAS Pre-Clearance Decision (§ 147 AO)"}</strong>
               </div>
-              <span class="stage-badge-pill pass">FREIGABE (CLEARED)</span>
+              <span class="stage-badge-pill pass">${isDe ? "FREIGABE (CLEARED)" : "CLEARED"}</span>
             </div>
             <p style="font-size:12px; margin:4px 0 10px 0; color:var(--color-text-primary);">
               ${isDe 
@@ -313,10 +350,10 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
             </p>
             <div style="display:flex; gap:8px;">
               <a href="/portal/reconcile?sample=clean&lang=${lang}" class="btn-scenario clean" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding:6px 12px; font-size:12px;">
-                ➡️ ${isDe ? "Im 3-Wege-Abgleich öffnen" : "Open in 3-Way Match"}
+                <i class="fa-solid fa-arrow-right"></i> ${isDe ? "Im 3-Wege-Abgleich öffnen" : "Open in 3-Way Match"}
               </a>
-              <button type="button" class="zoom-btn" onclick="window.print()" style="padding:6px 12px; font-size:12px;">
-                🖨️ ${isDe ? "Prüfprotokoll drucken" : "Print Protocol"}
+              <button type="button" class="zoom-btn" onclick="window.print()" style="padding:6px 12px; font-size:12px; display:inline-flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-print"></i> ${isDe ? "Prüfprotokoll drucken" : "Print Protocol"}
               </button>
             </div>
           </div>

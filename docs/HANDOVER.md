@@ -100,9 +100,17 @@ Done:
 - Upgraded header to RedLine's Two-Tier Standard: Tier 1 (56px utility bar with Spickzettel F1 modal, live bridge status, theme toggle, language switch, operator badge) and Tier 2 (40px navigation strip with folder-pill tabs and 4 clickable Executive KPI chips).
 - Overhauled Document Audit (Tab 1): integrated proportional auto-fit engine (`fitWidth`, `fitPage`), empty intake dropzone, `Ctrl+V` clipboard paste listener, `Unterstützte Belege ▾` popover, and dismissible document flow (`Entfernen` button).
 - Validated all 75 automated test assertions passing across all 14 test suites with 0 regressions.
+- Recorded Decision D-016 in `docs/DECISIONS.md`.
+- Implemented and verified Slice 16: 100% Full-Width Layout Harmonization, State Desync Resolution, Emoji Purge & Complete Localization (`src/public/css/layout.css`, `src/public/js/navigation.js`, `src/views/documentAudit.ts`, `src/views/reconciliation.ts`, `src/views/quarantine.ts`, `src/views/dispatch.ts`, `src/views/ledger.ts`, `src/views/layout.ts`, `src/services/customsAuditor.ts`).
+- Eradicated 35–40% dead black void on Tabs 2, 3, 4, and 5 by configuring `.cockpit-main-workspace` to `flex-direction: column !important;` and forcing `.reconciliation-workspace-container`, `.quarantine-workspace-container`, `.dispatch-workspace-container`, `.ledger-workspace-container` and all internal cards to 100% viewport width with internal vertical scrolling.
+- Resolved Tab 1 impossible state contradiction: toggling between `#audit-results-panel` and `#audit-idle-guide`, hiding zoom toolbar (`#canvas-zoom-bar`) and clear button (`#btn-clear-doc`) when no document is loaded, and synchronizing empty dropzone state.
+- Fixed theme toggle indicator inversion: Moon icon and `Modus: Dunkel` / `Mode: Dark` in Dark Mode, Sun icon and `Modus: Hell` / `Mode: Light` in Light Mode.
+- Completely purged all decorative emojis across views, replacing them with crisp FontAwesome utility icons (`fa-scale-balanced`, `fa-triangle-exclamation`, `fa-file-contract`, `fa-building-columns`, `fa-truck`, `fa-bolt`, `fa-shield-halved`, etc.).
+- Completed English localization across all 5 operational cockpits (slot states, table columns, unassessed customs values, package types, and modal claims).
+- Validated all 75 automated test assertions passing across all 14 test suites with 0 regressions.
 
 In progress:
-- All 15 operational slices complete, tested, and running live.
+- All 16 operational slices complete, verified, and running live.
 
 Broken or risky:
 - None. All 75 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.

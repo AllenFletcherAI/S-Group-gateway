@@ -60,11 +60,11 @@ export function renderDispatchView(
   const getModeBadge = (mode: string) => {
     switch (mode) {
       case "ROAD_FEEDER":
-        return `<span class="mode-badge mode-road">🚛 ${isDe ? "LKW-Hauptlauf" : "Road Feeder"}</span>`;
+        return `<span class="mode-badge mode-road"><i class="fa-solid fa-truck"></i> ${isDe ? "LKW-Hauptlauf" : "Road Feeder"}</span>`;
       case "RAIL_INTERMODAL":
-        return `<span class="mode-badge mode-rail">🚆 ${isDe ? "Güterbahn-Shuttle" : "Intermodal Rail"}</span>`;
+        return `<span class="mode-badge mode-rail"><i class="fa-solid fa-train"></i> ${isDe ? "Güterbahn-Shuttle" : "Intermodal Rail"}</span>`;
       case "BARGE_INLAND":
-        return `<span class="mode-badge mode-barge">🚢 ${isDe ? "Binnenschiff" : "Inland Barge"}</span>`;
+        return `<span class="mode-badge mode-barge"><i class="fa-solid fa-ship"></i> ${isDe ? "Binnenschiff" : "Inland Barge"}</span>`;
       default:
         return `<span class="mode-badge">${mode}</span>`;
     }
@@ -88,7 +88,7 @@ export function renderDispatchView(
   const tourCardsHtml = tours.length === 0
     ? `
       <div class="empty-tours-card">
-        <p class="empty-icon">🚛</p>
+        <p class="empty-icon"><i class="fa-solid fa-truck" style="font-size:32px; color:var(--color-text-muted);"></i></p>
         <p class="empty-title"><strong>${isDe ? "Keine Touren gefunden" : "No Tours Found"}</strong></p>
         <p class="empty-desc">${isDe ? "Für die gewählten Filterkriterien liegen keine disponierten Fahrten vor." : "No scheduled tours match the selected filter criteria."}</p>
         <p><a href="/portal/dispatch?lang=${lang}" class="btn-doc-download" style="margin-top:12px;">${isDe ? "Alle Filter zurücksetzen" : "Reset All Filters"}</a></p>
@@ -111,19 +111,19 @@ export function renderDispatchView(
         });
 
         const assignedHtml = tour.assignedShipments.length > 0
-          ? tour.assignedShipments.map((shp) => `<a href="/portal/tracking?id=${shp}&lang=${lang}" class="shipment-code-chip" title="${isDe ? 'Sendung verfolgen' : 'Track shipment'}">📦 ${shp}</a>`).join(" ")
+          ? tour.assignedShipments.map((shp) => `<a href="/portal/tracking?id=${shp}&lang=${lang}" class="shipment-code-chip" title="${isDe ? 'Sendung verfolgen' : 'Track shipment'}"><i class="fa-solid fa-box"></i> ${shp}</a>`).join(" ")
           : `<span class="text-muted" style="font-size:12px;">${isDe ? "Keine Sendungen zugeordnet" : "No shipments assigned"}</span>`;
 
         const adrNoticeHtml = tour.adrHazardousClass
           ? `<div class="adr-alert-box">
-              <span class="adr-icon">⚠️</span>
+              <span class="adr-icon"><i class="fa-solid fa-triangle-exclamation"></i></span>
               <div>
                 <strong>ADR-Gefahrgutdeklaration:</strong>
                 <p>${tour.adrHazardousClass}</p>
               </div>
             </div>`
           : `<div class="adr-safe-box">
-              <span class="adr-safe-icon">✓</span>
+              <span class="adr-safe-icon"><i class="fa-solid fa-check"></i></span>
               <span>${isDe ? "Standardladung (Gefahrgutfrei / Keine ADR-Restriktionen)" : "Standard Freight (Non-hazardous / No ADR restrictions)"}</span>
             </div>`;
 
@@ -142,14 +142,14 @@ export function renderDispatchView(
             <h3 class="tour-title">${isDe ? tour.tourTitleDe : tour.tourTitleEn}</h3>
 
             <div class="tour-corridor-box">
-              <span class="corridor-icon">➔</span>
+              <span class="corridor-icon"><i class="fa-solid fa-arrow-right"></i></span>
               <strong class="corridor-text">${tour.corridor}</strong>
             </div>
 
             <div class="tour-meta-grid">
               <div class="tour-meta-item">
                 <span class="meta-label">${isDe ? "Fahrzeug / Einheit:" : "Vehicle / Unit:"}</span>
-                <span class="meta-val">🚚 ${tour.vehicleIdentifier}</span>
+                <span class="meta-val"><i class="fa-solid fa-truck"></i> ${tour.vehicleIdentifier}</span>
               </div>
               <div class="tour-meta-item">
                 <span class="meta-label">${isDe ? "Fahrpersonal (DSGVO):" : "Crew (GDPR Token):"}</span>
@@ -157,11 +157,11 @@ export function renderDispatchView(
               </div>
               <div class="tour-meta-item">
                 <span class="meta-label">${isDe ? "Abfahrt (Soll):" : "Departure (ETD):"}</span>
-                <span class="meta-val">⏱️ ${depFormatted}</span>
+                <span class="meta-val"><i class="fa-regular fa-clock"></i> ${depFormatted}</span>
               </div>
               <div class="tour-meta-item">
                 <span class="meta-label">${isDe ? "Ankunft (Geschätzt):" : "Arrival (ETA):"}</span>
-                <span class="meta-val">🏁 ${arrFormatted}</span>
+                <span class="meta-val"><i class="fa-solid fa-flag-checkered"></i> ${arrFormatted}</span>
               </div>
             </div>
 
@@ -211,7 +211,7 @@ export function renderDispatchView(
       <div class="hero-header">
         <div>
           <div class="shipment-id-badge-row">
-            <span class="carrier-chip carrier-schenker">🚛 ${isDe ? "Tourendisposition & Zubringernetz" : "Feeder Dispatch & Network"}</span>
+            <span class="carrier-chip carrier-schenker"><i class="fa-solid fa-truck"></i> ${isDe ? "Tourendisposition & Zubringernetz" : "Feeder Dispatch & Network"}</span>
             <h1 class="hero-title" style="display:inline; margin-left: 8px;">
               ${isDe ? "Disposition & Zubringer-Tourenplanung" : "Dispatch & Feeder Fleet Planning"}
             </h1>
@@ -230,7 +230,7 @@ export function renderDispatchView(
         <div class="metric-card">
           <div class="metric-header">
             <span class="metric-label">${isDe ? "Aktive Touren" : "Total Tours"}</span>
-            <span class="metric-icon">🚛</span>
+            <span class="metric-icon"><i class="fa-solid fa-truck"></i></span>
           </div>
           <div class="metric-value">${totalTours}</div>
           <p class="metric-footer">${isDe ? `${enRouteTours} Fahrzeuge im Zulauf` : `${enRouteTours} vehicles en route`}</p>
@@ -239,7 +239,7 @@ export function renderDispatchView(
         <div class="metric-card">
           <div class="metric-header">
             <span class="metric-label">${isDe ? "Paletten-Auslastung" : "Pallet Utilization"}</span>
-            <span class="metric-icon">📊</span>
+            <span class="metric-icon"><i class="fa-solid fa-chart-simple"></i></span>
           </div>
           <div class="metric-value">${palletUtilPercent}%</div>
           <p class="metric-footer">${totalLoadedPallets} / ${totalMaxPallets} ${isDe ? "Stellplätze belegt" : "bays allocated"}</p>
@@ -248,7 +248,7 @@ export function renderDispatchView(
         <div class="metric-card">
           <div class="metric-header">
             <span class="metric-label">${isDe ? "Gewichts-Auslastung" : "Payload Utilization"}</span>
-            <span class="metric-icon">⚖️</span>
+            <span class="metric-icon"><i class="fa-solid fa-scale-balanced"></i></span>
           </div>
           <div class="metric-value">${weightUtilPercent}%</div>
           <p class="metric-footer">${(totalLoadedKg / 1000).toFixed(1)}t / ${(totalMaxKg / 1000).toFixed(1)}t ${isDe ? "Nutzlast" : "gross weight"}</p>
@@ -257,7 +257,7 @@ export function renderDispatchView(
         <div class="metric-card">
           <div class="metric-header">
             <span class="metric-label">${isDe ? "DSGVO & ADR-Schutz" : "GDPR & ADR Compliance"}</span>
-            <span class="metric-icon">🛡️</span>
+            <span class="metric-icon"><i class="fa-solid fa-shield-halved"></i></span>
           </div>
           <div class="metric-value">100%</div>
           <p class="metric-footer">${isDe ? "Art. 5 DSGVO Pseudonyme" : "Art. 5 GDPR Pseudonymized"}</p>
@@ -304,7 +304,7 @@ export function renderDispatchView(
       <aside class="dispatch-action-column">
         <div class="portal-details-card dispatch-assign-box">
           <h2 class="section-title">
-            <span>📦</span> ${isDe ? "Sendung zu Tour disponieren" : "Assign Freight to Tour"}
+            <i class="fa-solid fa-box" style="margin-right:8px; color:var(--color-signal-blue);"></i> ${isDe ? "Sendung zu Tour disponieren" : "Assign Freight to Tour"}
           </h2>
           <p class="card-subtitle">
             ${isDe ? "Buchen Sie ankommende Seehafen-Fracht auf geplante Zubringer-Touren. Die physikalischen Stellplatz- und Nutzlastgrenzen werden in Echtzeit geprüft (D-008)." : "Allocate incoming seaport shipments to planned feeder tours. Physical pallet limits and payload bounds are validated in real time (D-008)."}
@@ -370,8 +370,8 @@ export function renderDispatchView(
               </div>
             </div>
 
-            <button type="submit" id="btn-submit-assignment" class="btn-primary-action" style="width: 100%; margin-top: var(--space-4);">
-              <span>⚡</span> ${isDe ? "Fracht verbindlich disponieren" : "Confirm Tour Booking"}
+            <button type="submit" id="btn-submit-assignment" class="btn-primary-action" style="width: 100%; margin-top: var(--space-4); display:flex; align-items:center; justify-content:center; gap:8px;">
+              <i class="fa-solid fa-bolt"></i> ${isDe ? "Fracht verbindlich disponieren" : "Confirm Tour Booking"}
             </button>
           </form>
 
@@ -379,7 +379,7 @@ export function renderDispatchView(
 
           <!-- Dispatch Guardrail Notice -->
           <div class="guardrail-notice-box" style="margin-top: var(--space-4);">
-            <p><strong>🛡️ ${isDe ? "Sicherheits- & Kapazitätsrichtlinie:" : "Safety & Capacity Rules:"}</strong></p>
+            <p><strong><i class="fa-solid fa-shield-halved"></i> ${isDe ? "Sicherheits- & Kapazitätsrichtlinie:" : "Safety & Capacity Rules:"}</strong></p>
             <ul style="margin-left: 18px; font-size: 12px; line-height: 1.6; color: var(--color-text-muted);">
               <li>${isDe ? "Maximale Überladung wird mit HTTP 400 'Capacity Overload' abgewiesen." : "Overloading is rejected with HTTP 400 'Capacity Overload'."}</li>
               <li>${isDe ? "Fahrerdaten werden gemäß Art. 5 DSGVO ausschließlich pseudonymisiert dargestellt." : "Driver profiles are strictly pseudonymized pursuant to Art. 5 DSGVO."}</li>

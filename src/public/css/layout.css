@@ -2494,20 +2494,60 @@ html, body.s-group-cockpit {
   margin: 0 !important;
   padding: 0 !important;
   display: flex !important;
+  flex-direction: column !important;
   overflow: hidden !important;
   background: #070B12;
 }
 
 /* Tab 1 Split Workspace */
 .split-audit-workspace {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  max-height: 100%;
-  overflow: hidden;
+  display: flex !important;
+  flex-direction: row !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
   border: none;
   border-radius: 0;
   box-shadow: none;
+  flex: 1 !important;
+}
+
+/* Full Viewport Workspace Containers for Tabs 2, 3, 4, 5 (Eliminates Right-Side Black Void) */
+.reconciliation-workspace-container,
+#reconciliation-workspace,
+.quarantine-workspace-container,
+#quarantine-workspace,
+.dispatch-workspace-container,
+#dispatch-workspace,
+.ledger-workspace-container,
+#ledger-workspace {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  overflow-y: auto !important;
+  padding: 20px 24px !important;
+  box-sizing: border-box !important;
+  flex: 1 !important;
+  background: #070B12;
+  border-radius: 0 !important;
+  border: none !important;
+}
+
+/* Ensure all internal cards inside workspaces expand full width */
+.reconciliation-workspace-container .portal-details-card,
+#reconciliation-workspace.portal-details-card,
+.quarantine-workspace-container .portal-details-card,
+#quarantine-workspace.portal-details-card,
+.dispatch-workspace-container .portal-hero-card,
+.dispatch-workspace-container .telematics-map-card,
+.dispatch-workspace-container .dispatch-layout-container,
+.ledger-workspace-container .portal-details-card,
+#ledger-workspace.portal-details-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .audit-pane-left {

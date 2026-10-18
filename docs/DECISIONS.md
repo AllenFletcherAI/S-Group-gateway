@@ -238,5 +238,30 @@ Plain Reason Why:
 What We Gave Up: Consumer-style long scrolling footer (replaced with compliance metadata tags in header and modal footer).
 Revisit If: Touchscreen tablet deployment requires mobile touch gestures over keyboard shortcuts.
 
+## D-016: 100% Full-Width Layout Harmonization, State Desynchronization Resolution, Emoji Purge & Complete Localization
+Date: 2026-10-18  Model: Gemini 3.8 Flash (High)
+Problem Context: Inspection of the live gateway across widescreen viewports (1920x1080) revealed five critical operational defects:
+  1) Tabs 2, 3, 4, and 5 exhibited a 35–40% dead black void on the right because `.cockpit-main-workspace` defaulted to `flex-direction: row` without 100% width on child views.
+  2) Tab 1 had an impossible state contradiction: clearing the document showed the empty dropzone on the left but left the completed 5-stage verification results for `MSKU7829104` and the zoom controls bar visible on the right.
+  3) Duplicate sample buttons existed in both the empty dropzone and a floating bar at the bottom.
+  4) The theme toggle indicator was inverted in dark mode (showing a Sun icon and "Mode: Light" while the interface was dark).
+  5) The UI contained decorative emoji clutter and mixed German/English strings ("Denglisch").
+Options Looked At:
+  1) Ad-hoc inline CSS patches and hiding elements with opacity (fragile, leaves layout shifts and broken tab widths).
+  2) Complete redesign of stylesheets from scratch (risks breaking regression test assertions for existing slices).
+  3) Targeted Flexbox direction fix (`flex-direction: column !important;` on `.cockpit-main-workspace`), dedicated 100% workspace containers (`.reconciliation-workspace-container`, etc.), bidirectional state syncing (`resetDocument()` toggling `#audit-results-panel` vs `#audit-idle-guide`), FontAwesome icon standardization, and complete English localization (Chosen).
+What We Chose: Option 3
+Plain Reason Why:
+  - 100% Full-Viewport Expansion: Setting `.cockpit-main-workspace { flex-direction: column !important; }` allows all tab workspaces (`.reconciliation-workspace-container`, `.quarantine-workspace-container`, `.dispatch-workspace-container`, `.ledger-workspace-container`) and internal cards to stretch across 100% width with internal scrolling, completely eradicating the 35–40% black void.
+  - Bidirectional State Synchronization: When a document is cleared, `#audit-results-panel`, `#canvas-zoom-bar`, and `#btn-clear-doc` are hidden, and `#audit-idle-guide` (onboarding instructions + bridge readiness indicators) is displayed. When a document is loaded, `#audit-idle-guide` is hidden and `#audit-results-panel` is displayed with the active document's metadata.
+  - Redundant Control Removal: Deleted the duplicate bottom sample document bar so sample selection is unified in the empty dropzone.
+  - Theme Toggle Correction: In Dark Mode, the button displays a Moon icon and `Modus: Dunkel` / `Mode: Dark`. In Light Mode, it displays a Sun icon and `Modus: Hell` / `Mode: Light`.
+  - Professional Typography: Replaced all emojis with crisp FontAwesome utility icons (`fa-scale-balanced`, `fa-triangle-exclamation`, `fa-file-contract`, `fa-building-columns`, `fa-truck`, etc.).
+  - Pure English Localization: Translated all table headers, slot states (`LOADED`, `MATCH`, `CLEARED`), modal notices, and tooltips when `lang=en`.
+  - Zero Test Regressions: All 75 automated test assertions across 14 test suites continue to pass with 100% accuracy.
+What We Gave Up: Ad-hoc emoji iconography in production interfaces.
+Revisit If: Customer requests custom branding colors or third-party theme extensions.
+
+
 
 

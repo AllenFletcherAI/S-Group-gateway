@@ -37,8 +37,8 @@ export function renderReconciliationView(options: ReconciliationViewOptions = {}
     const deltaText = isDe ? row.deltaTextDe : row.deltaTextEn;
     const isFail = row.severity === "CRITICAL_FAIL" || row.severity === "WARNING";
     const statusPill = row.matched
-      ? `<span class="stage-badge-pill pass">✓ ${isDe ? "KONFORM" : "MATCH"}</span>`
-      : `<span class="stage-badge-pill hold">🚨 ${deltaText}</span>`;
+      ? `<span class="stage-badge-pill pass"><i class="fa-solid fa-check"></i> ${isDe ? "KONFORM" : "MATCH"}</span>`
+      : `<span class="stage-badge-pill hold"><i class="fa-solid fa-triangle-exclamation"></i> ${deltaText}</span>`;
 
     return `
       <tr style="${isFail ? "background:rgba(239,68,68,0.06);" : ""}">
@@ -52,13 +52,14 @@ export function renderReconciliationView(options: ReconciliationViewOptions = {}
   }).join("\n");
 
   return `
-    <div class="portal-details-card" id="reconciliation-workspace">
+    <div class="reconciliation-workspace-container" id="reconciliation-workspace">
+      <div class="portal-details-card" style="width:100%; max-width:100%; box-sizing:border-box;">
       
       <!-- Top Title & Operational Standards Bar -->
       <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px; border-bottom:1px solid var(--color-border-slate); padding-bottom:16px;">
         <div>
           <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:20px;">⚖️</span>
+            <i class="fa-solid fa-scale-balanced" style="font-size:20px; color:var(--color-signal-blue);"></i>
             <h1 class="section-title" style="margin:0;">
               ${isDe ? "Deterministischer 3-Wege-Zollabgleich (§ ATLAS 9.1 & ADSp 2017)" : "Deterministic 3-Way Customs Reconciliation"}
             </h1>
@@ -85,16 +86,16 @@ export function renderReconciliationView(options: ReconciliationViewOptions = {}
           <a
             href="/portal/reconcile?sample=clean&lang=${lang}"
             class="btn-scenario ${!isDiscrepancy ? "clean" : ""}"
-            style="text-decoration:none;"
+            style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;"
           >
-            ✅ ${isDe ? "Konformes Dossier (Szenario A - Clean)" : "Compliant Dossier (Scenario A - Clean)"}
+            <i class="fa-solid fa-circle-check"></i> ${isDe ? "Konformes Dossier (Szenario A - Clean)" : "Compliant Dossier (Scenario A - Clean)"}
           </a>
           <a
             href="/portal/reconcile?sample=discrepancy&lang=${lang}"
             class="btn-scenario ${isDiscrepancy ? "trap" : ""}"
-            style="text-decoration:none;"
+            style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;"
           >
-            ⚠️ ${isDe ? "Demurrage-Falle (Szenario B - +220 kg Abweichung)" : "Demurrage Trap (Scenario B - +220 kg Discrepancy)"}
+            <i class="fa-solid fa-triangle-exclamation"></i> ${isDe ? "Demurrage-Falle (Szenario B - +220 kg Abweichung)" : "Demurrage Trap (Scenario B - +220 kg Discrepancy)"}
           </a>
         </div>
         <div style="font-size:12px; color:var(--color-text-muted);">
@@ -109,9 +110,9 @@ export function renderReconciliationView(options: ReconciliationViewOptions = {}
           <div style="display:flex; align-items:center; justify-content:space-between;">
             <div style="display:flex; align-items:center; gap:8px;">
               <span class="slot-dot active"></span>
-              <strong style="font-size:13px; color:#F1F5F9;">1. Frachturkunde (B/L)</strong>
+              <strong style="font-size:13px; color:#F1F5F9;">${isDe ? "1. Frachturkunde (B/L)" : "1. Bill of Lading (B/L)"}</strong>
             </div>
-            <span class="stage-badge-pill pass">GELADEN</span>
+            <span class="stage-badge-pill pass">${isDe ? "GELADEN" : "LOADED"}</span>
           </div>
           <div style="font-size:11.5px; color:#94A3B8; margin-top:4px;">
             ${isDe ? "Frachtvertrag & SOLAS VGM Verwiegung" : "Contract of carriage & SOLAS VGM weight"}
@@ -126,9 +127,9 @@ export function renderReconciliationView(options: ReconciliationViewOptions = {}
           <div style="display:flex; align-items:center; justify-content:space-between;">
             <div style="display:flex; align-items:center; gap:8px;">
               <span class="slot-dot active"></span>
-              <strong style="font-size:13px; color:#F1F5F9;">2. Handelsrechnung</strong>
+              <strong style="font-size:13px; color:#F1F5F9;">${isDe ? "2. Handelsrechnung" : "2. Commercial Invoice"}</strong>
             </div>
-            <span class="stage-badge-pill pass">GELADEN</span>
+            <span class="stage-badge-pill pass">${isDe ? "GELADEN" : "LOADED"}</span>
           </div>
           <div style="font-size:11.5px; color:#94A3B8; margin-top:4px;">
             ${isDe ? "Zollwert, Währung & Incoterms" : "Customs value, currency & Incoterms"}
@@ -143,10 +144,10 @@ export function renderReconciliationView(options: ReconciliationViewOptions = {}
           <div style="display:flex; align-items:center; justify-content:space-between;">
             <div style="display:flex; align-items:center; gap:8px;">
               <span class="slot-dot active" style="${isDiscrepancy ? "background:#EF4444;" : ""}"></span>
-              <strong style="font-size:13px; color:#F1F5F9;">3. Packliste / ATLAS</strong>
+              <strong style="font-size:13px; color:#F1F5F9;">${isDe ? "3. Packliste / ATLAS" : "3. Packing List / ATLAS"}</strong>
             </div>
             <span class="stage-badge-pill ${isDiscrepancy ? "hold" : "pass"}">
-              ${isDiscrepancy ? "WARNUNG" : "GELADEN"}
+              ${isDiscrepancy ? (isDe ? "WARNUNG" : "WARNING") : (isDe ? "GELADEN" : "LOADED")}
             </span>
           </div>
           <div style="font-size:11.5px; color:#94A3B8; margin-top:4px;">
@@ -165,7 +166,7 @@ export function renderReconciliationView(options: ReconciliationViewOptions = {}
           : "background:rgba(239,68,68,0.12); border:1px solid #DC2626;"
       }">
         <div style="display:flex; align-items:center; gap:12px;">
-          <span style="font-size:24px;">${result.status === "PERFECT_MATCH" ? "🛡️" : "🚨"}</span>
+          <span style="font-size:24px;">${result.status === "PERFECT_MATCH" ? '<i class="fa-solid fa-shield-halved" style="color:#10B981;"></i>' : '<i class="fa-solid fa-triangle-exclamation" style="color:#EF4444;"></i>'}</span>
           <div>
             <h3 style="font-size:16px; font-weight:800; margin:0; color:${result.status === "PERFECT_MATCH" ? "#10B981" : "#EF4444"};">
               ${result.status === "PERFECT_MATCH" 
@@ -188,12 +189,12 @@ export function renderReconciliationView(options: ReconciliationViewOptions = {}
           ${result.status === "PERFECT_MATCH" 
             ? `
               <a href="/portal/ledger?lang=${lang}" class="btn-scenario clean" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
-                📜 ${isDe ? "GoBD-Zertifikat ausstellen" : "Issue GoBD Certificate"}
+                <i class="fa-solid fa-file-contract"></i> ${isDe ? "GoBD-Zertifikat ausstellen" : "Issue GoBD Certificate"}
               </a>
             ` 
             : `
               <a href="/portal/quarantine?lang=${lang}" class="btn-scenario trap" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
-                ⚠️ ${isDe ? "In Quarantäne-Konsole öffnen" : "Open in Quarantine Console"}
+                <i class="fa-solid fa-triangle-exclamation"></i> ${isDe ? "In Quarantäne-Konsole öffnen" : "Open in Quarantine Console"}
               </a>
             `
           }
@@ -221,7 +222,7 @@ export function renderReconciliationView(options: ReconciliationViewOptions = {}
       <!-- Demurrage Savings Footnote -->
       <div style="margin-top:16px; padding:12px; background:rgba(2,132,199,0.06); border:1px solid rgba(2,132,199,0.2); border-radius:8px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; font-size:12px;">
         <div style="display:flex; align-items:center; gap:8px;">
-          <span>💡</span>
+          <i class="fa-solid fa-lightbulb" style="color:var(--color-signal-blue);"></i>
           <span>
             ${isDe 
               ? "<strong>Präventiver Demurrage-Schutz:</strong> Durch automatische Vorerfassung vor Hafeneinfahrt (Hamburg CTA/CTB) werden Liegegelder von durchschnittlich <strong>180 € bis 450 € pro Tag</strong> pro Container vermieden." 
@@ -233,6 +234,7 @@ export function renderReconciliationView(options: ReconciliationViewOptions = {}
         </span>
       </div>
 
+      </div>
     </div>
   `;
 }
