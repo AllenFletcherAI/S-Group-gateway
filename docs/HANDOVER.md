@@ -130,9 +130,18 @@ Done:
 - Turned Tab 2 into a working operational intake: added individual file dropzones and upload triggers to all 3 intake bays (B/L, Invoice, Packing List) with real-time 3-way matrix cross-evaluation.
 - Added live SAP IDoc XML export download capability in Tab 5 IT Console, dynamically generating valid DESADV payloads for verified shipments.
 - Automated test suite remains **78/78 tests passing** with 0 regressions, clean compilation, and active server daemon running.
+- Recorded Decision D-020 in `docs/DECISIONS.md`.
+- Implemented and verified Slice 20: Hick's Law Harmonization, Cognitive Load Reduction & Operational Streamlining Across Tabs 1–5 (`src/views/layout.ts`, `src/views/documentAudit.ts`, `src/views/reconciliation.ts`, `src/views/quarantine.ts`, `src/views/dispatch.ts`, `src/views/ledger.ts`, `src/public/js/navigation.js`).
+- Resolved header subtitle duplication (`SCHÄFER & SIS INTERLOGISTIK • SCHÄFER & SIS INTERLOGISTIK GMBH`).
+- Tab 1: Demoted toolbar upload button during idle state leaving dropzone as the single dominant CTA; expanded `#audit-idle-guide` to cover all 5 validation gates.
+- Tab 2: Added dominant `#btn-run-reconcile` action, demoted scenario toggles, compacted bay heights to prevent table cutoffs.
+- Tab 3: Removed redundant top-header ADSp claim button, diversified row discrepancy reasons (VGM, ADR, Missing Invoice, Modulo-11), and fixed language leak.
+- Tab 4: Added workspace sub-view switcher (`[Live Telemetrie-Korridor]` | `[Zubringer-Tourenplan]` | `[Kombinierte Ansicht]`) so corridor map does not bury fleet dispatch table.
+- Tab 5: Removed redundant top-header certificate button, added workspace sub-view switcher (`[Audit-Ledger]` | `[IT-Konsole & ERP]` | `[Gesamtansicht]`).
+- All 78 tests passing across 15 suites, daemon running cleanly on port 3000.
 
 In progress:
-- All 19 operational slices complete, verified, and running live.
+- All 20 operational slices complete, verified, and running live.
 
 Broken or risky:
 - None. All 78 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.

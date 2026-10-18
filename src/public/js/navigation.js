@@ -380,6 +380,8 @@ function displayLoadedImage(srcUrl, fileName, fileSize) {
   if (copyShaBtn) copyShaBtn.style.display = "inline-flex";
   if (zoomBar) zoomBar.style.display = "flex";
   if (clearBtn) clearBtn.style.display = "inline-flex";
+  const toolbarUpload = document.getElementById("btn-toolbar-upload");
+  if (toolbarUpload) toolbarUpload.style.display = "inline-flex";
   if (idleGuide) idleGuide.style.display = "none";
   if (resultsPanel) resultsPanel.style.display = "flex";
 
@@ -397,6 +399,7 @@ window.resetDocument = function () {
   const copyShaBtn = document.getElementById("btn-copy-sha");
   const zoomBar = document.getElementById("canvas-zoom-bar");
   const clearBtn = document.getElementById("btn-clear-doc");
+  const toolbarUpload = document.getElementById("btn-toolbar-upload");
   const idleGuide = document.getElementById("audit-idle-guide");
   const resultsPanel = document.getElementById("audit-results-panel");
 
@@ -409,6 +412,7 @@ window.resetDocument = function () {
   if (copyShaBtn) copyShaBtn.style.display = "none";
   if (zoomBar) zoomBar.style.display = "none";
   if (clearBtn) clearBtn.style.display = "none";
+  if (toolbarUpload) toolbarUpload.style.display = "none";
   if (resultsPanel) resultsPanel.style.display = "none";
   if (idleGuide) idleGuide.style.display = "flex";
 
@@ -703,6 +707,35 @@ function renderReconciliationResult(result) {
   tbody.innerHTML = rowsHtml;
 }
 
+window.trigger3WayReconcile = async function () {
+  const isDe = (document.documentElement.getAttribute("lang") || "de") === "de";
+  const btn = document.getElementById("btn-run-reconcile");
+  if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + (isDe ? "Prüfe Dossier..." : "Auditing Dossier...");
+
+  try {
+    const recRes = await fetch("/api/v1/customs/reconcile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        shipmentId: currentReconcileState.shipmentId,
+        bol: currentReconcileState.bol,
+        atlas: currentReconcileState.atlas,
+        invoice: currentReconcileState.invoice,
+        lang: isDe ? "de" : "en"
+      })
+    });
+
+    if (recRes.ok) {
+      const recData = await recRes.json();
+      renderReconciliationResult(recData);
+    }
+  } catch (err) {
+    console.error("Reconcile audit error:", err);
+  } finally {
+    if (btn) btn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> ' + (isDe ? "3-Wege-Abgleich ausführen" : "Execute 3-Way Audit");
+  }
+};
+
 // ============================================================================
 // 7. MODALS (ADSp Claim Notice, Customs Certificate, Supervisor Override)
 // ============================================================================
@@ -919,9 +952,94 @@ window.refreshKpiRibbon = async function () {
   } catch (e) {}
 };
 
-// Initialize KPI Ribbon on page load
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", window.refreshKpiRibbon);
-} else {
+// Tab 4 Workspace View Switcher (Hick's Law: Progressive Disclosure)
+window.toggleDispatchView = function (mode) {
+  const mapWrap = document.getElementById("dispatch-map-view-wrapper");
+  const toursWrap = document.getElementById("dispatch-tours-view-wrapper");
+  const btnMap = document.getElementById("tab4-view-map-btn");
+  const btnTours = document.getElementById("tab4-view-tours-btn");
+  const btnSplit = document.getElementById("tab4-view-split-btn");
+
+  const resetBtn = function (btn) {
+    if (!btn) return;
+    btn.style.background = "";
+    btn.style.color = "";
+    btn.style.borderColor = "";
+  };
+  const setBtnActive = function (btn) {
+    if (!btn) return;
+    btn.style.background = "#0284C7";
+    btn.style.color = "#FFFFFF";
+    btn.style.borderColor = "#38BDF8";
+  };
+
+  [btnMap, btnTours, btnSplit].forEach(resetBtn);
+
+  if (mode === "map") {
+    if (mapWrap) mapWrap.style.display = "block";
+    if (toursWrap) toursWrap.style.display = "none";
+    setBtnActive(btnMap);
+  } else if (mode === "tours") {
+    if (mapWrap) mapWrap.style.display = "none";
+    if (toursWrap) toursWrap.style.display = "block";
+    setBtnActive(btnTours);
+  } else {
+    // split / combined
+    if (mapWrap) mapWrap.style.display = "block";
+    if (toursWrap) toursWrap.style.display = "block";
+    setBtnActive(btnSplit);
+  }
+};
+
+// Tab 5 Workspace View Switcher (Hick's Law: Focus on Ledger vs. IT Connectors)
+window.toggleLedgerView = function (mode) {
+  const tableSec = document.getElementById("ledger-table-section");
+  const itSec = document.getElementById("ledger-it-section");
+  const btnLedger = document.getElementById("tab5-view-ledger-btn");
+  const btnIt = document.getElementById("tab5-view-it-btn");
+  const btnAll = document.getElementById("tab5-view-all-btn");
+
+  const resetBtn = function (btn) {
+    if (!btn) return;
+    btn.style.background = "";
+    btn.style.color = "";
+    btn.style.borderColor = "";
+  };
+  const setBtnActive = function (btn) {
+    if (!btn) return;
+    btn.style.background = "#0284C7";
+    btn.style.color = "#FFFFFF";
+    btn.style.borderColor = "#38BDF8";
+  };
+
+  [btnLedger, btnIt, btnAll].forEach(resetBtn);
+
+  if (mode === "it") {
+    if (tableSec) tableSec.style.display = "none";
+    if (itSec) itSec.style.display = "block";
+    setBtnActive(btnIt);
+  } else if (mode === "all") {
+    if (tableSec) tableSec.style.display = "block";
+    if (itSec) itSec.style.display = "block";
+    setBtnActive(btnAll);
+  } else {
+    // ledger focus
+    if (tableSec) tableSec.style.display = "block";
+    if (itSec) itSec.style.display = "none";
+    setBtnActive(btnLedger);
+  }
+};
+
+// Initialize KPI Ribbon and Tab Views on page load
+function initPageWorkspace() {
   window.refreshKpiRibbon();
+  if (document.getElementById("tab5-view-ledger-btn")) {
+    window.toggleLedgerView("ledger");
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initPageWorkspace);
+} else {
+  initPageWorkspace();
 }

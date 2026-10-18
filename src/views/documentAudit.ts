@@ -44,8 +44,8 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
           </div>
 
           <div class="canvas-controls-group">
-            <!-- Upload new document -->
-            <button type="button" class="zoom-btn" onclick="document.getElementById('audit-file-input').click()" style="background:#0284C7; color:#FFFFFF; border-color:#38BDF8;" title="${isDe ? "Neuen Beleg hochladen" : "Upload new document"}">
+            <!-- Upload new document (shown when document loaded) -->
+            <button type="button" id="btn-toolbar-upload" class="zoom-btn" onclick="document.getElementById('audit-file-input').click()" style="display:none; background:#0284C7; color:#FFFFFF; border-color:#38BDF8;" title="${isDe ? "Neuen Beleg hochladen" : "Upload new document"}">
               <i class="fa-solid fa-arrow-up-from-bracket"></i>
               <span>${isDe ? "Neuer Import" : "Upload"}</span>
             </button>
@@ -109,7 +109,7 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
           </div>
 
           <!-- Empty State Dropzone -->
-          <div id="audit-empty-dropzone" style="display:block; text-align:center; padding:32px 24px; max-width:420px; background:#0B1322; border:2px dashed #2A3B55; border-radius:14px; margin:auto;">
+          <div id="audit-empty-dropzone" style="display:block; text-align:center; padding:32px 24px; max-width:440px; background:#0B1322; border:2px dashed #2A3B55; border-radius:14px; margin:auto;">
             <div style="margin-bottom:12px; color:#38BDF8; font-size:32px;">
               <i class="fa-solid fa-cloud-arrow-up"></i>
             </div>
@@ -119,7 +119,7 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
             <p style="font-size:12px; color:#94A3B8; margin:0 0 16px 0;">
               ${isDe ? "Frachtbrief, Handelsrechnung oder Packliste hierher ziehen oder auswählen." : "Drag and drop waybill, invoice, or packing list here."}
             </p>
-            <button type="button" class="btn-scenario clean" onclick="document.getElementById('audit-file-input').click()" style="margin-bottom:12px; display:inline-flex; align-items:center; gap:8px;">
+            <button type="button" class="btn-scenario clean" onclick="document.getElementById('audit-file-input').click()" style="margin-bottom:12px; display:inline-flex; align-items:center; gap:8px; font-weight:700; background:#0284C7; border-color:#38BDF8; color:#FFFFFF;">
               <i class="fa-solid fa-folder-open"></i>
               <span>${isDe ? "Dateien auswählen (PDF, PNG, JPG)" : "Choose Files (PDF, PNG, JPG)"}</span>
             </button>
@@ -129,8 +129,8 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
 
             <!-- Sample Document Buttons -->
             <div style="border-top:1px solid #1E293B; padding-top:14px; text-align:left;">
-              <span style="font-size:11px; font-weight:700; color:#38BDF8; text-transform:uppercase;">
-                ${isDe ? "Musterbelege laden:" : "Load Sample Document:"}
+              <span style="font-size:11px; font-weight:700; color:var(--color-text-muted); text-transform:uppercase;">
+                ${isDe ? "Musterbelege testen:" : "Test Sample Documents:"}
               </span>
               <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:6px; margin-top:8px;">
                 <button type="button" class="zoom-btn" onclick="loadSampleDoc('bol')" style="justify-content:center; gap:6px;">
@@ -168,35 +168,59 @@ export function renderDocumentAuditView(options: DocumentAuditViewOptions = {}):
             </div>
             <p style="font-size:13px; color:#94A3B8; margin:0 0 16px 0; line-height:1.5;">
               ${isDe 
-                ? "Wählen Sie links einen Frachtbeleg aus (See, Luft, Land) oder laden Sie einen Musterbeleg, um die deterministische 5-Stufen-Zollprüfung auszuführen." 
+                ? "Wählen Sie links einen Frachtbeleg aus (See, Luft, Land) oder testen Sie einen Musterbeleg, um die deterministische 5-Stufen-Zollprüfung auszuführen." 
                 : "Select or drop a freight document on the left, or test a sample document, to execute deterministic 5-stage customs validation."}
             </p>
 
-            <div style="display:flex; flex-direction:column; gap:10px;">
-              <div style="display:flex; gap:12px; padding:12px; border-radius:8px; background:#080E1A; border:1px solid #1E293B;">
-                <div style="width:28px; height:28px; border-radius:6px; background:#0284C7; color:#FFFFFF; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:12px; flex-shrink:0;">1</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; gap:10px; padding:10px 12px; border-radius:8px; background:#080E1A; border:1px solid #1E293B; align-items:center;">
+                <div style="width:24px; height:24px; border-radius:6px; background:#0284C7; color:#FFFFFF; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:11px; flex-shrink:0;">1</div>
                 <div>
-                  <strong style="font-size:13px; color:#F1F5F9; display:block;">${isDe ? "1. Beleg-Ingestion & SHA-256 Signatur" : "1. Document Ingestion & SHA-256 Signature"}</strong>
-                  <span style="font-size:12px; color:#94A3B8;">${isDe ? "Kryptographischer GoBD-Prüfstempel zur Gewährleistung der Revisionssicherheit." : "Cryptographic GoBD audit seal ensuring tamper-evident record integrity."}</span>
+                  <strong style="font-size:12.5px; color:#F1F5F9; display:block;">${isDe ? "1. Beleg-Ingestion & SHA-256 Signatur" : "1. Document Ingestion & SHA-256 Signature"}</strong>
+                  <span style="font-size:11.5px; color:#94A3B8;">${isDe ? "Kryptographischer GoBD-Prüfstempel zur Gewährleistung der Revisionssicherheit." : "Cryptographic GoBD audit seal ensuring tamper-evident record integrity."}</span>
                 </div>
               </div>
 
-              <div style="display:flex; gap:12px; padding:12px; border-radius:8px; background:#080E1A; border:1px solid #1E293B;">
-                <div style="width:28px; height:28px; border-radius:6px; background:#10B981; color:#FFFFFF; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:12px; flex-shrink:0;">2</div>
+              <div style="display:flex; gap:10px; padding:10px 12px; border-radius:8px; background:#080E1A; border:1px solid #1E293B; align-items:center;">
+                <div style="width:24px; height:24px; border-radius:6px; background:#0EA5E9; color:#FFFFFF; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:11px; flex-shrink:0;">2</div>
                 <div>
-                  <strong style="font-size:13px; color:#F1F5F9; display:block;">${isDe ? "2. OCR-Extraktion & ISO 6346 Modulo-11" : "2. OCR Extraction & ISO 6346 Modulo-11"}</strong>
-                  <span style="font-size:12px; color:#94A3B8;">${isDe ? "Mathematische Validierung der Prüfziffer und strukturierte Extraktion der Zolltarifdaten." : "Mathematical validation of container check digit and structured extraction of customs fields."}</span>
+                  <strong style="font-size:12.5px; color:#F1F5F9; display:block;">${isDe ? "2. OCR-Extraktion & Entitätserkennung" : "2. OCR Extraction & Entity Recognition"}</strong>
+                  <span style="font-size:11.5px; color:#94A3B8;">${isDe ? "Strukturierte Erkennung von Container-ID, Frachtbrief-Nummer, Zolltarif und Warenwerten." : "Structured extraction of container ID, waybill number, HS tariff code, and declared values."}</span>
                 </div>
               </div>
 
-              <div style="display:flex; gap:12px; padding:12px; border-radius:8px; background:#080E1A; border:1px solid #1E293B;">
-                <div style="width:28px; height:28px; border-radius:6px; background:#8B5CF6; color:#FFFFFF; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:12px; flex-shrink:0;">3</div>
+              <div style="display:flex; gap:10px; padding:10px 12px; border-radius:8px; background:#080E1A; border:1px solid #1E293B; align-items:center;">
+                <div style="width:24px; height:24px; border-radius:6px; background:#10B981; color:#FFFFFF; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:11px; flex-shrink:0;">3</div>
                 <div>
-                  <strong style="font-size:13px; color:#F1F5F9; display:block;">${isDe ? "3. Toleranzkontrolle & ATLAS-Freigabe" : "3. Tolerance Check & ATLAS Pre-Clearance"}</strong>
-                  <span style="font-size:12px; color:#94A3B8;">${isDe ? "Prüfung der SOLAS VGM Tara-Toleranz (≤ 50 kg) und Freigabe für ATLAS 9.1 Zollanmeldung." : "SOLAS VGM tare tolerance check (≤ 50 kg) and clearance for ATLAS 9.1 customs declaration."}</span>
+                  <strong style="font-size:12.5px; color:#F1F5F9; display:block;">${isDe ? "3. ISO 6346 Modulo-11 Prüfziffer" : "3. ISO 6346 Modulo-11 Check Digit"}</strong>
+                  <span style="font-size:11.5px; color:#94A3B8;">${isDe ? "Mathematische Validierung der Prüfziffer zur Abwehr von Terminal-Gate-in Abweisungen." : "Mathematical validation of container check digit preventing seaport gate-in rejections."}</span>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:10px; padding:10px 12px; border-radius:8px; background:#080E1A; border:1px solid #1E293B; align-items:center;">
+                <div style="width:24px; height:24px; border-radius:6px; background:#F59E0B; color:#FFFFFF; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:11px; flex-shrink:0;">4</div>
+                <div>
+                  <strong style="font-size:12.5px; color:#F1F5F9; display:block;">${isDe ? "4. ADSp 2017 & SOLAS VGM Toleranz" : "4. ADSp 2017 & SOLAS VGM Tolerance"}</strong>
+                  <span style="font-size:11.5px; color:#94A3B8;">${isDe ? "Tara-Verwiegungsabgleich mit § 412 HGB Höchstgrenze (&le; 50 kg Abweichung)." : "Tare weight comparison against statutory bounds (&le; 50 kg max allowed delta)."}</span>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:10px; padding:10px 12px; border-radius:8px; background:#080E1A; border:1px solid #1E293B; align-items:center;">
+                <div style="width:24px; height:24px; border-radius:6px; background:#8B5CF6; color:#FFFFFF; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:11px; flex-shrink:0;">5</div>
+                <div>
+                  <strong style="font-size:12.5px; color:#F1F5F9; display:block;">${isDe ? "5. ATLAS Pre-Clearance Freigabe" : "5. ATLAS Pre-Clearance Decision"}</strong>
+                  <span style="font-size:11.5px; color:#94A3B8;">${isDe ? "Abschließende GoBD-Zollfreigabe zur Vermeidung von Standgeldern (180–450 €/Tag)." : "Final customs pre-clearance preventing port demurrage liabilities (€180–€450/day)."}</span>
                 </div>
               </div>
             </div>
+
+            <div style="border-top:1px solid #1E293B; margin-top:16px; padding-top:14px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+              <span style="font-size:11.5px; color:#10B981; font-weight:600;"><i class="fa-solid fa-circle-check"></i> ATLAS 9.1: ${isDe ? "Bereit" : "Ready"}</span>
+              <span style="font-size:11.5px; color:#10B981; font-weight:600;"><i class="fa-solid fa-circle-check"></i> Dakosy: ${isDe ? "Verbunden" : "Connected"}</span>
+              <span style="font-size:11.5px; color:#10B981; font-weight:600;"><i class="fa-solid fa-circle-check"></i> SQLite ACID: ${isDe ? "Online" : "Online"}</span>
+            </div>
+          </div>
+        </div>
 
             <div style="border-top:1px solid #1E293B; margin-top:16px; padding-top:14px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
               <span style="font-size:11.5px; color:#10B981; font-weight:600;"><i class="fa-solid fa-circle-check"></i> ATLAS 9.1: ${isDe ? "Bereit" : "Ready"}</span>

@@ -316,6 +316,25 @@ Plain Reason Why:
 What We Gave Up: Static pre-populated dummy values across views.
 Revisit If: Customer demands automatic XML schema validation against custom SAP S/4HANA SOAP web services.
 
+## D-020: Hick's Law Harmonization, Cognitive Load Reduction & Operational Streamlining Across Tabs 1–5
+Date: 2026-10-18  Model: Gemini 3.8 Flash (High)
+Problem Context: User audits across all 5 operational views revealed cognitive friction violating Hick's Law: competing CTAs, duplicate header labels, vertical content burying tables below the fold, duplicate buttons, and lack of visual focus.
+Options Looked At:
+  1) Keep all controls and sections unconditionally stacked vertically on one page.
+  2) Move sections into completely separate independent URL routes (fragmenting single-dashboard workflows).
+  3) Hick's Law Visual Hierarchy Harmonization, Single Dominant CTAs, and Workspace Sub-View Toggles (Chosen).
+What We Chose: Option 3
+Plain Reason Why:
+  - Header Subtitle Cleanup: Simplified global tenant branding to `${tenantName} • ${isDe ? "Zoll- & Seehafen-Gateway" : "Seaport & Customs Gateway"} (DE-SIS-8921)` eliminating duplicate company naming.
+  - Tab 1 Dominant Action & 5 Gates: Hidden toolbar upload button during idle state leaving central dropzone `[Choose Files]` as the single prominent primary CTA; expanded `#audit-idle-guide` to cover all 5 verification gates.
+  - Tab 2 Primary Dominant CTA: Added prominent `#btn-run-reconcile` (`Execute 3-Way Audit` / `3-Wege-Abgleich ausführen`), demoted scenario switchers to secondary segment controls, and compacted bay heights so the matrix table is immediately visible without scrolling.
+  - Tab 3 Quarantine Streamlining: Removed redundant global ADSp 2017 header button, differentiated discrepancy reasons across rows (VGM Delta, ADR Class 3 conflict, missing commercial invoice, ISO 6346 check digit error), and fixed language leakage.
+  - Tab 4 Workspace Switcher: Added workspace toggle toolbar (`[Live Telemetrie-Korridor]` | `[Zubringer-Tourenplan]` | `[Kombinierte Ansicht]`) so operators can inspect the corridor map or the tour dispatch board without excessive scrolling.
+  - Tab 5 Workspace Switcher & Deduplication: Removed redundant global certificate button from top header, keeping issuance strictly per-row; added workspace toggle (`[Audit-Ledger]` | `[IT-Konsole & ERP]` | `[Gesamtansicht]`).
+  - Zero Regressions: All 78 tests across 15 test suites pass with 0 errors.
+What We Gave Up: Unconditional simultaneous rendering of all secondary sub-panels.
+Revisit If: Customer operators demand multi-monitor tiled dashboard layouts.
+
 
 
 

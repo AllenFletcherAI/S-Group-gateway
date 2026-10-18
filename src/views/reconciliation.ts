@@ -81,21 +81,25 @@ export function renderReconciliationView(options: ReconciliationViewOptions = {}
         </div>
       </div>
 
-      <!-- 1-Click Scenario Switcher (Clean vs Demurrage Trap) -->
-      <div class="scenario-switcher-bar">
-        <div style="display:flex; align-items:center; gap:12px;">
-          <strong style="font-size:13px;">${isDe ? "Prüf-Szenario wählen:" : "Select Test Scenario:"}</strong>
+      <!-- 1-Click Scenario Switcher & Primary Action -->
+      <div class="scenario-switcher-bar" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <button type="button" id="btn-run-reconcile" class="btn-scenario clean" onclick="trigger3WayReconcile()" style="font-weight:700; display:inline-flex; align-items:center; gap:6px; background:#0284C7; border-color:#38BDF8; color:#FFFFFF; padding:6px 14px;">
+            <i class="fa-solid fa-arrows-rotate"></i> ${isDe ? "3-Wege-Abgleich ausführen" : "Execute 3-Way Audit"}
+          </button>
+          <span style="font-size:12px; color:var(--color-text-muted); margin:0 4px;">|</span>
+          <span style="font-size:12px; font-weight:700; color:var(--color-text-muted);">${isDe ? "Muster-Szenario:" : "Test Scenario:"}</span>
           <a
             href="/portal/reconcile?sample=clean&lang=${lang}"
             class="btn-scenario ${!isDiscrepancy ? "clean" : ""}"
-            style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;"
+            style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding:5px 10px; font-size:11.5px;"
           >
-            <i class="fa-solid fa-circle-check"></i> ${isDe ? "Konformes Dossier (Szenario A - Clean)" : "Compliant Dossier (Scenario A - Clean)"}
+            <i class="fa-solid fa-circle-check"></i> ${isDe ? "Konformes Dossier (Szenario A)" : "Compliant Dossier (Scenario A)"}
           </a>
           <a
             href="/portal/reconcile?sample=discrepancy&lang=${lang}"
             class="btn-scenario ${isDiscrepancy ? "trap" : ""}"
-            style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;"
+            style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding:5px 10px; font-size:11.5px;"
           >
             <i class="fa-solid fa-triangle-exclamation"></i> ${isDe ? "Demurrage-Falle (Szenario B - +220 kg Abweichung)" : "Demurrage Trap (Scenario B - +220 kg Discrepancy)"}
           </a>

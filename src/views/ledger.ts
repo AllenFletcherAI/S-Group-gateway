@@ -83,10 +83,7 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
         </div>
 
         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-          <button type="button" class="zoom-btn" onclick="openCustomsCertModal('SHP-SIS-1049')" style="background:#059669; color:#FFFFFF; border-color:#10B981; padding:8px 12px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
-            <i class="fa-solid fa-building-columns"></i> ${isDe ? "Offizielles Zoll-Zertifikat (A4)" : "Customs Certificate (A4)"}
-          </button>
-          <button type="button" class="zoom-btn" onclick="exportLedgerCsv()" style="padding:8px 12px; display:inline-flex; align-items:center; gap:6px;">
+          <button type="button" class="zoom-btn" onclick="exportLedgerCsv()" style="padding:8px 14px; font-weight:700; background:#0284C7; color:#FFFFFF; border-color:#38BDF8; display:inline-flex; align-items:center; gap:6px;">
             <i class="fa-solid fa-file-arrow-down"></i> ${isDe ? "GoBD CSV-Export" : "GoBD CSV Export"}
           </button>
         </div>
@@ -135,6 +132,22 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
         </div>
       </div>
 
+      <!-- Tab 5 Workspace Toggle (Hick's Law: Focus on Ledger vs. IT Connectors) -->
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px; border-bottom:1px solid var(--color-border-slate); padding-bottom:12px;">
+        <span style="font-size:12px; font-weight:700; color:var(--color-text-muted); text-transform:uppercase;">${isDe ? "Arbeitsbereich:" : "Workspace:"}</span>
+        <button type="button" id="tab5-view-ledger-btn" class="zoom-btn" onclick="toggleLedgerView('ledger')" style="background:#0284C7; color:#FFFFFF; border-color:#38BDF8; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+          <i class="fa-solid fa-file-contract"></i> ${isDe ? `Audit-Ledger (${allShipments.length})` : `Audit Ledger (${allShipments.length})`}
+        </button>
+        <button type="button" id="tab5-view-it-btn" class="zoom-btn" onclick="toggleLedgerView('it')" style="font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+          <i class="fa-solid fa-plug"></i> ${isDe ? "IT-Konsole & ERP" : "IT Console & ERP"}
+        </button>
+        <button type="button" id="tab5-view-all-btn" class="zoom-btn" onclick="toggleLedgerView('all')" style="font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+          <i class="fa-solid fa-table-columns"></i> ${isDe ? "Gesamtansicht" : "All Sections"}
+        </button>
+      </div>
+
+      <!-- Ledger Table Section Wrapper -->
+      <div id="ledger-table-section">
       <!-- Filter Bar -->
       <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
         <div style="display:flex; gap:6px;">
@@ -159,7 +172,7 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
       </div>
 
       <!-- GoBD Audit Ledger Table -->
-      <div class="quarantine-table-wrap" style="margin-bottom:32px;">
+      <div class="quarantine-table-wrap" style="margin-bottom:24px;">
         <table class="quarantine-table">
           <thead>
             <tr>
@@ -177,8 +190,10 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
           </tbody>
         </table>
       </div>
+      </div>
 
-      <!-- IT-Konsole & Enterprise Connector Hub -->
+      <!-- IT-Konsole & Enterprise Connector Hub (Wrapped for Hick's Law Progressive Disclosure) -->
+      <div id="ledger-it-section">
       <div style="background:var(--color-bg-neutral); border:1px solid var(--color-border-slate); border-radius:12px; padding:20px;">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
           <div style="display:flex; align-items:center; gap:8px;">
@@ -261,6 +276,7 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
   &lt;/E1EDL20&gt;
 &lt;/IDOC&gt;</pre>
         </div>
+      </div>
       </div>
 
       <!-- Printable Official DIN A4 Customs Certificate Modal Backdrop -->
@@ -350,7 +366,6 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
         </div>
       </div>
 
-      </div>
     </div>
   `;
 }

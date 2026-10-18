@@ -264,14 +264,30 @@ export function renderDispatchView(
         </div>
       </div>
     </section>
- 
+
+    <!-- Tab 4 Workspace View Toggle (Hick's Law: Focus on Telematics Corridor Map vs Feeder Tour Board) -->
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px; border-bottom:1px solid var(--color-border-slate); padding-bottom:12px;">
+      <span style="font-size:12px; font-weight:700; color:var(--color-text-muted); text-transform:uppercase;">${isDe ? "Arbeitsbereich:" : "Workspace:"}</span>
+      <button type="button" id="tab4-view-map-btn" class="zoom-btn" onclick="toggleDispatchView('map')" style="font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+        <i class="fa-solid fa-map-location-dot"></i> ${isDe ? "Live Telemetrie-Korridor" : "Telematics Corridor Map"}
+      </button>
+      <button type="button" id="tab4-view-tours-btn" class="zoom-btn" onclick="toggleDispatchView('tours')" style="font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+        <i class="fa-solid fa-truck"></i> ${isDe ? "Zubringer-Tourenplan" : "Feeder Tour Plan"}
+      </button>
+      <button type="button" id="tab4-view-split-btn" class="zoom-btn" onclick="toggleDispatchView('split')" style="background:#0284C7; color:#FFFFFF; border-color:#38BDF8; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+        <i class="fa-solid fa-table-columns"></i> ${isDe ? "Kombinierte Ansicht" : "Combined View"}
+      </button>
+    </div>
+
     <!-- Sovereign Vector Telematics Map: Corridor Hamburg - Berlin -->
-    <div style="margin-bottom: 24px;">
+    <div id="dispatch-map-view-wrapper" style="margin-bottom: 24px;">
       ${telematicsMapHtml}
     </div>
 
-    <!-- Two-Column Layout: Left = Filter & Tours Grid, Right = Fast Booking Console -->
-    <div class="dispatch-layout-container">
+    <!-- Feeder Tours Board Section Wrapper -->
+    <div id="dispatch-tours-view-wrapper">
+      <!-- Two-Column Layout: Left = Filter & Tours Grid, Right = Fast Booking Console -->
+      <div class="dispatch-layout-container">
       <!-- Left Column: Tour Directory -->
       <div class="dispatch-tours-column">
         <!-- Filter Bar & Search Toolbar -->
@@ -388,6 +404,7 @@ export function renderDispatchView(
           </div>
         </div>
       </aside>
+    </div>
     </div>
 
     <script>

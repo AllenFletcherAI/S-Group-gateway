@@ -101,7 +101,7 @@ export function renderLayout(options: LayoutOptions): string {
                 <span>${isDe ? "S-Group Bridge / ATLAS 9.1" : "S-Group Bridge / ATLAS 9.1"}</span>
               </span>
             </div>
-            <span class="brand-subtitle">${S_GROUP_BRAND.companyName} • ${tenantName} (<code>${tenantId}</code>)</span>
+            <span class="brand-subtitle">${tenantName} • ${isDe ? "Zoll- & Seehafen-Gateway" : "Seaport & Customs Gateway"} (<code>${tenantId}</code>)</span>
           </div>
         </a>
       </div>

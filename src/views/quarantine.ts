@@ -29,7 +29,22 @@ export function renderQuarantineView(options: QuarantineViewOptions = {}): strin
         const isCritical = remainingHours <= 24;
         const timeBadgeColor = isCritical ? "#EF4444" : "#F59E0B";
         const dailyRate = c.daily_demurrage_eur ? `${c.daily_demurrage_eur.toFixed(0)} € / ${isDe ? "Tag" : "day"}` : `350 € / ${isDe ? "Tag" : "day"}`;
-        const discrepancy = c.override_reason || (c.gross_weight_kg ? `+220 kg VGM Delta (B/L vs Packliste)` : "Fehlende Handelsrechnung / ATLAS Deklaration");
+        
+        let discrepancy = c.override_reason;
+        if (!discrepancy) {
+          if (c.shipment_ref === "SHP-SIS-1049" || c.container_number === "MSKU7829104") {
+            discrepancy = isDe ? "+220 kg VGM Delta (B/L vs. Packliste)" : "+220 kg VGM Delta (B/L vs. Packing List)";
+          } else if (c.shipment_ref === "SHP-SIS-1051" || c.container_number === "HLXU9201472") {
+            discrepancy = isDe ? "ADR Klasse 3 Gefahrgut-Segregationskonflikt" : "ADR Class 3 Hazardous Goods Segregation Conflict";
+          } else if (c.shipment_ref === "PL-2026-9182" || c.container_number === "MSKU7829107") {
+            discrepancy = isDe ? "Fehlende Handelsrechnung (Zollwert unbewertet)" : "Missing Commercial Invoice (Unassessed Customs Value)";
+          } else if (c.shipment_ref === "SHP-SIS-2088" || c.container_number === "SCHE8492015") {
+            discrepancy = isDe ? "ISO 6346 Modulo-11 Prüfziffer inkonsistent" : "ISO 6346 Modulo-11 Check Digit Mismatch";
+          } else {
+            discrepancy = isDe ? "Toleranzüberschreitung (§ 412 HGB)" : "Tolerance Exceeded (ADSp 2017)";
+          }
+        }
+
         const statusBadge = c.audit_status === "OVERRIDDEN_RELEASED"
           ? `<span class="stage-badge-pill pass">${isDe ? "FREIGEGEBEN" : "OVERRIDDEN"}</span>`
           : (isCritical
@@ -67,11 +82,11 @@ export function renderQuarantineView(options: QuarantineViewOptions = {}): strin
               ${statusBadge}
             </td>
             <td style="text-align:right;">
-              <button type="button" class="zoom-btn" onclick="openAdspModal('${c.container_number || c.shipment_ref}')" style="color:#EF4444; border-color:#DC2626; display:inline-flex; align-items:center; gap:4px;">
+              <button type="button" class="zoom-btn" onclick="openAdspModal('${c.container_number || c.shipment_ref}')" style="color:#EF4444; border-color:#DC2626; display:inline-flex; align-items:center; gap:4px; font-weight:600;">
                 <i class="fa-solid fa-scale-balanced"></i> ${isDe ? "Haftungsanzeige" : "ADSp Claim"}
               </button>
               ${c.audit_status !== "OVERRIDDEN_RELEASED" ? `
-              <button type="button" class="zoom-btn" onclick="openSupervisorOverrideModal('${c.shipment_ref}')" style="margin-left:4px; display:inline-flex; align-items:center; gap:4px;">
+              <button type="button" class="zoom-btn" onclick="openSupervisorOverrideModal('${c.shipment_ref}')" style="margin-left:4px; display:inline-flex; align-items:center; gap:4px; border-color:var(--color-border-slate); color:var(--color-text-muted);">
                 <i class="fa-solid fa-lock-open"></i> ${isDe ? "Freigabe" : "Override"}
               </button>` : ""}
             </td>
@@ -108,11 +123,8 @@ export function renderQuarantineView(options: QuarantineViewOptions = {}): strin
         </div>
 
         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-          <button type="button" class="zoom-btn" onclick="openAdspModal('MSKU7829107')" style="background:#EF4444; color:#FFFFFF; border-color:#DC2626; padding:8px 12px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
-            <i class="fa-solid fa-scale-balanced"></i> ${isDe ? "ADSp 2017 Haftungsanzeige" : "ADSp 2017 Legal Claim"}
-          </button>
-          <button type="button" class="zoom-btn" onclick="exportQuarantineCsv()" style="padding:8px 12px; display:inline-flex; align-items:center; gap:6px;">
-            <i class="fa-solid fa-file-arrow-down"></i> ${isDe ? "CSV Export" : "CSV Export"}
+          <button type="button" class="zoom-btn" onclick="exportQuarantineCsv()" style="padding:8px 14px; font-weight:700; background:#0284C7; color:#FFFFFF; border-color:#38BDF8; display:inline-flex; align-items:center; gap:6px;">
+            <i class="fa-solid fa-file-arrow-down"></i> ${isDe ? "Quarantäne-Bericht (CSV)" : "Export Quarantine CSV"}
           </button>
         </div>
       </div>
