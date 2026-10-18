@@ -219,5 +219,24 @@ Plain Reason Why:
 What We Gave Up: Standalone isolated pages for tracking and dispatch (now unified onto Tab 4 command hub).
 Revisit If: Port terminal EDI feeds transition from batch webhooks to bidirectional MQTT streaming.
 
+## D-015: Two-Tier Fixed 100vh Cockpit Standard, Proportional Auto-Fit Engine & Dismissible Document Flow
+Date: 2026-10-18  Model: Gemini 3.8 Flash (High)
+Problem Context: S-Group Gateway retained legacy website scaffolding (a 200px marketing footer, a 1360px centered max-width constraint, and outer body scrollbars creating double-scrolling friction for logistics operators on multi-monitor desk setups). Furthermore, document auditing suffered from oversized 1200px image blowouts without proportional auto-fit, and lacked an empty intake dropzone with clipboard paste capabilities (`Ctrl+V`).
+Options Looked At:
+  1) Keep normal document flow with outer scrolling and fixed image heights (results in cramped viewports, dual scrollbars, and obscured action buttons).
+  2) Heavy third-party PDF/Canvas viewer library (adds 500KB+ client JS bundle, breaking fast load constraints).
+  3) Fixed 100vh Industrial Cockpit Viewport with Two-Tier Header, CSS Flex Workspace Containers, Pure JS Proportional Auto-Fit Engine, and Empty State Dropzone (Chosen).
+What We Chose: Option 3
+Plain Reason Why:
+  - Fixed 100vh Viewport (`height: 100vh; overflow: hidden;`): Eliminates outer page scrolling and the 200px marketing footer. Workspaces manage their own internal overflow (`overflow-y: auto`), providing an enterprise desktop cockpit experience identical to RedLine and terminal dispatch consoles.
+  - Two-Tier Header Standard:
+    - Tier 1 (56px): Dedicated utility bar housing Brand Mark (`S`), Title, Subtitle (`DE-SIS-8921`), Live Bridge status (`● S-Group Bridge / ATLAS 9.1`), F1 Spickzettel modal tour, Light/Dark theme toggle, Language switcher, and Operator Badge.
+    - Tier 2 (40px): Dedicated operational navigation strip featuring 5 folder-pill tabs (`nav-tab-pill`) and 4 clickable Executive KPI chips (`[📄 24]`, `[✅ 18]`, `[⚠️ 3]`, `[🛡️ 3.850 €]`).
+  - Proportional Auto-Fit Engine: Pure vanilla JavaScript calculation (`fitWidth()`, `fitPage()`, `resetZoom()`) measuring natural image dimensions against container client rects, completely eliminating horizontal scrolling and image blowout.
+  - Dismissible Document State: Introduces empty intake dropzone with file picker, clipboard paste listener (`Ctrl+V`), `Unterstützte Belege ▾` popover, and `Entfernen` button to reset document audit state back to raw intake.
+  - Global Operator Cheat Sheet Modal (`#modal-spickzettel` via `F1`): Provides instant operator reference for the 3-step workflow, customs tolerances (§ 412 HGB 50 kg rule, ISO 6346 Modulo-11), demurrage cost schedules (€350/day), and keyboard shortcuts.
+What We Gave Up: Consumer-style long scrolling footer (replaced with compliance metadata tags in header and modal footer).
+Revisit If: Touchscreen tablet deployment requires mobile touch gestures over keyboard shortcuts.
+
 
 

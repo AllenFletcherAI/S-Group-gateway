@@ -62,83 +62,14 @@ export async function portalRoutes(fastify: FastifyInstance, _options: FastifyPl
     return reply.redirect(targetQuery ? `/portal${targetQuery}` : "/portal");
   });
 
-  // Portal Main Dashboard (Overview & Quick Station Access)
+  // Portal Root: Direct launch into Tab 1 (Document Audit Workspace)
   fastify.get("/portal", async (req: FastifyRequest<{ Querystring: PortalQuery }>, reply) => {
     const lang = resolvePortalLang(req, reply);
     const isDe = lang === "de";
-    const shipments = ShipmentRepository.getShipmentsByTenant(DEFAULT_TENANT);
 
     const content = `
-      <section class="portal-hero-card">
-        <div class="hero-header">
-          <div>
-            <h1 class="hero-title">
-              ${isDe ? "Willkommen im S-Group Gateway" : "Welcome to the S-Group Gateway"}
-            </h1>
-            <p class="hero-subtitle">
-              ${isDe 
-                ? "Operatives Fracht- & Zoll-Leitstandssystem der Schäfer & SIS Interlogistik für Seehafen-Zubringung, Dokumentenprüfung und revisionssichere Verzollung." 
-                : "Operational freight and customs cockpit by Schäfer & SIS Interlogistik for seaport feeding, document audit, and compliance."}
-            </p>
-          </div>
-          <div class="hero-badge">
-            <span class="badge-pill-success">● ${isDe ? "Operative Leitstände aktiv" : "All Operational Centers Active"}</span>
-          </div>
-        </div>
-
-        <!-- 5-Station Operational Pipeline Quick Jump Grid -->
-        <div class="metrics-grid" style="grid-template-columns: repeat(5, 1fr);">
-          <a href="/portal/audit?lang=${lang}" class="metric-card" style="text-decoration:none; cursor:pointer;">
-            <div class="metric-header">
-              <span class="metric-label">${isDe ? "1. Dok-Audit" : "1. Doc Audit"}</span>
-              <span class="metric-icon">🔍</span>
-            </div>
-            <div class="metric-value" style="font-size:18px;">${isDe ? "Inspektor" : "Inspector"}</div>
-            <p class="metric-footer">${isDe ? "Pan/Zoom & 5-Stufen OCR" : "Pan/Zoom & 5-Stage OCR"}</p>
-          </a>
-
-          <a href="/portal/reconcile?lang=${lang}" class="metric-card" style="text-decoration:none; cursor:pointer;">
-            <div class="metric-header">
-              <span class="metric-label">${isDe ? "2. 3-Wege-Match" : "2. 3-Way Match"}</span>
-              <span class="metric-icon">⚖️</span>
-            </div>
-            <div class="metric-value" style="font-size:18px;">${isDe ? "Abgleich" : "Reconcile"}</div>
-            <p class="metric-footer">${isDe ? "B/L ↔ RE ↔ Packliste" : "B/L ↔ Inv ↔ Packing"}</p>
-          </a>
-
-          <a href="/portal/quarantine?lang=${lang}" class="metric-card" style="text-decoration:none; cursor:pointer; border-color:rgba(245,158,11,0.4);">
-            <div class="metric-header">
-              <span class="metric-label">${isDe ? "3. Quarantäne" : "3. Quarantine"}</span>
-              <span class="metric-icon">⚠️</span>
-            </div>
-            <div class="metric-value" style="font-size:18px; color:#F59E0B;">3 ${isDe ? "Fälle" : "Holds"}</div>
-            <p class="metric-footer">${isDe ? "Standgeld-Abwehr" : "Demurrage Shield"}</p>
-          </a>
-
-          <a href="/portal/dispatch?lang=${lang}" class="metric-card" style="text-decoration:none; cursor:pointer;">
-            <div class="metric-header">
-              <span class="metric-label">${isDe ? "4. Disposition" : "4. Dispatch"}</span>
-              <span class="metric-icon">🚛</span>
-            </div>
-            <div class="metric-value" style="font-size:18px;">${isDe ? "Hinterland" : "Fleet"}</div>
-            <p class="metric-footer">${isDe ? "Vector-Map & Feeder" : "Vector Map & Feeder"}</p>
-          </a>
-
-          <a href="/portal/ledger?lang=${lang}" class="metric-card" style="text-decoration:none; cursor:pointer; border-color:rgba(16,185,129,0.4);">
-            <div class="metric-header">
-              <span class="metric-label">${isDe ? "5. Audit-Ledger" : "5. Audit Ledger"}</span>
-              <span class="metric-icon">🏛️</span>
-            </div>
-            <div class="metric-value" style="font-size:18px; color:#10B981;">§ 147 AO</div>
-            <p class="metric-footer">${isDe ? "GoBD & A4 Zertifikat" : "GoBD & A4 Certificate"}</p>
-          </a>
-        </div>
-      </section>
-
-      <!-- Document Audit Workspace Embedded directly on overview for instant action -->
-      <section style="margin-top:20px;">
-        ${renderDocumentAuditView({ lang, containerId: "MSKU7829104" })}
-      </section>
+      <div class="sr-only">${isDe ? "Willkommen im S-Group Gateway" : "Welcome to the S-Group Gateway"}</div>
+      ${renderDocumentAuditView({ lang })}
     `;
 
     const html = renderLayout({

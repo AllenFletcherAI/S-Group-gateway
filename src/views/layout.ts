@@ -11,17 +11,17 @@ export interface LayoutOptions {
 }
 
 /**
- * Render the main S-Group Portal layout shell with responsive navigation header.
- * WHY: Modular layout template strictly enforces S-Group branding, accessibility (WCAG AA),
- * and DSGVO privacy notices on every customer-facing view.
+ * Render the S-Group Gateway 100vh Operational Cockpit Layout.
+ * WHY: Provides a fixed-viewport industrial workspace (no double scrollbars, no marketing footer)
+ * with a two-tier header separating utility controls from navigation tabs and executive KPI chips.
  */
 export function renderLayout(options: LayoutOptions): string {
   const {
     title = S_GROUP_BRAND.portalTitle,
-    activeNavId = "shipments",
-    tenantName = "Schäfer & SIS Interlogistik - Enterprise Demo Tenant",
+    activeNavId = "audit",
+    tenantName = "Schäfer & SIS Interlogistik GmbH",
     tenantId = "DE-SIS-8921",
-    userEmail = "dispatcher@schaefer-sis.de",
+    userEmail = "disponent@schaefer-sis.de",
     lang = "de",
     content
   } = options;
@@ -32,22 +32,33 @@ export function renderLayout(options: LayoutOptions): string {
     .map((item) => {
       const isActive = item.id === activeNavId;
       const label = isDe ? item.labelDe : item.labelEn;
-      const activeClass = isActive ? "nav-link active" : "nav-link";
+      const activeClass = isActive ? "nav-tab-pill active" : "nav-tab-pill";
       const ariaCurrent = isActive ? ' aria-current="page"' : "";
+      let icon = "fa-network-wired";
+      if (item.id === "reconcile") icon = "fa-layer-group";
+      if (item.id === "quarantine") icon = "fa-triangle-exclamation";
+      if (item.id === "dispatch") icon = "fa-truck-front";
+      if (item.id === "ledger") icon = "fa-clock-rotate-left";
+
       return `<a href="${item.href}?lang=${lang}" class="${activeClass}"${ariaCurrent} data-nav-id="${item.id}">
-        ${label}
+        <i class="fa-solid ${icon}"></i>
+        <span>${label}</span>
       </a>`;
     })
-    .join("\n            ");
+    .join("\n        ");
 
   return `<!DOCTYPE html>
-<html lang="${lang}">
+<html lang="${lang}" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <meta name="description" content="S-Group Gateway - Schäfer & SIS Interlogistik Customer Freight & Tracking Portal">
+  <meta name="description" content="S-Group Gateway - Schäfer & SIS Interlogistik Fracht- und Zoll-Leitstand">
   <title>${title} | ${S_GROUP_BRAND.companyName}</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/layout.css">
   <link rel="stylesheet" href="/static/css/telematicsMap.css">
   <script>
@@ -66,171 +77,204 @@ export function renderLayout(options: LayoutOptions): string {
     })();
   </script>
 </head>
-<body class="s-group-theme">
+<body class="s-group-cockpit">
   <!-- Top Accessibility Skip Link -->
   <a href="#main-content" class="skip-to-content">
     ${isDe ? "Zum Hauptinhalt springen" : "Skip to main content"}
   </a>
 
-  <!-- Main Navigation Header -->
-  <header class="main-header" role="banner">
-    <div class="header-container">
-      <!-- Brand Logo / Identity -->
-      <div class="header-brand">
+  <!-- TWO-TIER OPERATIONAL HEADER -->
+  <header class="cockpit-header" role="banner">
+    <!-- TIER 1: Utility & Brand Bar (Fixed 56px) -->
+    <div class="header-tier-top">
+      <div class="brand-cluster">
         <a href="/portal?lang=${lang}" class="brand-link" aria-label="S-Group Gateway Home">
           <div class="brand-mark">
             <span class="brand-s">S</span>
           </div>
           <div class="brand-text">
-            <span class="brand-title">${S_GROUP_BRAND.groupName}</span>
-            <span class="brand-subtitle">${S_GROUP_BRAND.companyName}</span>
+            <div class="brand-title-row">
+              <h1 class="brand-title">S-GROUP GATEWAY</h1>
+              <span class="live-bridge-pill">
+                <span class="pulse-dot"></span>
+                <span>${isDe ? "S-Group Bridge / ATLAS 9.1" : "S-Group Bridge / ATLAS 9.1"}</span>
+              </span>
+            </div>
+            <span class="brand-subtitle">${S_GROUP_BRAND.companyName} • ${tenantName} (<code>${tenantId}</code>)</span>
           </div>
         </a>
       </div>
 
-      <!-- Desktop Navigation Menu -->
-      <nav class="desktop-nav" role="navigation" aria-label="Hauptnavigation">
-        <div class="nav-links-wrapper">
-          ${navItemsHtml}
-        </div>
-      </nav>
-
-      <!-- Header Actions: Quick Search, Theme Toggle, Language Toggle, User Menu -->
-      <div class="header-actions">
-        <!-- Quick Shipment Search -->
-        <div class="header-search-box" role="search">
-          <label for="quick-search-input" class="sr-only">
-            ${isDe ? "Sendung oder Container suchen" : "Search shipment or container"}
-          </label>
-          <input
-            id="quick-search-input"
-            type="search"
-            class="header-search-input"
-            placeholder="${isDe ? "Sendungs-Nr. / Container..." : "Shipment No. / Container..."}"
-            aria-label="${isDe ? "Sendungsnummer oder Container eingeben" : "Enter shipment or container number"}"
-          >
-          <button class="header-search-btn" aria-label="${isDe ? "Suchen" : "Search"}">
-            🔍
-          </button>
-        </div>
-
-        <!-- Theme Toggle Button (Light/Dark Mode) -->
+      <div class="utility-actions">
+        <!-- Spickzettel & Cheat Sheet (F1) -->
         <button
+          type="button"
+          id="btn-spickzettel"
+          class="util-btn highlight"
+          onclick="openSpickzettelModal()"
+          title="${isDe ? "Hilfe, Live-Tour & Spickzettel (F1)" : "Help, Live Tour & Cheat Sheet (F1)"}"
+        >
+          <i class="fa-solid fa-graduation-cap"></i>
+          <span>${isDe ? "Einführung & Spickzettel (F1)" : "Tour & Cheat Sheet (F1)"}</span>
+        </button>
+
+        <!-- Light / Dark Mode Toggle Button -->
+        <button
+          type="button"
           id="theme-toggle-btn"
           class="theme-toggle-btn"
-          type="button"
+          onclick="toggleTheme()"
           aria-label="${isDe ? "Erscheinungsbild umschalten (Hell/Dunkel)" : "Toggle display theme (Light/Dark)"}"
           title="${isDe ? "Erscheinungsbild umschalten (Hell/Dunkel)" : "Toggle display theme (Light/Dark)"}"
         >
-          <span id="theme-toggle-icon" class="theme-toggle-icon" aria-hidden="true">🌙</span>
-          <span id="theme-toggle-text" class="theme-toggle-text">${isDe ? "Modus" : "Theme"}</span>
+          <span id="theme-toggle-icon" class="theme-toggle-icon">🌙</span>
+          <span id="theme-toggle-text" class="theme-toggle-text">${isDe ? "Modus: Dunkel" : "Mode: Dark"}</span>
         </button>
 
-        <!-- Language Selector -->
-        <div class="language-switch" aria-label="Sprachauswahl">
-          <button class="lang-btn ${isDe ? "active" : ""}" data-lang="de" aria-pressed="${isDe}">DE</button>
-          <span class="lang-divider" aria-hidden="true">/</span>
-          <button class="lang-btn ${!isDe ? "active" : ""}" data-lang="en" aria-pressed="${!isDe}">EN</button>
-        </div>
+        <!-- Dropdown Theme Toggle Component (Slice 12) -->
+        <button id="dropdown-theme-toggle" class="sr-only" type="button" aria-hidden="true" tabindex="-1">
+          <span id="dropdown-theme-icon">🌙</span>
+          <span id="dropdown-theme-text">${isDe ? "Dunkelmodus aktivieren" : "Switch to Dark Mode"}</span>
+        </button>
 
-        <!-- User Profile Dropdown Button -->
-        <div class="user-menu-container">
-          <button id="user-menu-btn" class="user-profile-btn" aria-expanded="false" aria-haspopup="true" aria-label="${isDe ? "Benutzerkonto Menü" : "User Account Menu"}">
-            <span class="user-avatar" aria-hidden="true">👤</span>
-            <span class="user-email-text">${userEmail}</span>
-            <span class="dropdown-chevron" aria-hidden="true">▾</span>
-          </button>
-          <div id="user-menu-dropdown" class="user-dropdown-panel" hidden>
-            <div class="dropdown-user-info">
-              <p class="dropdown-role">${isDe ? "Rolle: Speditionsdisponent" : "Role: Freight Dispatcher"}</p>
-              <p class="dropdown-tenant">${tenantName} (<code>${tenantId}</code>)</p>
-            </div>
-            <hr class="dropdown-divider">
-            <button id="dropdown-theme-toggle" class="dropdown-item dropdown-theme-btn" type="button" style="width: 100%; text-align: left; background: transparent; border: none; cursor: pointer;">
-              <span id="dropdown-theme-icon" aria-hidden="true">🌙</span>
-              <span id="dropdown-theme-text">${isDe ? "Dunkelmodus aktivieren" : "Switch to Dark Mode"}</span>
-            </button>
-            <a href="/portal/settings?lang=${lang}" class="dropdown-item">${isDe ? "Konto-Einstellungen" : "Account Settings"}</a>
-            <a href="/portal/compliance?lang=${lang}" class="dropdown-item">${isDe ? "DSGVO-Auskunft & Protokolle" : "DSGVO Audit & Export"}</a>
-            <hr class="dropdown-divider">
-            <a href="/auth/logout" class="dropdown-item text-danger">${isDe ? "Abmelden" : "Sign Out"}</a>
-          </div>
+        <!-- Language Switcher Button -->
+        <button
+          type="button"
+          id="lang-toggle-btn"
+          class="util-btn"
+          onclick="toggleLanguage()"
+          title="${isDe ? "Sprache wechseln (DE / EN)" : "Switch Language (DE / EN)"}"
+        >
+          <i class="fa-solid fa-globe text-signal-blue"></i>
+          <span id="lang-indicator">${isDe ? "🇩🇪 Deutsch" : "🇬🇧 English"}</span>
+        </button>
+
+        <!-- Compact Operator Badge -->
+        <div class="operator-badge" title="${isDe ? "Angemeldeter Speditionsdisponent" : "Logged in Dispatcher"}">
+          <i class="fa-solid fa-circle-user"></i>
+          <span class="operator-email">${userEmail}</span>
         </div>
+      </div>
     </div>
 
-    <!-- Executive KPI Status Strip (Clickable Shortcuts for 50+ Logistics Operators) -->
-    <div class="header-kpi-strip" role="region" aria-label="${isDe ? "Operative Kennzahlen" : "Operational Metrics"}">
-      <div class="kpi-strip-container">
-        <div class="kpi-chips-group">
-          <a href="/portal/ledger?lang=${lang}" class="kpi-chip-btn" title="${isDe ? "Zum Audit-Ledger wechseln" : "View Ingestion Ledger"}">
-            <span class="kpi-icon" aria-hidden="true">📄</span>
-            <span class="kpi-label">${isDe ? "Verarbeitet:" : "Processed:"}</span>
-            <span id="stat-total" class="kpi-val">24</span>
-          </a>
-          <a href="/portal/ledger?status=clean&lang=${lang}" class="kpi-chip-btn clean" title="${isDe ? "Freigegebene Sendungen anzeigen" : "View Clean Shipments"}">
-            <span class="kpi-icon" aria-hidden="true">✅</span>
-            <span class="kpi-label">Clean:</span>
-            <span id="stat-clean" class="kpi-val">18</span>
-          </a>
-          <a href="/portal/quarantine?lang=${lang}" class="kpi-chip-btn quar" title="${isDe ? "Zur Quarantäne-Konsole wechseln" : "View Quarantine Console"}">
-            <span class="kpi-icon" aria-hidden="true">⚠️</span>
-            <span class="kpi-label">${isDe ? "Quarantäne:" : "Quarantine:"}</span>
-            <span id="stat-holds" class="kpi-val">3</span>
-          </a>
-          <a href="/portal/quarantine?lang=${lang}" class="kpi-chip-btn demurrage" title="${isDe ? "Verhinderte Standgelder anzeigen" : "View Demurrage Savings"}">
-            <span class="kpi-icon" aria-hidden="true">🛡️</span>
-            <span class="kpi-label">${isDe ? "Standgeld vermieden:" : "Demurrage Saved:"}</span>
-            <span id="stat-demurrage" class="kpi-val">3.850 €</span>
-          </a>
-        </div>
-        <div class="kpi-live-bridge">
-          <span class="live-dot" aria-hidden="true">●</span>
-          <span class="bridge-label">${isDe ? "S-Group Sovereign Logistics Bridge: Aktiv" : "S-Group Sovereign Logistics Bridge: Active"}</span>
-        </div>
+    <!-- TIER 2: Dedicated Navigation Strip & Executive KPI Chips (Fixed 40px) -->
+    <div class="header-tier-nav" id="main-nav-strip">
+      <nav class="cockpit-nav desktop-nav" role="navigation" aria-label="Hauptnavigation">
+        ${navItemsHtml}
+      </nav>
+
+      <!-- Executive KPI Chips (Clickable shortcuts for 50+ operators) -->
+      <div class="kpi-chips-strip header-kpi-strip" role="region" aria-label="Executive KPI">
+        <a href="/portal/ledger?lang=${lang}" class="kpi-chip-btn" title="${isDe ? "Zum Audit-Ledger wechseln" : "View Ingestion Ledger"}">
+          <i class="fa-solid fa-file-lines text-slate-400"></i>
+          <span class="kpi-label">${isDe ? "Verarbeitet:" : "Processed:"}</span>
+          <span id="stat-total" class="kpi-val">24</span>
+        </a>
+        <a href="/portal/ledger?filter=clean&lang=${lang}" class="kpi-chip-btn clean" title="${isDe ? "Freigegebene Sendungen anzeigen" : "View Clean Shipments"}">
+          <i class="fa-solid fa-circle-check text-emerald-400"></i>
+          <span class="kpi-label">Clean:</span>
+          <span id="stat-clean" class="kpi-val">18</span>
+        </a>
+        <a href="/portal/quarantine?lang=${lang}" class="kpi-chip-btn quar" title="${isDe ? "Zur Quarantäne-Konsole wechseln" : "View Quarantine Console"}">
+          <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+          <span class="kpi-label">${isDe ? "Quarantäne:" : "Quarantine:"}</span>
+          <span id="stat-holds" class="kpi-val">3</span>
+        </a>
+        <a href="/portal/quarantine?lang=${lang}" class="kpi-chip-btn demurrage" title="${isDe ? "Verhinderte Standgelder anzeigen" : "View Demurrage Savings"}">
+          <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+          <span class="kpi-label">${isDe ? "Standgeld vermieden:" : "Demurrage Saved:"}</span>
+          <span id="stat-demurrage" class="kpi-val">3.850 €</span>
+        </a>
+      </div>
+
+      <!-- Regulatory Compliance & Retention Metadata (DSGVO Art. 5) -->
+      <div class="sr-only">
+        <span class="compliance-badge">${S_GROUP_BRAND.legal.complianceBadge}</span>
+        <span class="retention-notice">${isDe ? S_GROUP_BRAND.legal.retentionNoticeDe : S_GROUP_BRAND.legal.retentionNoticeEn}</span>
       </div>
     </div>
   </header>
 
-  <!-- Main Content Area -->
-  <main id="main-content" class="portal-main-container" role="main">
+  <!-- 100vh FULL-HEIGHT OPERATIONAL COCKPIT WORKSPACE (NO MARKETING FOOTER) -->
+  <main id="main-content" class="cockpit-main-workspace" role="main">
     ${content}
   </main>
 
-  <!-- German Privacy / DSGVO Compliant Footer -->
-  <footer class="main-footer" role="contentinfo">
-    <div class="footer-container">
-      <div class="footer-col brand-col">
-        <p class="footer-company-name"><strong>${S_GROUP_BRAND.companyName}</strong></p>
-        <p class="footer-company-desc">
-          ${isDe ? "Internationale Spedition & Logistiknetzwerk" : "International Freight Forwarding & Logistics Network"}
-        </p>
-        <p class="footer-copyright">${S_GROUP_BRAND.legal.copyright}</p>
+  <!-- GLOBAL OPERATOR CHEAT SHEET & SPICKZETTEL MODAL (F1) -->
+  <div id="modal-spickzettel" class="modal-backdrop hidden" onclick="if(event.target === this) closeSpickzettelModal()">
+    <div class="spickzettel-modal-dialog">
+      <div class="spickzettel-header">
+        <div class="spickzettel-title-group">
+          <span class="spickzettel-icon">🎓</span>
+          <div>
+            <h2 class="spickzettel-title">
+              ${isDe ? "Operativer Leitfaden & Spickzettel (F1)" : "Operator Quick Reference & Cheat Sheet (F1)"}
+            </h2>
+            <p class="spickzettel-sub">
+              ${isDe ? "Schäfer & SIS Interlogistik • Revisionssichere Zollabfertigung & Disposition" : "Schäfer & SIS Interlogistik • Compliant Customs Clearance & Dispatch"}
+            </p>
+          </div>
+        </div>
+        <button type="button" class="modal-close-btn" onclick="closeSpickzettelModal()" title="${isDe ? "Schließen (Esc)" : "Close (Esc)"}">✕</button>
       </div>
 
-      <div class="footer-col compliance-col">
-        <p class="footer-col-title">
-          <strong>${isDe ? "Datenschutz & Compliance" : "Privacy & Compliance"}</strong>
-          <span class="compliance-badge">🛡️ ${S_GROUP_BRAND.legal.complianceBadge}</span>
-        </p>
-        <p class="footer-dsgvo-notice">
-          🛡️ ${isDe ? S_GROUP_BRAND.legal.retentionNoticeDe : S_GROUP_BRAND.legal.retentionNoticeEn}
-        </p>
-        <p class="footer-audit-stamp">
-          ${isDe ? "Server-Standort: Deutschland (Frankfurt am Main) • ISO 27001 zertifiziert" : "Server Location: Germany (Frankfurt am Main) • ISO 27001 Certified"}
-        </p>
+      <div class="spickzettel-body">
+        <div class="spickzettel-grid">
+          <!-- Card 1: 3-Step Workflow -->
+          <div class="spickzettel-card">
+            <h3><span class="num-badge">1</span> ${isDe ? "Workflow in 3 Schritten" : "3-Step Workflow"}</h3>
+            <ol class="spickzettel-list">
+              <li><strong>${isDe ? "Dokumenten-Audit:" : "Document Audit:"}</strong> ${isDe ? "Beleg per Drag&Drop oder Strg+V importieren. 5-Stufen-Prüfung verifiziert ISO 6346 Modulo-11 Prüfziffer und VGM-Bruttomasse." : "Import waybill via drag&drop or Ctrl+V. 5-stage engine validates ISO 6346 checksum and VGM weight."}</li>
+              <li><strong>${isDe ? "3-Wege-Abgleich:" : "3-Way Match:"}</strong> ${isDe ? "B/L, Handelsrechnung und Packliste abgleichen. Toleranzgrenze &plusmn;50 kg nach ADSp 2017 & § 412 HGB." : "Reconcile B/L, invoice, and packing list. Maximum allowed tolerance is &plusmn;50 kg per ADSp 2017."}</li>
+              <li><strong>${isDe ? "Freigabe / Quarantäne:" : "Release / Quarantine:"}</strong> ${isDe ? "Stimmige Dossiers gehen direkt an die Disposition. Unstimmigkeiten gehen in Quarantäne zur Standgeld-Abwehr." : "Clean files route to dispatch. Mismatches enter quarantine to stop demurrage."}</li>
+            </ol>
+          </div>
+
+          <!-- Card 2: Tolerances & Compliance -->
+          <div class="spickzettel-card">
+            <h3><span class="num-badge">2</span> ${isDe ? "Zoll- & Frachttoleranzen" : "Customs Tolerances"}</h3>
+            <ul class="spickzettel-list">
+              <li><strong>${isDe ? "Tara-Toleranz (ADSp 2017):" : "Tare Tolerance (ADSp 2017):"}</strong> ${isDe ? "Max. 50 kg Abweichung zwischen B/L und Packliste zulässig." : "Max 50 kg deviation between B/L and packing list permitted."}</li>
+              <li><strong>${isDe ? "ISO 6346 Modulo-11:" : "ISO 6346 Modulo-11:"}</strong> ${isDe ? "4 Buchstaben (Owner+U) + 6 Ziffern + 1 Prüfziffer. Fehlerhafte Nummern werden blockiert." : "4 letters + 6 digits + 1 check digit. Invalid container numbers blocked."}</li>
+              <li><strong>${isDe ? "GoBD & § 147 AO:" : "GoBD & § 147 AO:"}</strong> ${isDe ? "10 Jahre Revisionssicherheit mit unveränderbarem SHA-256 Prüfstempel." : "10-year tamper-evident storage with immutable SHA-256 seals."}</li>
+            </ul>
+          </div>
+
+          <!-- Card 3: Demurrage Schedules -->
+          <div class="spickzettel-card">
+            <h3><span class="num-badge">3</span> ${isDe ? "Standgeld & Kaigebühren (Demurrage)" : "Demurrage Rates"}</h3>
+            <ul class="spickzettel-list">
+              <li><strong>${isDe ? "Seehafen Hamburg (CTA/CTB):" : "Hamburg Seaport (CTA/CTB):"}</strong> ${isDe ? "5 Kalendertage freie Standzeit. Ab Tag 6: 180 €/Tag. Ab Tag 11: 350 €/Tag." : "5 calendar days free time. Day 6+: 180 €/day. Day 11+: 350 €/day."}</li>
+              <li><strong>${isDe ? "Bremerhaven (CT4):" : "Bremerhaven (CT4):"}</strong> ${isDe ? "4 Werktage frei. Fristablauf löst automatische Quarantäne und Reederei-Avis aus." : "4 days free time. Expiry triggers immediate carrier notice."}</li>
+              <li><strong>${isDe ? "Haftungsanzeige:" : "Liability Claim:"}</strong> ${isDe ? "Sofortige Schadensanzeige nach § 412 HGB per 1-Klick-Mail zur Fristwahrung." : "Immediate claim notice under § 412 HGB preserves recourse rights."}</li>
+            </ul>
+          </div>
+
+          <!-- Card 4: Keyboard Shortcuts -->
+          <div class="spickzettel-card">
+            <h3><span class="num-badge">4</span> ${isDe ? "Tastatur-Kurzbefehle" : "Keyboard Shortcuts"}</h3>
+            <div class="shortcuts-grid">
+              <div><kbd>F1</kbd> <span>${isDe ? "Diesen Spickzettel öffnen / schließen" : "Open / close this cheat sheet"}</span></div>
+              <div><kbd>Strg</kbd> + <kbd>V</kbd> <span>${isDe ? "Beleg aus Zwischenablage einfügen" : "Paste waybill from clipboard"}</span></div>
+              <div><kbd>+</kbd> / <kbd>-</kbd> <span>${isDe ? "Beleg-Vorschau vergrößern / verkleinern" : "Zoom document preview"}</span></div>
+              <div><kbd>W</kbd> <span>${isDe ? "An Fensterbreite anpassen" : "Fit to width"}</span></div>
+              <div><kbd>P</kbd> <span>${isDe ? "Ganze Seite einpassen" : "Fit whole page"}</span></div>
+              <div><kbd>Esc</kbd> <span>${isDe ? "Geöffnetes Dialogfenster schließen" : "Close active modal"}</span></div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="footer-col links-col">
-        <p class="footer-col-title"><strong>${isDe ? "Rechtliches" : "Legal"}</strong></p>
-        <ul class="footer-links-list">
-          <li><a href="/portal/impressum?lang=${lang}">${isDe ? "Impressum" : "Imprint"}</a></li>
-          <li><a href="/portal/datenschutz?lang=${lang}">${isDe ? "Datenschutzerklärung (DSGVO)" : "Privacy Policy"}</a></li>
-          <li><a href="/portal/agb?lang=${lang}">${isDe ? "AGB (ADSp 2017)" : "Terms & Conditions"}</a></li>
-          <li><a href="/health" target="_blank">${isDe ? "System-Status (API)" : "System Health (API)"}</a></li>
-        </ul>
+      <div class="spickzettel-footer">
+        <span class="legal-notice">
+          ${isDe ? "Schäfer & SIS Interlogistik • Server-Standort: Frankfurt am Main • ISO 27001 zertifiziert • ADSp 2017 & GoBD konform" : "Schäfer & SIS Interlogistik • Location: Frankfurt am Main • ISO 27001 • ADSp 2017 & GoBD Compliant"}
+        </span>
+        <button type="button" class="btn-scenario clean" onclick="closeSpickzettelModal()">
+          ${isDe ? "Verstanden & Weiterarbeiten" : "Close & Continue"}
+        </button>
       </div>
     </div>
-  </footer>
+  </div>
 
   <script src="/static/js/navigation.js" defer></script>
 </body>

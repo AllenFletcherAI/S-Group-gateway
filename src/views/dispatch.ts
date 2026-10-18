@@ -205,12 +205,9 @@ export function renderDispatchView(
       }).join("\n");
 
   return `
-    <nav class="breadcrumb-bar" aria-label="Breadcrumb">
-      <a href="/portal?lang=${lang}">← ${isDe ? "Zurück zur Hauptübersicht" : "Back to Overview"}</a>
-    </nav>
-
-    <!-- Dispatch Hero Card -->
-    <section class="portal-hero-card">
+    <div class="dispatch-workspace-container" id="dispatch-workspace" style="width:100%; height:100%; overflow-y:auto; padding:16px 20px; box-sizing:border-box;">
+      <!-- Dispatch Hero Card -->
+      <section class="portal-hero-card" style="margin-top:0;">
       <div class="hero-header">
         <div>
           <div class="shipment-id-badge-row">
@@ -434,5 +431,6 @@ export function renderDispatchView(
         }
       };
     </script>
+  </div>
   `;
 }

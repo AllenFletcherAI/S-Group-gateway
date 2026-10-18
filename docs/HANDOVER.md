@@ -94,9 +94,15 @@ Done:
 - Maintained backwards-compatible aliases for `/portal/shipments`, `/portal/tracking`, `/portal/documents`, and `/portal/compliance`.
 - Expanded automated test suite to **75/75 tests passing** across 14 test suites with 0 npm vulnerabilities and 0 TypeScript compilation errors.
 - Verified live running daemon on `http://localhost:3000` with all 5 operational endpoints returning HTTP 200 OK.
+- Recorded Decision D-015 in `docs/DECISIONS.md`.
+- Implemented and verified Slice 15: Two-Tier Fixed 100vh Cockpit Standard, Proportional Auto-Fit Engine & Dismissible Document Flow (`src/views/layout.ts`, `src/views/documentAudit.ts`, `src/views/dispatch.ts`, `src/views/ledger.ts`, `src/public/css/layout.css`, `src/public/js/navigation.js`).
+- Eradicated double scrollbars and eliminated 200px marketing footer: implemented fixed `100vh` industrial operational cockpit with internal workspace flex scrolling.
+- Upgraded header to RedLine's Two-Tier Standard: Tier 1 (56px utility bar with Spickzettel F1 modal, live bridge status, theme toggle, language switch, operator badge) and Tier 2 (40px navigation strip with folder-pill tabs and 4 clickable Executive KPI chips).
+- Overhauled Document Audit (Tab 1): integrated proportional auto-fit engine (`fitWidth`, `fitPage`), empty intake dropzone, `Ctrl+V` clipboard paste listener, `Unterstützte Belege ▾` popover, and dismissible document flow (`Entfernen` button).
+- Validated all 75 automated test assertions passing across all 14 test suites with 0 regressions.
 
 In progress:
-- All 14 slices complete, tested, and operational.
+- All 15 operational slices complete, tested, and running live.
 
 Broken or risky:
 - None. All 75 tests passing (`npm test`), TypeScript compiles with 0 errors (`npm run build`), 0 npm vulnerabilities (`npm audit`), and 0 leaked secrets.

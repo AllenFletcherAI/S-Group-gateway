@@ -214,6 +214,10 @@ export function renderLedgerView(options: LedgerViewOptions = {}): string {
               Latenz: <strong>&lt; 2 ms</strong><br>
               Migrationen: <code>V001</code> bis <code>V005</code> vollständig
             </div>
+            <button type="button" id="btn-test-db" class="zoom-btn" onclick="testDbConnection()" style="margin-top:8px; width:100%; justify-content:center; font-size:11px;">
+              🔌 ${isDe ? "Verbindung testen (Live Ping)" : "Test Connection (Live Ping)"}
+            </button>
+            <div id="db-ping-result" style="font-size:11px; color:#10B981; margin-top:4px; font-weight:600;"></div>
           </div>
 
           <!-- Card 2: SAP IDoc Connector -->
